@@ -1,0 +1,4 @@
+[
+  { "type": "click", "selector": "details:first-of-type summary" },
+  { "type": "scroll", "selector": "details:first-of-type" }
+]

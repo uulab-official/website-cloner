@@ -1,0 +1,4 @@
+[
+  { "type": "click", "selector": "#darkModeToggleMobile" },
+  { "type": "click", "selector": ".navbar-toggler" }
+]

@@ -2,37 +2,29 @@
   "schemaVersion": 1,
   "sourceOrigin": "https://uulab.co.kr",
   "targetOrigin": "http://127.0.0.1:4173",
-  "defaults": {
-    "widths": [1440, 768, 390],
-    "height": 900,
-    "scheme": "light"
-  },
+  "defaults": { "widths": [1440, 768, 390], "height": 900, "scheme": "light" },
   "cases": [
+    { "id": "services-default", "path": "/services/" },
     {
-      "id": "services-default",
-      "path": "/services/"
-    },
-    {
-      "id": "services-menu-mobile",
-      "path": "/services/",
-      "widths": [390],
-      "state": "menu-open",
+      "id": "services-menu-mobile", "path": "/services/", "widths": [390], "state": "menu-open",
       "sourceActions": "../docs/case-studies/uulab-services/evidence/actions/menu.json",
       "targetActions": "../docs/case-studies/uulab-services/evidence/actions/menu.json"
     },
     {
-      "id": "services-dark-desktop",
-      "path": "/services/",
-      "widths": [1440],
-      "state": "dark",
+      "id": "services-dark-desktop", "path": "/services/", "widths": [1440], "state": "dark",
       "sourceActions": "../docs/case-studies/uulab-services/evidence/actions/dark.json",
       "targetActions": "../docs/case-studies/uulab-services/evidence/actions/dark.json"
     },
+    { "id": "services-root-alias", "path": "/services/", "targetPath": "/", "widths": [1440, 390] },
     {
-      "id": "services-root-alias",
-      "path": "/services/",
-      "targetPath": "/",
-      "widths": [1440, 390]
+      "id": "services-faq-open", "path": "/services/", "widths": [1440, 390], "state": "faq-open", "keepScroll": true,
+      "sourceActions": "../docs/case-studies/uulab-services/evidence/actions/faq-live.json",
+      "targetActions": "../docs/case-studies/uulab-services/evidence/actions/faq-live.json"
+    },
+    {
+      "id": "services-dark-menu-mobile", "path": "/services/", "widths": [390], "state": "dark-menu-open",
+      "sourceActions": "../docs/case-studies/uulab-services/evidence/actions/dark-menu.json",
+      "targetActions": "../docs/case-studies/uulab-services/evidence/actions/dark-menu.json"
     }
   ]
 }
