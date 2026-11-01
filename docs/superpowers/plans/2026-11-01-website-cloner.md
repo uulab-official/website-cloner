@@ -20,7 +20,7 @@ Preserve MIT attribution. No paid APIs, forced stack migrations, copied producti
 - [x] Build the editable example; exercise theme persistence, responsive menu, FAQ, deep route loading, asset loading, overflow, and console errors with local Playwright tests.
 - [x] Compare matched reference/local states and full-page structure; correct the open-menu readability issue and document remaining limitations without inventing a similarity score.
 - [x] Add README, contribution guidance, licenses, CI, commands, case study, and visual QA. Run the full 48-test gate and independent review.
-- [ ] Commit, push, and verify the remote tree and GitHub Actions result.
+- [x] Commit, publish, and verify the remote tree and GitHub Actions result.
 
 ## Interfaces
 
@@ -34,4 +34,4 @@ Check untrusted URL/config input, destructive output paths, partial evidence aft
 
 ## Progress
 
-Upstream is MIT at `ee3f5a2f31fd549b9593fa4f7cf6d2955ee593bb`; original notices are retained. The standalone skill is installed and validated, and Skills CLI 1.7.4 discovers exactly `website-clone`. Tooling and the nine-section example are implemented. The final local gate passes 39 tool tests plus 9 browser tests without skips; the production build succeeds. Independent review found no Critical/Important code issue and its screenshot-dimension labeling note is resolved. See the case-study report and root `design-qa.md` for measured evidence, the fixed menu issue, and explicit live/mobile/motion limits. Remote publication is the remaining release step.
+Upstream is MIT at `ee3f5a2f31fd549b9593fa4f7cf6d2955ee593bb`; original notices are retained. The standalone skill is installed and validated, and Skills CLI 1.7.4 discovers exactly `website-clone`. Tooling and the nine-section example are implemented. The final local gate passes 39 tool tests plus 9 browser tests without skips; the production build succeeds. Independent review found no Critical/Important code issue and its screenshot-dimension labeling note is resolved. See the case-study report and root `design-qa.md` for measured evidence, the fixed menu issue, and explicit live/mobile/motion limits. The complete reviewed tree was published to public `main` as `73a1cef20ed6180725821d1d891796d5aefb57a4`; the remote tree hash exactly matched the local reviewed tree. [GitHub Actions run 41296384066](https://github.com/uulab-official/website-cloner/actions/runs/41296384066) passed all 39 tool tests and 9 browser tests, with zero failures/skips, on Node 24.22.1 and Chromium 151.0.7922.34. Publication used the connected GitHub app because the local Git CLI had no GitHub credential.
