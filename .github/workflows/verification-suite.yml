@@ -1,0 +1,62 @@
+name: Verification suite integration
+
+# Live source requests are opt-in, never part of ordinary pull-request CI.
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/verification-suite-integration]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verification-suite-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: mkdir -p artifacts/integration
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Full toolkit, browser, build and demo gate
+        run: npm run check 2>&1 | tee artifacts/integration/check.log
+      - name: Validate all requested routes and states
+        run: node scripts/verify-suite.mjs --manifest suites/uulab-services.json --dry-run > artifacts/integration/plan.json
+      - name: Capture fresh live source against production build
+        run: |
+          node node_modules/vite/bin/vite.js preview examples/uulab-services --outDir ../../dist/demo --host 127.0.0.1 --port 4173 --strictPort > artifacts/integration/preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/services/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/integration/live 2>&1 | tee artifacts/integration/live.log
+      - name: Record source revision and toolchain
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/integration/commit.txt
+          node --version > artifacts/integration/node-version.txt
+          npm ls --depth=0 > artifacts/integration/dependencies.txt
+      - name: Preserve reports and diagnostics even when a case fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-suite-${{ github.sha }}
+          path: artifacts/integration/
+          if-no-files-found: error
+          retention-days: 14
