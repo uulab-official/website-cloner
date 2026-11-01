@@ -1,0 +1,74 @@
+name: Clone fidelity review
+on:
+  workflow_dispatch:
+  push:
+    branches: [work/clone-fidelity]
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: mkdir -p artifacts/review
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Complete baseline check
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/review/check.log
+      - name: Inspect public source and authored implementation
+        shell: bash
+        run: |
+          node node_modules/vite/bin/vite.js preview examples/uulab-services --outDir ../../dist/demo --host 127.0.0.1 --port 4173 --strictPort > artifacts/review/preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/services/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+          const browser = await chromium.launch();
+          const records = [];
+          try {
+            for (const [label, url] of [['source','https://uulab.co.kr/services/'],['target','http://127.0.0.1:4173/services/']]) {
+              for (const [width,state] of [[390,'menu'],[1440,'light'],[1440,'dark']]) {
+                const context = await browser.newContext({ viewport:{width,height:900}, colorScheme:'light', reducedMotion:'reduce' });
+                try {
+                  const page = await context.newPage();
+                  const response = await page.goto(url, {waitUntil:'networkidle',timeout:45000});
+                  if (!response?.ok()) throw new Error(`HTTP ${response?.status()} for ${label}`);
+                  await page.evaluate(() => document.fonts.ready);
+                  if (state === 'menu') await page.locator('.navbar-toggler').click();
+                  if (state === 'dark') await page.locator('#darkModeToggle').click();
+                  await page.evaluate(() => { for (const a of document.getAnimations()) { try { a.finish(); } catch { a.cancel(); } } });
+                  await page.screenshot({path:`artifacts/review/${label}-${state}.png`,animations:'disabled'});
+                  const data = await page.evaluate(() => {
+                    const properties=['display','position','backgroundColor','backgroundImage','border','borderRadius','boxShadow','outline','outlineOffset','fontSize','lineHeight','fontWeight','color','margin','padding','gap','transform','opacity','animation','transition'];
+                    const elements=[...document.querySelectorAll('#navigation, #navigation div, #navigation a, #navigation button, #navigation svg, #navigation i, footer, footer a')];
+                    return {title:document.title,html:document.querySelector('#navigation')?.outerHTML,rootClass:document.documentElement.className,elements:elements.map(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return {tag:el.tagName,id:el.id,className:el.getAttribute('class'),text:el.textContent.trim().slice(0,100),html:(el.matches('svg,button')?el.outerHTML:null),rect:{x:r.x,y:r.y,width:r.width,height:r.height},styles:Object.fromEntries(properties.map(p=>[p,s[p]]))};})};
+                  });
+                  records.push({label,url,width,state,browser:browser.version(),data});
+                } finally { await context.close(); }
+              }
+            }
+          } finally { await browser.close(); await writeFile('artifacts/review/controls.json',JSON.stringify(records,null,2)); }
+          JS
+      - name: Preserve reviewable code snapshot without fonts or credentials
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/review/commit.txt
+          tar -czf artifacts/review/code.tar.gz package.json package-lock.json scripts tests examples/uulab-services/src examples/uulab-services/index.html examples/uulab-services/vite.config.js suites skills/website-clone docs/superpowers
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clone-fidelity-review-${{ github.sha }}
+          path: artifacts/review/
+          if-no-files-found: error
+          retention-days: 14
