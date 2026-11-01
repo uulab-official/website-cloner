@@ -1,0 +1,60 @@
+{
+  "verifiedAt": "2026-11-01T02:40:42.120Z",
+  "scope": "local repository, after mobile-menu readability correction",
+  "command": "CLONER_CHROMIUM_PATH=<explicit installed Chromium> npm run check",
+  "exitCode": 0,
+  "nodeVersion": "v24.22.1",
+  "browserVersion": "134.0.6998.35",
+  "dependencies": {
+    "playwright": "1.62.1",
+    "pixelmatch": "7.2.0",
+    "pngjs": "7.0.0",
+    "vite": "8.3.5"
+  },
+  "skillValidation": "passed",
+  "productionBuild": "passed",
+  "tools": {
+    "tests": 39,
+    "passed": 39,
+    "failed": 0,
+    "skipped": 0
+  },
+  "example": {
+    "tests": 9,
+    "passed": 9,
+    "failed": 0,
+    "skipped": 0,
+    "widths": [
+      320,
+      390,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "standaloneDiscovery": {
+    "command": "DISABLE_TELEMETRY=1 npx --yes skills@1.7.4 add . --list",
+    "exitCode": 0,
+    "found": [
+      "website-clone"
+    ],
+    "installed": false
+  },
+  "codeReview": {
+    "critical": 0,
+    "important": 0,
+    "minor": "Cloud image raster dimensions now distinguished from measured CSS viewport."
+  },
+  "visualReview": {
+    "result": "passed",
+    "scope": "static-reference layout and local controls",
+    "corrected": "Open mobile panel made opaque to prevent hero text bleed",
+    "unverified": [
+      "live source mobile JavaScript",
+      "original script-driven motion",
+      "physical touch devices",
+      "additional routes and backend"
+    ]
+  },
+  "continuousIntegration": "See GitHub Actions for remote runner result; this file records local validation only."
+}

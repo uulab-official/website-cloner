@@ -1,0 +1,92 @@
+{
+  "sourceUrl": "https://uulab.co.kr/services/",
+  "observedDate": "2026-11-01",
+  "referenceType": "Static public HTML/CSS/assets snapshot; all original scripts removed",
+  "referenceAdjustments": [
+    "Source scripts removed",
+    "Asset URLs rewritten to local downloaded copies",
+    "Font Awesome stylesheet made immediately active",
+    "Observed initial state applied: services navigation active, progress scale zero, back-to-top hidden"
+  ],
+  "originalProductionBundlesDistributed": false,
+  "liveOriginLimitation": "Direct headless HTTPS failed certificate trust validation. TLS verification and browser trust settings were not changed.",
+  "matchedCapture": {
+    "browser": "Chromium 134.0.6998.35",
+    "viewportHeight": 900,
+    "widths": [
+      1440,
+      768,
+      390
+    ],
+    "deviceScaleFactor": 1,
+    "locale": "en-US",
+    "timezone": "UTC",
+    "reducedMotion": "reduce",
+    "isMobile": false,
+    "hasTouch": false,
+    "fonts": [
+      "Noto CJK",
+      "Liberation"
+    ]
+  },
+  "cloudCapture": {
+    "observedCssViewport": {
+      "width": 1363,
+      "height": 936
+    },
+    "observedDevicePixelRatio": 1,
+    "sourceStoredJpeg": {
+      "width": 1357,
+      "height": 932
+    },
+    "localStoredJpeg": {
+      "width": 1348,
+      "height": 926
+    },
+    "quantitativeComparison": false,
+    "reason": "Provider-scaled JPEGs have different raster dimensions; retained for observed states only."
+  },
+  "sourceFiles": [
+    {
+      "name": "services.html",
+      "inspectionPath": ".work/source/services.html",
+      "sourceUrl": "https://uulab.co.kr/services/",
+      "bytes": 56592,
+      "sha256": "21baafd7b183598a137cb11678c36be00455cc322cc9125778f36726e42467f7",
+      "distributed": false
+    },
+    {
+      "name": "index.css",
+      "inspectionPath": ".work/source/index.css",
+      "sourceUrl": "https://uulab.co.kr/static/css/index.css?v=20260910-layout2",
+      "bytes": 25059,
+      "sha256": "dd80ef4131f397e6d863b2914779f0cd42e09ae2e455946c41c170d81f709953",
+      "distributed": false
+    },
+    {
+      "name": "about.css",
+      "inspectionPath": ".work/source/about.css",
+      "sourceUrl": "https://uulab.co.kr/_astro/about.Bc9sWzYG.css",
+      "bytes": 69311,
+      "sha256": "542785770ab200cbf49c815f5f88ede2b9d4a275e8a4d3c6aa0d902ebfdbc930",
+      "distributed": false
+    },
+    {
+      "name": "motion.css",
+      "inspectionPath": ".work/source/motion.css",
+      "sourceUrl": "https://uulab.co.kr/static/css/motion.css",
+      "bytes": 4150,
+      "sha256": "c6e4c0881ae86bd6eaadd24fb6fe262269770bc03b94921d82f33f41672ad2e4",
+      "distributed": false
+    },
+    {
+      "name": "index.html",
+      "inspectionPath": ".work/reference/index.html",
+      "sourceUrl": "local script-stripped reference document",
+      "bytes": 49027,
+      "sha256": "7f5996423657e49c8e1e180281bf0ae242880437efb5d68a4863ce8186051e15",
+      "distributed": false
+    }
+  ],
+  "portabilityNote": "Raw capture/compare JSON retains actual local execution URLs and absolute paths. Equivalent files are committed beneath this evidence directory; those addresses are not public demo URLs."
+}

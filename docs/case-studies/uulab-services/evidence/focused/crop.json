@@ -1,0 +1,9 @@
+{
+  "method": "lossless PNG region copy; no scaling or color changes",
+  "source": "../reference/1440x900/full-page.png",
+  "target": "../local/1440x900/full-page.png",
+  "x": 80,
+  "y": 4930,
+  "width": 440,
+  "height": 620
+}

@@ -1,0 +1,4 @@
+interface:
+  display_name: "유유랩 웹사이트 클론"
+  short_description: "웹사이트의 화면과 동작을 관찰해 재구현하고 모바일과 시각 차이까지 검증합니다"
+  default_prompt: "Use $website-clone to rebuild this website in the current project and verify its desktop and mobile appearance and interactions."

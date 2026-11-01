@@ -1,0 +1,26 @@
+{
+  "name": "@uulab/website-cloner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "An agent skill and local evidence toolkit for rebuilding websites with verifiable results.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "vite examples/uulab-services",
+    "build": "vite build examples/uulab-services --outDir ../../dist/demo",
+    "preview": "vite preview examples/uulab-services --outDir ../../dist/demo",
+    "capture": "node scripts/capture.mjs",
+    "compare": "node scripts/compare.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:demo": "node tests/demo.e2e.mjs",
+    "validate:skill": "node scripts/validate-skill.mjs",
+    "check": "node scripts/check.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1",
+    "pixelmatch": "7.2.0",
+    "pngjs": "7.0.0",
+    "vite": "8.3.5"
+  }
+}

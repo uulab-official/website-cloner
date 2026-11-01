@@ -1,0 +1,269 @@
+[
+  {
+    "width": 1440,
+    "viewportHeight": 900,
+    "deviceScaleFactor": 1,
+    "referenceHeight": 7049,
+    "localHeight": 7049,
+    "normalizedVisibleTextEqual": true,
+    "sections": [
+      {
+        "number": 1,
+        "heading": "서비스",
+        "referenceTop": 80,
+        "localTop": 80,
+        "referenceHeight": 460,
+        "localHeight": 460
+      },
+      {
+        "number": 2,
+        "heading": "주요 서비스",
+        "referenceTop": 540,
+        "localTop": 540,
+        "referenceHeight": 883.13,
+        "localHeight": 883.13
+      },
+      {
+        "number": 3,
+        "heading": "유유랩이 제공하는 서비스 범위",
+        "referenceTop": 1423.13,
+        "localTop": 1423.13,
+        "referenceHeight": 584,
+        "localHeight": 584
+      },
+      {
+        "number": 4,
+        "heading": "어떤 작업을 맡기고, 무엇을 받게 되나요?",
+        "referenceTop": 2007.13,
+        "localTop": 2007.13,
+        "referenceHeight": 1735.56,
+        "localHeight": 1735.56
+      },
+      {
+        "number": 5,
+        "heading": "기술 스택",
+        "referenceTop": 3742.69,
+        "localTop": 3742.69,
+        "referenceHeight": 460,
+        "localHeight": 460
+      },
+      {
+        "number": 6,
+        "heading": "개발과 검증의 순서",
+        "referenceTop": 4202.69,
+        "localTop": 4202.69,
+        "referenceHeight": 492.78,
+        "localHeight": 492.78
+      },
+      {
+        "number": 7,
+        "heading": "대표 프로젝트 사례",
+        "referenceTop": 4695.47,
+        "localTop": 4695.47,
+        "referenceHeight": 881.59,
+        "localHeight": 881.59
+      },
+      {
+        "number": 8,
+        "heading": "상담 전에 자주 확인하는 내용",
+        "referenceTop": 5577.06,
+        "localTop": 5577.06,
+        "referenceHeight": 553,
+        "localHeight": 553
+      },
+      {
+        "number": 9,
+        "heading": "프로젝트를 시작해보세요",
+        "referenceTop": 6130.06,
+        "localTop": 6130.06,
+        "referenceHeight": 365.59,
+        "localHeight": 365.59
+      }
+    ],
+    "localDiagnostics": {
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "failedResponses": 0,
+      "requestFailures": 0,
+      "horizontalOverflow": false
+    }
+  },
+  {
+    "width": 768,
+    "viewportHeight": 900,
+    "deviceScaleFactor": 1,
+    "referenceHeight": 8945,
+    "localHeight": 8945,
+    "normalizedVisibleTextEqual": true,
+    "sections": [
+      {
+        "number": 1,
+        "heading": "서비스",
+        "referenceTop": 80,
+        "localTop": 80,
+        "referenceHeight": 532,
+        "localHeight": 532
+      },
+      {
+        "number": 2,
+        "heading": "주요 서비스",
+        "referenceTop": 612,
+        "localTop": 612,
+        "referenceHeight": 1235.06,
+        "localHeight": 1235.06
+      },
+      {
+        "number": 3,
+        "heading": "유유랩이 제공하는 서비스 범위",
+        "referenceTop": 1847.06,
+        "localTop": 1847.06,
+        "referenceHeight": 548,
+        "localHeight": 548
+      },
+      {
+        "number": 4,
+        "heading": "어떤 작업을 맡기고, 무엇을 받게 되나요?",
+        "referenceTop": 2395.06,
+        "localTop": 2395.06,
+        "referenceHeight": 2779.13,
+        "localHeight": 2779.13
+      },
+      {
+        "number": 5,
+        "heading": "기술 스택",
+        "referenceTop": 5174.19,
+        "localTop": 5174.19,
+        "referenceHeight": 491.19,
+        "localHeight": 491.19
+      },
+      {
+        "number": 6,
+        "heading": "개발과 검증의 순서",
+        "referenceTop": 5665.38,
+        "localTop": 5665.38,
+        "referenceHeight": 556.75,
+        "localHeight": 556.75
+      },
+      {
+        "number": 7,
+        "heading": "대표 프로젝트 사례",
+        "referenceTop": 6222.13,
+        "localTop": 6222.13,
+        "referenceHeight": 1228.78,
+        "localHeight": 1228.78
+      },
+      {
+        "number": 8,
+        "heading": "상담 전에 자주 확인하는 내용",
+        "referenceTop": 7450.91,
+        "localTop": 7450.91,
+        "referenceHeight": 457,
+        "localHeight": 457
+      },
+      {
+        "number": 9,
+        "heading": "프로젝트를 시작해보세요",
+        "referenceTop": 7907.91,
+        "localTop": 7907.91,
+        "referenceHeight": 265.59,
+        "localHeight": 265.59
+      }
+    ],
+    "localDiagnostics": {
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "failedResponses": 0,
+      "requestFailures": 0,
+      "horizontalOverflow": false
+    }
+  },
+  {
+    "width": 390,
+    "viewportHeight": 900,
+    "deviceScaleFactor": 1,
+    "referenceHeight": 12110,
+    "localHeight": 12118,
+    "normalizedVisibleTextEqual": true,
+    "sections": [
+      {
+        "number": 1,
+        "heading": "서비스",
+        "referenceTop": 80,
+        "localTop": 80,
+        "referenceHeight": 560,
+        "localHeight": 560
+      },
+      {
+        "number": 2,
+        "heading": "주요 서비스",
+        "referenceTop": 640,
+        "localTop": 640,
+        "referenceHeight": 1599.78,
+        "localHeight": 1599.78
+      },
+      {
+        "number": 3,
+        "heading": "유유랩이 제공하는 서비스 범위",
+        "referenceTop": 2239.78,
+        "localTop": 2239.78,
+        "referenceHeight": 904,
+        "localHeight": 904
+      },
+      {
+        "number": 4,
+        "heading": "어떤 작업을 맡기고, 무엇을 받게 되나요?",
+        "referenceTop": 3143.78,
+        "localTop": 3143.78,
+        "referenceHeight": 3635.13,
+        "localHeight": 3635.13
+      },
+      {
+        "number": 5,
+        "heading": "기술 스택",
+        "referenceTop": 6778.91,
+        "localTop": 6778.91,
+        "referenceHeight": 731.19,
+        "localHeight": 731.19
+      },
+      {
+        "number": 6,
+        "heading": "개발과 검증의 순서",
+        "referenceTop": 7510.09,
+        "localTop": 7510.09,
+        "referenceHeight": 966.31,
+        "localHeight": 966.31
+      },
+      {
+        "number": 7,
+        "heading": "대표 프로젝트 사례",
+        "referenceTop": 8476.41,
+        "localTop": 8476.41,
+        "referenceHeight": 1750.91,
+        "localHeight": 1750.91
+      },
+      {
+        "number": 8,
+        "heading": "상담 전에 자주 확인하는 내용",
+        "referenceTop": 10227.31,
+        "localTop": 10227.31,
+        "referenceHeight": 493,
+        "localHeight": 493
+      },
+      {
+        "number": 9,
+        "heading": "프로젝트를 시작해보세요",
+        "referenceTop": 10720.31,
+        "localTop": 10720.31,
+        "referenceHeight": 293.59,
+        "localHeight": 293.59
+      }
+    ],
+    "localDiagnostics": {
+      "consoleErrors": 0,
+      "pageErrors": 0,
+      "failedResponses": 0,
+      "requestFailures": 0,
+      "horizontalOverflow": false
+    }
+  }
+]

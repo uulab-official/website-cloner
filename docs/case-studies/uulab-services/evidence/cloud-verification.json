@@ -1,0 +1,23 @@
+{
+  "verifiedAt": "2026-11-01T02:34:21.880Z",
+  "sourceUrl": "https://uulab.co.kr/services/",
+  "localUrl": "http://terminal.local:4173/services/",
+  "cssViewport": {
+    "width": 1363,
+    "height": 936
+  },
+  "devicePixelRatio": 1,
+  "tested": [
+    "page render and nine sections",
+    "desktop theme light → dark → light",
+    "first native FAQ expanded and collapsed",
+    "back-to-top returns to top"
+  ],
+  "applicationConsoleErrors": [],
+  "extensionConsoleErrorsObserved": true,
+  "extensionErrorDescription": "Browser extension content-script reported metadata delivery errors; no application error was reported.",
+  "notes": [
+    "Offscreen lazy images are initially unloaded; local end-to-end and full-page capture checks verify loaded assets.",
+    "Cloud JPEG raster sizes are recorded separately in the evidence manifest."
+  ]
+}

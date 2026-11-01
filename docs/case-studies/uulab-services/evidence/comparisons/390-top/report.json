@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "tool": "website-cloner/compare",
+  "createdAt": "2026-11-01T02:42:00.449Z",
+  "source": "/workspace/scratch/95ecb27e1393/website-cloner/docs/case-studies/uulab-services/evidence/reference/390x900/viewport.png",
+  "target": "/workspace/scratch/95ecb27e1393/website-cloner/docs/case-studies/uulab-services/evidence/local/390x900/viewport.png",
+  "dimensions": {
+    "source": {
+      "width": 390,
+      "height": 900
+    },
+    "target": {
+      "width": 390,
+      "height": 900
+    }
+  },
+  "pixelmatchThreshold": 0.1,
+  "includeAntiAliasing": false,
+  "changedPixels": 0,
+  "totalPixels": 351000,
+  "changedPixelRatio": 0,
+  "maxDiffRatio": null,
+  "passed": null,
+  "status": "compared",
+  "interpretation": "Pixel differences are diagnostic evidence, not a measure of semantic quality or proof of functional correctness."
+}

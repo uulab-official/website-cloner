@@ -1,0 +1,10 @@
+[
+  {
+    "type": "scroll",
+    "selector": "#faq-title"
+  },
+  {
+    "type": "click",
+    "selector": ".faq-list details:first-child summary"
+  }
+]
