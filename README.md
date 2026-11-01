@@ -4,7 +4,7 @@
 
 Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 원본 관찰부터 반응형 구현, 자산 출처, 화면 비교, 미검증 항목까지 프로젝트 안에 기록합니다.
 
-[스킬](skills/website-clone/SKILL.md) · [실제 클론 사례](docs/case-studies/uulab-services/report.md) · [새 실사이트 검증](docs/case-studies/uulab-services/suite-integration-2026-11-01.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
+[스킬](skills/website-clone/SKILL.md) · [실제 클론 사례](docs/case-studies/uulab-services/report.md) · [컨트롤 개선·최신 검증](docs/case-studies/uulab-services/fidelity-polish-2026-11-01.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
 
 ## 구성
 
@@ -42,7 +42,7 @@ website-clone 스킬을 사용해 https://내사이트.example/services/ 를 재
 원본과 구현의 캡처, 자산 목록, 검사 결과와 남은 차이를 docs/clone에 기록해줘.
 ```
 
-브랜드 변경을 원할 때는 “구성은 참고하고 유유랩 브랜드로 바꿔줘”라고 명시합니다. 그대로 재현하는 작업에서는 스킬이 임의로 다른 디자인으로 바꾸지 않습니다.
+브랜드 변경을 원할 때는 “구성은 참고하고 유유랩 브랜드로 바꿔줘”라고 명시합니다. 그대로 재현하는 작업에서는 스킬이 임의로 다른 디자인으로 바꾸지 않습니다. 사례 예제의 가독성 개선처럼 의도적인 차이는 별도로 기록합니다.
 
 ## 2. 실제 예제 실행
 
@@ -108,7 +108,7 @@ npm run compare -- --source artifacts/source/1440x900/viewport.png --target arti
 
 출력은 `diff.png`, `side-by-side.png`, `report.json`입니다. 크기가 다르면 실패 기록을 남기고 종료합니다. 원본을 임의로 늘이거나 줄이지 않습니다. 전체 페이지 높이가 다르면 레이아웃 차이를 먼저 조사하거나 동일한 뷰포트 캡처를 비교합니다.
 
-변경 픽셀 비율은 오차를 찾기 위한 지표입니다. **“완성도 98%” 같은 의미 점수가 아닙니다.** 글꼴·동적 데이터·애니메이션에 영향을 받으며 버튼 동작을 증명하지도 않습니다. 필요한 경우에만 `--max-diff-ratio 0.02`처럼 프로젝트가 정한 기준으로 실패 여부를 지정합니다. 기본값에는 자동 합격 기준이 없습니다.
+변경 픽셀 비율은 오차를 찾기 위한 지표입니다. **“완성도 98%” 같은 의미 점수가 아닙니다.** 기본 비교기는 색상 허용 오차 0.1과 안티앨리어싱 제외를 사용하므로 **0%도 픽셀 동일성을 뜻하지 않습니다.** 실제 메뉴는 반투명/불투명 배경이 눈으로 다르지만 기본 결과가 0%였습니다. 반드시 나란히 보기와 기록된 차이를 확인하세요. 글꼴·동적 데이터·애니메이션의 영향을 받으며 버튼 동작을 증명하지도 않습니다. 필요한 경우에만 `--max-diff-ratio 0.02`처럼 프로젝트가 정한 기준으로 실패 여부를 지정합니다. 기본값에는 자동 합격 기준이 없습니다.
 
 기존 실행 결과를 바꾸려면 `--overwrite`가 필요합니다. 도구가 만든 실행 디렉터리만 교체할 수 있고, 일반 폴더와 입력 파일을 포함한 경로는 보호합니다. 모든 옵션은 `npm run capture -- --help`와 `npm run compare -- --help`에서 확인할 수 있습니다.
 
@@ -127,7 +127,7 @@ npm run verify:suite -- --manifest suites/uulab-services.json --dry-run
 npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/services-suite
 ```
 
-예제는 **4개 사례·7개 화면 조건**입니다. `artifacts/services-suite/index.html`에서 사례별 원본/구현/차이 이미지로 이동합니다. 동작 파일은 설정 파일 위치 기준으로 읽고, 모든 입력을 검사한 뒤 실행합니다. 기본적으로 한 사례가 실패해도 나머지는 실행하며 `--fail-fast`로 중단할 수 있습니다. 임계값을 지정하지 않은 결과를 시각적 합격으로 표시하지 않습니다. 경로 매핑과 전체 옵션은 [일괄 검증 사용법](docs/verification-suites.md)을 참고하세요.
+예제는 **6개 사례·10개 화면 조건**입니다. 기본 화면, 메뉴, 다크 모드, 루트 경로 매핑에 FAQ 열림과 다크 모바일 메뉴를 포함합니다. `artifacts/services-suite/index.html`에서 사례별 원본/구현/차이 이미지로 이동합니다. 동작 파일은 설정 파일 위치 기준으로 읽고, 모든 입력을 검사한 뒤 실행합니다. 기본적으로 한 사례가 실패해도 나머지는 실행하며 `--fail-fast`로 중단할 수 있습니다. 임계값을 지정하지 않은 결과를 시각적 합격으로 표시하지 않습니다. 경로 매핑과 전체 옵션은 [일괄 검증 사용법](docs/verification-suites.md)을 참고하세요.
 
 ## 4. 검증
 
@@ -136,7 +136,7 @@ npm test
 npm run check
 ```
 
-`npm test`는 CLI·PNG·스위트 검사를 실행합니다. 브라우저를 설치한 뒤 실행하는 `npm run check`는 스킬 패키지 검사, **실제 브라우저 캡처 테스트**, 예제 production build, 예제의 테마·메뉴·FAQ·반응형·자산 검사를 모두 실행합니다. 테스트는 로컬 fixture와 빌드된 예제를 사용하므로 운영 사이트 상태에 의존하지 않습니다.
+`npm test`는 CLI·PNG·스위트 검사를 실행합니다. 브라우저를 설치한 뒤 실행하는 `npm run check`는 스킬 패키지 검사, **실제 브라우저 캡처·컨트롤 회귀 테스트**, 예제 production build, 예제의 테마·메뉴·FAQ·반응형·자산 검사를 모두 실행합니다. 테스트는 로컬 fixture와 빌드된 예제를 사용하므로 운영 사이트 상태에 의존하지 않습니다.
 
 이미 설치된 다른 Chromium을 명시해야 한다면 캡처에 `--executable-path`를 지정할 수 있습니다. 전체 검사에서는 `CLONER_CHROMIUM_PATH` 환경변수로 지정합니다. 사용한 버전은 증거에 기록합니다. TLS 오류가 나면 인증서 검증을 끄지 말고 오류를 기록한 뒤 승인된 브라우저나 명시적으로 구분한 정적 참조 자료를 사용합니다.
 
@@ -146,26 +146,29 @@ npm run check
 
 ![정적 참조본과 구현의 모바일 첫 화면 비교](docs/case-studies/uulab-services/evidence/comparisons/390-top/side-by-side.png)
 
-**2026-11-01 후속 검증에서는 운영 중인 HTTPS 원본을 새로 캡처했습니다.** [실사이트 스위트 통합 결과](docs/case-studies/uulab-services/suite-integration-2026-11-01.md)에 전체 검사 **178개 통과**, 4개 사례·7개 화면 조건, 다크 상태 및 경로 매핑, 실제 비율과 남은 차이를 기록했습니다. 기존 이미지를 재집계한 결과가 아닙니다. 이번 통합은 도구/테스트/문서 변경이며 예제 화면 자체를 개선한 변경은 아닙니다.
+[실사이트 스위트 통합 기록](docs/case-studies/uulab-services/suite-integration-2026-11-01.md)은 도구 통합 당시 178개 테스트와 4개 사례·7개 화면 조건을 기록한 과거 실행입니다.
 
-모바일 첫 화면은 변경 픽셀 0%였지만 전체 페이지 높이는 8px 다르고 메뉴의 배경·높이·아이콘 차이도 남았습니다. 픽셀 수치는 화면 한 장의 차이일 뿐, 전체 사이트나 모든 기능의 복제를 증명하지 않습니다. Safari·실제 휴대폰·백엔드·모션·원본의 모든 상호작용은 이 실행에서 검증하지 않았습니다. 일반 CI는 로컬 fixture로 유지하며 실사이트 스위트는 별도 opt-in 워크플로로 실행합니다.
+**후속 컨트롤 개선에서는 실제 예제 CSS를 수정하고 운영 HTTPS 원본을 다시 캡처했습니다.** [최신 개선·검증 기록](docs/case-studies/uulab-services/fidelity-polish-2026-11-01.md)에 **183개 테스트 통과**, 6개 사례·10개 화면 조건, 낮은 화면의 스크롤 메뉴, 전체 페이지 비교와 남은 차이를 기록했습니다. 메뉴 높이·버튼 회전·포커스를 맞추되 불투명 배경과 읽기 쉬운 달 아이콘은 유지했습니다.
+
+전체 페이지 390px는 여전히 원본보다 8px 길며 `dimension_mismatch`로 남습니다. 새 FAQ 검사에서 스크롤 후 헤더/포커스 표시 차이도 확인했습니다. 픽셀 수치는 화면 한 장의 진단일 뿐 전체 사이트나 모든 기능의 복제를 증명하지 않습니다. Safari·실제 휴대폰·백엔드·일반 모션·원본의 모든 상호작용은 검증되지 않았습니다.
 
 ## 프로젝트 구조
 
 ```text
 skills/website-clone/          독립 설치 가능한 스킬과 참고 문서
-scripts/                      캡처·PNG 비교·짝 검증·일괄 검증
-suites/                       경로·화면·상태 검증 설정
+scripts/                      캡처·PNG 비교·짝 검증·일괄 실행·패키지 검증
+suites/                       명시적인 원본/구현 경로와 동작 상태
 examples/uulab-services/       편집 가능한 실제 재구현 예제
 tests/                        도구 검사와 예제 브라우저 검사
 docs/case-studies/             실행 증거·자산 출처·제한 사항
 .github/workflows/ci.yml       로컬 fixture 기반 자동 검증
 .github/workflows/verification-suite.yml  명시적 실사이트 스위트 실행
+.github/workflows/fidelity-review.yml    실사이트·짧은 화면·전체 페이지 진단
 ```
 
 ## English overview
 
-Website Cloner is a portable agent skill with optional local evidence tools. An agent observes a source, rebuilds editable frontend code in the existing stack, and records matched screenshots, interaction checks, and remaining gaps. Install the standalone `website-clone` skill with the Skills CLI, or run the repository's capture/compare/verify commands and isolated UULab example. `verify:suite` runs explicit routes and states from a strict JSON manifest and links the resulting reports. No paid scraping service is required. The toolkit does not recover private backend logic, and a build or pixel ratio is not a claim of complete fidelity.
+Website Cloner is a portable agent skill with optional local evidence tools. An agent observes a source, rebuilds editable frontend code in the existing stack, and records matched screenshots, interaction checks, and remaining gaps. Install the standalone `website-clone` skill with the Skills CLI, or run the repository's capture/compare/verify commands and isolated UULab example. `verify:suite` runs explicit routes and states from a strict JSON manifest and links the resulting reports. No paid scraping service is required. The toolkit does not recover private backend logic, and a build or pixel ratio is not a claim of complete fidelity. Zero thresholded pixel difference does not imply byte or pixel identity; inspect the screenshots and declared deviations.
 
 ## Credits
 

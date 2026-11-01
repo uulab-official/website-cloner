@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "codeCommit": "69a40f35d6c105048be99c8a3733af65fea7da36",
+  "runId": 41315250125,
+  "artifactId": 13087410499,
+  "artifactSha256": "20c42a319e066b8474a3cebb4d7cd15ef0c2f0837697b35d498ce996c44c5dfa",
+  "captureStartedAt": "2026-11-01T14:16:09.222Z",
+  "captureCompletedAt": "2026-11-01T14:17:22.209Z",
+  "browser": "Chromium 151.0.7922.34",
+  "viewportOnlyMobile": true,
+  "tests": { "toolkit": 174, "productionDemo": 9, "failed": 0, "skipped": 0 },
+  "comparisonPolicy": { "pixelmatchThreshold": 0.1, "includeAntiAliasing": false, "maxDiffRatio": null, "visualGate": "not_requested", "functionalParity": "not_verified" },
+  "viewportRows": [
+    { "case": "services-default", "width": 1440, "height": 900, "changedPixelRatio": 0.0017098765432098765 },
+    { "case": "services-default", "width": 768, "height": 900, "changedPixelRatio": 0.001623263888888889 },
+    { "case": "services-default", "width": 390, "height": 900, "changedPixelRatio": 0 },
+    { "case": "services-menu-mobile", "width": 390, "height": 900, "changedPixelRatio": 0 },
+    { "case": "services-dark-desktop", "width": 1440, "height": 900, "changedPixelRatio": 0.0013811728395061729 },
+    { "case": "services-root-alias", "width": 1440, "height": 900, "changedPixelRatio": 0.0017098765432098765 },
+    { "case": "services-root-alias", "width": 390, "height": 900, "changedPixelRatio": 0 },
+    { "case": "services-faq-open", "width": 1440, "height": 900, "changedPixelRatio": 0.016487654320987654 },
+    { "case": "services-faq-open", "width": 390, "height": 900, "changedPixelRatio": 0.024455840455840455 },
+    { "case": "services-dark-menu-mobile", "width": 390, "height": 900, "changedPixelRatio": 0.00010541310541310541 }
+  ],
+  "rawAudit": {
+    "method": "Decode both original viewport PNGs to RGBA; count a pixel if any channel differs; no tolerance, resizing, or antialias exclusion. Not a quality score.",
+    "case": "services-menu-mobile",
+    "width": 390,
+    "height": 900,
+    "differentPixels": 122805,
+    "totalPixels": 351000,
+    "rawUnequalRgbaRatio": 0.3498717948717949,
+    "note": "Default pixelmatch reports zero despite visible translucent/opaque menu differences. Zero thresholded difference is not exact identity."
+  },
+  "fullPageRows": [
+    { "width": 1440, "sourceHeight": 7129, "targetHeight": 7129, "status": "compared", "exitCode": 0, "changedPixelRatio": 0.0013481710073097364 },
+    { "width": 768, "sourceHeight": 9117, "targetHeight": 9117, "status": "compared", "exitCode": 0, "changedPixelRatio": 0.0019766187707944867 },
+    { "width": 390, "sourceHeight": 12617, "targetHeight": 12625, "status": "dimension_mismatch", "exitCode": 1, "changedPixelRatio": null }
+  ],
+  "sha256": {
+    "live/suite.json": "09112e55210503cb435c7c1123063b64a56aa55b14a2f67e192f269ca3b515be",
+    "check.log": "c57dead45e33236683b01ec251c515d41ae4590d66e76e417eb6828783441635",
+    "full-page/summary.json": "9bc6dbb45e02fbc093662398665ba5965990993183b74ce61737125b61e4e657",
+    "live/cases/services-menu-mobile/comparisons/390x900/side-by-side.png": "c1546e8d119a5e4cd1b647108d2a8b41e2ee514cf1d85a68f58a329362d249c3",
+    "live/cases/services-dark-desktop/comparisons/1440x900/side-by-side.png": "16f10f0e49479a1cedeb27ffc9b1173a758d25bd13345a34ba23c8b4a8f7e76d",
+    "live/cases/services-faq-open/comparisons/390x900/side-by-side.png": "c7e21d0d3f22876f134595defed3bd135895569f8dde0e9bf4aedc7329156505",
+    "short-menu/390x320/viewport.png": "134cb1e4dce7aec4f8be49548857464b5a8d6c22fedf2317637c9f834f9ab821"
+  }
+}

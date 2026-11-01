@@ -18,7 +18,7 @@ npm run verify:suite -- --manifest suites/uulab-services.json --dry-run
 npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/services-suite
 ```
 
-`--dry-run`은 동작 파일까지 검사하지만 캡처하거나 출력 폴더를 만들지 않습니다. 예제 설정은 기본 화면(1440/768/390), 모바일 메뉴(390), 테마 버튼으로 전환한 다크 상태(1440), 구현의 루트 경로 별칭(1440/390)을 합쳐 4개 사례·7개 화면 조건을 요청합니다. 모바일 폭은 실제 휴대폰/터치 기기 검증을 의미하지 않습니다.
+`--dry-run`은 동작 파일까지 검사하지만 캡처하거나 출력 폴더를 만들지 않습니다. 예제 설정은 기본 화면(1440/768/390), 모바일 메뉴(390), 테마 버튼으로 전환한 다크 상태(1440), 구현의 루트 경로 별칭(1440/390), FAQ 열림(1440/390), 다크 모바일 메뉴(390)를 합쳐 **6개 사례·10개 화면 조건**을 요청합니다. 모바일 폭은 실제 휴대폰/터치 기기 검증을 의미하지 않습니다.
 
 오리진은 `--source-origin https://your-authorized-site.example`과 `--target-origin http://localhost:5173`으로 덮어쓸 수 있습니다. 기존 Chromium은 `--executable-path /absolute/path/to/chromium`으로 지정합니다. 실행 파일은 설정 JSON이 아닌 CLI에서만 받습니다.
 
@@ -65,6 +65,8 @@ npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/se
 
 진단 경고는 `reviewRequired`로 별도 집계합니다. 비율을 평균 내어 완성도 점수로 만들지 않습니다. 기능/백엔드/모션 일치는 검증되지 않습니다. 기본적으로 실패 후 다음 사례도 실행합니다. `--fail-fast`는 나머지를 보고서에 skipped로 남깁니다. 취소나 시간 초과 시 하위 프로세스를 종료합니다. Windows의 taskkill 분기는 Linux 실행 결과만으로 검증했다고 주장하지 않습니다.
 
+**비교기의 0%도 픽셀 동일성을 뜻하지 않습니다.** 기본 pixelmatch는 색상 허용 오차 0.1과 안티앨리어싱 제외를 사용합니다. 약한 색 차이는 넓은 면적에 있어도 무시할 수 있습니다. 실제 메뉴 사례는 기본 결과 0%인데 반투명/불투명 배경이 눈으로 다르고, 허용 오차 없는 RGBA 비교에서는 약 34.99%의 픽셀이 달랐습니다. [실측 설명](case-studies/uulab-services/fidelity-polish-2026-11-01.md)을 참고하고 반드시 side-by-side 이미지를 검토하세요. RGBA 차이 비율 역시 품질 점수가 아닙니다.
+
 종료 코드 0은 비교 완료, 1은 입력/실행/비교 실패입니다. 임계값 없는 종료 코드 0을 시각적 승인으로 해석하지 마세요. `--overwrite`는 같은 도구가 만든 출력만 교체하며 입력 파일을 보호합니다. 기존 출력에 개인 파일을 넣은 뒤 덮어쓰지 마세요. 보고서에는 페이지 텍스트·URL·로그가 들어갈 수 있으므로 게시 전에 민감정보를 검토하세요.
 
 집계기는 URL, 화면 크기, 상태, 테마, 임계값, 하위 프로세스와 행별 결과를 교차 확인합니다. 필수 증거의 누락·빈 파일·최종 파일 심볼릭 링크를 실패 처리합니다. PNG 디코딩/픽셀 계산은 기존 compare가 담당합니다. 집계기 테스트의 계약용 fixture는 실제 브라우저 캡처가 아닙니다.
@@ -76,4 +78,6 @@ node --test tests/suite-config.test.mjs tests/suite-runner.test.mjs tests/suite-
 npm run check
 ```
 
-새 테스트는 기존 전체 검사에 자동 포함됩니다. `.github/workflows/verification-suite.yml`은 전체 검사 후 실제 운영 원본과 프로덕션 빌드를 비교하고 성공/실패 모두 로그와 증거를 14일 보관합니다. Actions의 **Verification suite integration → Run workflow**로 수동 실행할 수 있습니다. 작업 브랜치 `feat/verification-suite-integration`의 push에서도 실행하지만 일반 main/PR CI에는 실사이트 의존성을 추가하지 않습니다. 실제 실행 결과와 남은 차이는 사례 문서를 확인하세요.
+새 테스트는 기존 전체 검사에 자동 포함됩니다. `.github/workflows/verification-suite.yml`은 전체 검사 후 실제 운영 원본과 프로덕션 빌드를 비교하고 성공/실패 모두 로그와 증거를 14일 보관합니다. Actions의 **Verification suite integration → Run workflow**로 수동 실행할 수 있습니다. 작업 브랜치 `feat/verification-suite-integration`의 push에서도 실행하지만 일반 main/PR CI에는 실사이트 의존성을 추가하지 않습니다.
+
+**Clone fidelity review → Run workflow**는 동일한 스위트에 더해 390 × 320 메뉴 캡처와 기본 상태 full-page 비교를 수행합니다. 이 워크플로는 `work/clone-fidelity` push에서도 실행합니다. full-page 결과는 아티팩트 `full-page/summary.json`에 별도 보관하며, 크기 불일치는 비율을 계산하지 않고 `dimension_mismatch`, exit code 1, `reviewRequired: true`로 남깁니다. 워크플로는 그 명시적인 진단을 보존하되 그 밖의 비교 실패는 실패 처리합니다. 따라서 워크플로 완료를 전체 페이지 합격으로 해석하면 안 됩니다.
