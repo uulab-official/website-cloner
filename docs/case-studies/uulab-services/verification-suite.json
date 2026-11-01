@@ -11,12 +11,12 @@
     },
     {
       "id": "dark", "state": "dark-enabled", "source": "https://uulab.co.kr/services/", "target": "http://127.0.0.1:4173/services/", "widths": [1440, 390],
-      "sourceActions": [{ "type": "click", "selector": "#darkModeToggle" }],
-      "targetActions": [{ "type": "click", "selector": "#darkModeToggle" }]
+      "sourceActions": [{ "type": "click", "selector": "#darkModeToggle:visible, #darkModeToggleMobile:visible" }],
+      "targetActions": [{ "type": "click", "selector": "#darkModeToggle:visible, #darkModeToggleMobile:visible" }]
     },
     {
       "id": "faq", "state": "faq-open", "source": "https://uulab.co.kr/services/", "target": "http://127.0.0.1:4173/services/", "widths": [1440, 390], "keepScroll": true,
-      "sourceActions": [{ "type": "scroll", "selector": "#faq-title" }, { "type": "click", "selector": ".faq-list details:first-child summary" }],
+      "sourceActions": [{ "type": "scroll", "selector": "h2:has-text(\"상담 전에 자주 확인하는 내용\")" }, { "type": "click", "selector": "text=\"아이디어만 있어도 상담할 수 있나요?\"" }],
       "targetActions": [{ "type": "scroll", "selector": "#faq-title" }, { "type": "click", "selector": ".faq-list details:first-child summary" }]
     }
   ]
