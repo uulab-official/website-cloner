@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "evidenceType": "fresh-live-source-and-local-production-build",
+  "testedCommit": "680291e075ab2e2c31c86906c823fd97511a006e",
+  "workflowRunId": 41312518640,
+  "artifactId": 13085537323,
+  "artifactSha256": "2b42300b6626c0ae083996ae51de652f6d7060c30db11bd84bfbe9f9bde9d060",
+  "artifactExpiresAt": "2026-11-15T13:44:04Z",
+  "createdAt": "2026-11-01T13:43:20.528Z",
+  "completedAt": "2026-11-01T13:44:04.533Z",
+  "environment": {
+    "browser": "chromium",
+    "browserVersion": "151.0.7922.34",
+    "headless": true,
+    "locale": "en-US",
+    "timezoneId": "UTC",
+    "isMobile": false,
+    "hasTouch": false,
+    "freshContext": true,
+    "executablePath": null
+  },
+  "nodeVersion": "v24.22.0",
+  "check": { "toolkitPassed": 169, "demoPassed": 9, "failed": 0, "skipped": 0, "skillValidation": "passed", "productionBuild": "passed" },
+  "summary": { "total": 4, "completed": 4, "failed": 0, "skipped": 0, "pending": 0, "reviewRequired": 0, "visualPassed": 0, "visualFailed": 0, "visualNotRequested": 4, "visualNotEvaluated": 0 },
+  "functionalParity": "not_verified",
+  "motionVerified": false,
+  "scope": "One owned source page in four cases; seven viewport/state pairs. Ratios measure viewport screenshots, not full-page parity or overall clone accuracy.",
+  "rows": [
+    { "case": "services-default", "viewport": "1440x900", "changedPixelRatio": 0.0017098765432098765, "visualGate": "not_requested", "sourceFullPageHeight": 7129, "targetFullPageHeight": 7129, "sideBySideSha256": "20e9a0191660da879f799f8cb27c2d7835f4789d835b7bbe94a566f9bb8b4149" },
+    { "case": "services-default", "viewport": "768x900", "changedPixelRatio": 0.001623263888888889, "visualGate": "not_requested", "sourceFullPageHeight": 9117, "targetFullPageHeight": 9117, "sideBySideSha256": "8b8a78dd34495ea492661d41c3e68493846a23edcf3a991908c852406f25323d" },
+    { "case": "services-default", "viewport": "390x900", "changedPixelRatio": 0, "visualGate": "not_requested", "sourceFullPageHeight": 12617, "targetFullPageHeight": 12625, "sideBySideSha256": "e73f446f3be27e12a4b894d210844ee7d21483b8ff2dc10c47904f1525d4be1c" },
+    { "case": "services-menu-mobile", "viewport": "390x900", "changedPixelRatio": 0.019304843304843305, "visualGate": "not_requested", "sourceFullPageHeight": 12617, "targetFullPageHeight": 12625, "sideBySideSha256": "cf35ef4c06f9303f4bb06174d6294fff646cc972f9473a8a1130df251ba7cb16" },
+    { "case": "services-dark-desktop", "viewport": "1440x900", "changedPixelRatio": 0.001863425925925926, "visualGate": "not_requested", "sourceFullPageHeight": 7129, "targetFullPageHeight": 7129, "sideBySideSha256": "a91cc487e73d0f8f8e70db5187481d4f79b53e3d0ae39fa3e27d763315c71dde" },
+    { "case": "services-root-alias", "viewport": "1440x900", "changedPixelRatio": 0.0017098765432098765, "visualGate": "not_requested", "sourceFullPageHeight": 7129, "targetFullPageHeight": 7129, "sideBySideSha256": "20e9a0191660da879f799f8cb27c2d7835f4789d835b7bbe94a566f9bb8b4149" },
+    { "case": "services-root-alias", "viewport": "390x900", "changedPixelRatio": 0, "visualGate": "not_requested", "sourceFullPageHeight": 12617, "targetFullPageHeight": 12625, "sideBySideSha256": "e73f446f3be27e12a4b894d210844ee7d21483b8ff2dc10c47904f1525d4be1c" }
+  ],
+  "review": {
+    "method": "self-review; no independent reviewer",
+    "imagesInspected": ["services-default/1440x900", "services-dark-desktop/1440x900", "services-menu-mobile/390x900"],
+    "remainingDifferences": ["Mobile menu opacity, height, toggle icon and focus treatment differ.", "Desktop dark theme control focus and icon treatment differ.", "At 390px, full-page height is 12617px source versus 12625px target."],
+    "notVerified": ["Safari", "Firefox", "physical mobile devices", "Windows process-tree termination", "macOS runner", "all source interactions", "backend behavior", "motion parity"],
+    "deferredMinors": ["Existing Vite build emits an outDir-not-inside-root warning; isolated fresh checkout built successfully.", "Actions v4 runtime deprecation warnings remain; dependency/runtime migration is separate."]
+  }
+}
