@@ -1,10 +1,11 @@
 name: Live UULab clone evidence
 
-# Live network access is opt-in. Normal CI continues to use local fixtures.
+# Normal CI stays local. This dedicated development branch and manual dispatch
+# explicitly opt into network capture of the user-owned UULab example.
 on:
   workflow_dispatch:
   push:
-    branches: [work/paired-live-verification]
+    branches: [work/paired-live-verification, work/verification-suites]
 
 permissions:
   contents: read
@@ -12,7 +13,7 @@ permissions:
 jobs:
   live-evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,7 +24,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: sudo apt-get install -y fonts-noto-cjk
       - run: npm run build
-      - name: Capture real source and local implementation
+      - name: Capture real source and local implementation state matrix
         shell: bash
         run: |
           mkdir -p artifacts/live
@@ -36,18 +37,12 @@ jobs:
             sleep 1
           done
           test "$ready" = 1
-          set +e
-          npm run verify -- --source https://uulab.co.kr/services/ --target http://127.0.0.1:4173/services/ --out artifacts/live/default --widths 1440,768,390 --height 900
-          default_status=$?
-          npm run verify -- --source https://uulab.co.kr/services/ --target http://127.0.0.1:4173/services/ --out artifacts/live/menu --widths 390 --height 900 --state menu-open --source-actions docs/case-studies/uulab-services/evidence/actions/menu.json --target-actions docs/case-studies/uulab-services/evidence/actions/menu.json
-          menu_status=$?
-          printf 'default=%s\nmenu=%s\n' "$default_status" "$menu_status" | tee artifacts/live/exit-status.txt
-          test "$default_status" = 0 && test "$menu_status" = 0
+          npm run verify:suite -- --config docs/case-studies/uulab-services/verification-suite.json --out artifacts/live/suite
       - name: Preserve evidence even on capture failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: live-clone-evidence-${{ github.sha }}
+          name: live-clone-suite-${{ github.sha }}
           path: artifacts/live/
           if-no-files-found: error
           retention-days: 14
