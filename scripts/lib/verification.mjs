@@ -1,0 +1,64 @@
+/** Assess captured evidence, not the semantic quality of a rebuilt website. */
+export function assessPair(source, target, comparison) {
+  const errors = [];
+  const warnings = [];
+  const fields = [
+    ['viewport', 'width'], ['viewport', 'height'], ['viewport', 'deviceScaleFactor'],
+    ['state'], ['scheme'], ['reducedMotion'],
+    ...['browser', 'browserVersion', 'headless', 'locale', 'timezoneId', 'isMobile', 'hasTouch', 'freshContext'].map(key => ['environment', key]),
+    ['screenshots', 'animations'], ['screenshots', 'caret'],
+  ];
+  for (const [label, record] of [['source', source], ['target', target]]) {
+    if (record?.status !== 'completed') errors.push(`${label}: capture not completed${record?.error ? `: ${record.error}` : ''}`);
+    if (!record?.screenshots?.viewport) errors.push(`${label}: viewport screenshot missing`);
+    for (const name of ['consoleErrors', 'pageErrors', 'requestFailures', 'failedResponses']) {
+      if (record?.[name]?.length) warnings.push(`${label}: ${name}=${record[name].length}; inspect page.json`);
+    }
+  }
+  for (const keys of fields) {
+    const a = keys.reduce((value, key) => value?.[key], source);
+    const b = keys.reduce((value, key) => value?.[key], target);
+    if (a === undefined || a === null || b === undefined || b === null || a !== b) {
+      errors.push(`Incompatible or missing capture condition: ${keys.join('.')}`);
+    }
+  }
+  const comparable = errors.length === 0;
+  let visualGate = 'not_requested';
+  let changedPixelRatio = null;
+  if (comparable) {
+    const validRatio = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
+    if (!comparison || !['compared', 'threshold_exceeded'].includes(comparison.status)
+      || !validRatio(comparison.changedPixelRatio)
+      || !(comparison.maxDiffRatio === null || validRatio(comparison.maxDiffRatio))) {
+      errors.push(`Comparison unavailable or invalid${comparison?.error ? `: ${comparison.error}` : ''}`);
+    } else {
+      changedPixelRatio = comparison.changedPixelRatio;
+      const expected = comparison.maxDiffRatio === null ? null : changedPixelRatio <= comparison.maxDiffRatio;
+      const expectedStatus = expected === false ? 'threshold_exceeded' : 'compared';
+      if (comparison.passed !== expected || comparison.status !== expectedStatus) errors.push('Inconsistent comparison threshold result');
+      if (expected !== null) visualGate = expected ? 'passed' : 'failed';
+      if (expected === false) errors.push('Changed-pixel ratio exceeds the explicitly requested threshold');
+    }
+  }
+  return { comparable, status: errors.length ? 'failed' : 'completed', visualGate, changedPixelRatio, functionalParity: 'not_verified', errors, warnings };
+}
+
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+
+/** No scripts, remote assets, source HTML, or evidence-supplied hrefs. */
+export function renderReport(report) {
+  const runErrors = (report.errors || []).map(error => `<li>${escapeHtml(error)}</li>`).join('');
+  const rows = report.rows.map(row => {
+    const safeDimensions = Number.isInteger(row.width) && row.width > 0 && row.width <= 8192
+      && Number.isInteger(row.height) && row.height > 0 && row.height <= 8192;
+    const folder = safeDimensions ? `${row.width}x${row.height}` : null;
+    const images = folder ? [
+      row.sourceCaptured ? `<figure><figcaption>Source URL capture</figcaption><a href="source/${folder}/full-page.png"><img alt="Source viewport" src="source/${folder}/viewport.png" loading="lazy"></a></figure>` : '',
+      row.targetCaptured ? `<figure><figcaption>Implementation</figcaption><a href="target/${folder}/full-page.png"><img alt="Implementation viewport" src="target/${folder}/viewport.png" loading="lazy"></a></figure>` : '',
+    ].join('') : '';
+    const links = folder && row.hasComparison ? `<p><a href="comparisons/${folder}/diff.png">Pixel diff</a> · <a href="comparisons/${folder}/side-by-side.png">Side by side</a> · <a href="comparisons/${folder}/report.json">Comparison JSON</a></p>` : '';
+    const notes = [...(row.errors || []), ...(row.warnings || [])].map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    return `<section><h2>${escapeHtml(row.width)} × ${escapeHtml(row.height)}</h2><p>Execution: <strong>${escapeHtml(row.status)}</strong> · Visual threshold: ${escapeHtml(row.visualGate)}</p><p>Changed pixels: ${typeof row.changedPixelRatio === 'number' && Number.isFinite(row.changedPixelRatio) ? `${(row.changedPixelRatio * 100).toFixed(4)}%` : 'not measured'} (not a fidelity score)</p>${notes ? `<ul>${notes}</ul>` : ''}<div class="pair">${images}</div>${links}</section>`;
+  }).join('\n');
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — paired verification</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1280px;margin:auto;padding:32px}h1{line-height:1.2}section{border-top:1px solid;padding:24px 0}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}figure{margin:0}img{display:block;width:100%;height:auto}p,li{overflow-wrap:anywhere}figcaption{font-weight:bold;margin-bottom:8px}@media(max-width:600px){body{padding:16px}.pair{grid-template-columns:1fr}}</style><h1>Paired verification</h1>${runErrors ? `<ul>${runErrors}</ul>` : ''}<p>Execution: <strong>${escapeHtml(report.status)}</strong> · State: ${escapeHtml(report.state)}</p><p>Source: ${escapeHtml(report.sourceUrl)}<br>Implementation: ${escapeHtml(report.targetUrl)}</p><p>Functional parity: <strong>not_verified</strong>. Static reduced-motion screenshots do not verify motion, physical devices, backend behavior, or interaction correctness. Diagnostics are warnings, not a functional test pass.</p><p><a href="verification.json">Complete JSON evidence</a></p>${rows}</html>\n`;
+}
