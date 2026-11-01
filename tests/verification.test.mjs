@@ -71,3 +71,18 @@ test('report shows top-level process failures even when there are no rows', () =
   const html = renderReport({ status: 'failed', errors: ['Process failed: <untrusted>'], rows: [] });
   assert.match(html, /Process failed: &lt;untrusted&gt;/);
 });
+test('a requested threshold with missing evidence is not marked unrequested or passed', () => {
+  const result = assessPair(null, page(), null, 0.02);
+  assert.equal(result.visualGate, 'not_evaluated');
+  assert.equal(result.status, 'failed');
+});
+test('inconsistent comparison must never display a passed visual gate', () => {
+  const result = assessPair(page(), page(), { status: 'threshold_exceeded', changedPixelRatio: 0, maxDiffRatio: 0.02, passed: false });
+  assert.equal(result.status, 'failed');
+  assert.equal(result.visualGate, 'not_evaluated');
+});
+test('comparison must use the exact threshold requested by the caller', () => {
+  const result = assessPair(page(), page(), comparison(), 0.02);
+  assert.equal(result.status, 'failed');
+  assert.equal(result.visualGate, 'not_evaluated');
+});

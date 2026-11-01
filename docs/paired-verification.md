@@ -19,7 +19,7 @@ Open `artifacts/live-check/index.html`, or serve that directory locally. The scr
 `verification.json` distinguishes:
 
 - `status`: whether capture/comparison execution completed; not a clone-quality grade.
-- `visualGate`: `not_requested` unless a maximum pixel ratio was explicitly supplied. `--max-diff-ratio 0.02` sets a project-specific threshold; it is not a semantic fidelity score.
+- `visualGate`: `not_requested` unless a maximum pixel ratio was explicitly supplied. `--max-diff-ratio 0.02` sets a project-specific threshold; it is not a semantic fidelity score. A requested threshold with unavailable or inconsistent evidence remains `not_evaluated`, never `passed`.
 - `functionalParity`: always `not_verified`. Use separate browser assertions and manual review for interaction behavior.
 
 A failed capture, incompatible browser/viewport/state conditions, missing comparison, or exceeded explicit threshold exits nonzero. Source and target failures remain visible, and a failed source is never compared as an empty success. Console errors and resource failures are warnings to inspect, not proof of functional correctness even when execution exits zero.
@@ -42,4 +42,4 @@ A successful click only means the action ran; inspect the resulting screenshot o
 
 The **Live UULab clone evidence** GitHub Actions workflow is separate and opt-in through Run workflow. Its dedicated implementation branch also triggers it while developing this change. It builds the existing example, captures the public source and local implementation at three widths, and tries the mobile menu state. Artifacts are uploaded even on failure and expire after 14 days; preserve reviewed evidence separately when needed. Live runs never run on ordinary pull requests and use a fixed public UULab URL, not an arbitrary workflow input. No secrets or write permissions are needed.
 
-Old [static-reference findings](case-studies/uulab-services/report.md) remain historical evidence, not a substitute for these fresh live runs. New run-specific results should be recorded alongside the case study, with exact commit/run identifiers and remaining gaps.
+Read the [2026-11-01 live run findings](case-studies/uulab-services/live-verification-2026-11-01.md). Old [static-reference findings](case-studies/uulab-services/report.md) remain historical evidence, not a substitute for fresh live runs.

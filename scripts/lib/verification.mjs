@@ -1,5 +1,5 @@
 /** Assess captured evidence, not the semantic quality of a rebuilt website. */
-export function assessPair(source, target, comparison) {
+export function assessPair(source, target, comparison, requestedMaxDiffRatio = comparison?.maxDiffRatio ?? null) {
   const errors = [];
   const warnings = [];
   const fields = [
@@ -23,11 +23,12 @@ export function assessPair(source, target, comparison) {
     }
   }
   const comparable = errors.length === 0;
-  let visualGate = 'not_requested';
+  let visualGate = requestedMaxDiffRatio === null ? 'not_requested' : 'not_evaluated';
   let changedPixelRatio = null;
   if (comparable) {
     const validRatio = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
     if (!comparison || !['compared', 'threshold_exceeded'].includes(comparison.status)
+      || comparison.maxDiffRatio !== requestedMaxDiffRatio
       || !validRatio(comparison.changedPixelRatio)
       || !(comparison.maxDiffRatio === null || validRatio(comparison.maxDiffRatio))) {
       errors.push(`Comparison unavailable or invalid${comparison?.error ? `: ${comparison.error}` : ''}`);
@@ -36,7 +37,7 @@ export function assessPair(source, target, comparison) {
       const expected = comparison.maxDiffRatio === null ? null : changedPixelRatio <= comparison.maxDiffRatio;
       const expectedStatus = expected === false ? 'threshold_exceeded' : 'compared';
       if (comparison.passed !== expected || comparison.status !== expectedStatus) errors.push('Inconsistent comparison threshold result');
-      if (expected !== null) visualGate = expected ? 'passed' : 'failed';
+      else if (expected !== null) visualGate = expected ? 'passed' : 'failed';
       if (expected === false) errors.push('Changed-pixel ratio exceeds the explicitly requested threshold');
     }
   }

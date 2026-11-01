@@ -16,10 +16,12 @@ Missing/failed capture must never pass. Metadata mismatch must prevent pixel com
 ## Tasks
 - [x] 1. Add pure assessment/report tests; observe RED; implement scripts/lib/verification.mjs; observe GREEN.
 - [x] 2. Add CLI argument/output tests; observe RED; implement scripts/verify.mjs composing the existing tools; add paired fixture browser test to full check.
-- [ ] 3. Add usage docs and opt-in live workflow. Run full npm run check in GitHub Actions and an actual UULab live comparison. Inspect artifacts and retain failure evidence.
-- [ ] 4. Review changes, publish verified commit, record run-specific outcomes and remaining limitations.
+- [x] 3. Add usage docs and opt-in live workflow. Run full npm run check in GitHub Actions and an actual UULab live comparison. Inspect artifacts and retain evidence.
+- [x] 4. Self-review changes; fix threshold metadata/label issues through three additional RED-to-GREEN tests; record run-specific outcomes and limitations.
 
 ## Execution notes
-This container has no GitHub DNS/network access. Local pure Node tests run here; full dependency/browser verification runs on the repository runner. GitHub changes use a dedicated branch and atomic Git tree updates. No independent subagent tool is present: final review will be self-review.
+This container has no GitHub DNS/network access. Local pure Node tests run here; full dependency/browser verification runs on the repository runner. GitHub changes use a dedicated branch and atomic Git tree updates. No independent subagent tool is present: final review is self-review.
 
-Local verification: 26 passed, 0 failed, 2 browser-dependent tests skipped pending the full CI gate. Production code was preceded by failing tests; top-level HTML failure visibility also has a RED-to-GREEN regression test.
+Local final patch tests: 29 passed, 0 failed, 2 browser-dependent tests skipped. The first feature commit `2df12d8` passed full CI run `41307322958` and live run `41307323047`. The subsequent reporting-only patch requires its own full CI run before main publication; consult the commit's Actions checks for that result rather than treating the earlier run as verification of later code.
+
+Ruling: keep diagnostics as visible warnings rather than functional pass/fail; screenshot capture cannot prove interaction parity. Ruling: retain the existing intentional opaque narrow menu and footer wrapping, and document the source differences. Ruling: keep normal CI independent from the live source; source availability must not gate ordinary offline tests.

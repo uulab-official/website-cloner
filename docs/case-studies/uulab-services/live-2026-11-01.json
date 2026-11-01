@@ -1,0 +1,49 @@
+{
+  "capturedCommit": "2df12d872746827873365193c008dd6f35224e69",
+  "runId": 41307323047,
+  "jobId": 124850269720,
+  "artifactId": 13084285418,
+  "artifactZipSha256": "f788b7adb976dd391acb25c4aa133ea432644b3b07463d7f26c842d71307fe08",
+  "source": "https://uulab.co.kr/services/",
+  "target": "http://127.0.0.1:4173/services/",
+  "functionalParity": "not_verified",
+  "motionVerified": false,
+  "rows": [
+    {
+      "state": "default", "width": 1440, "height": 900, "status": "completed",
+      "changedPixels": 2216, "totalPixels": 1296000, "changedPixelRatio": 0.0017098765432098765,
+      "visualGate": "not_requested", "warnings": [],
+      "sourceDocument": {"width": 1440, "height": 7129, "language": "ko"},
+      "targetDocument": {"width": 1440, "height": 7129, "language": "ko"},
+      "browserVersion": "151.0.7922.34",
+      "screenshotSha256": {"source": "6ead0465c2674fb5d1fc73a43bafa2d3f8ab10a11a2bfe16f1f7e16fc3d544c5", "target": "1e934f6a440ef10cebf6ae2ab6e0ed00e7ff5fce0248e8085f1ffc2fc2d9c5d7"}
+    },
+    {
+      "state": "default", "width": 768, "height": 900, "status": "completed",
+      "changedPixels": 1122, "totalPixels": 691200, "changedPixelRatio": 0.001623263888888889,
+      "visualGate": "not_requested", "warnings": [],
+      "sourceDocument": {"width": 768, "height": 9117, "language": "ko"},
+      "targetDocument": {"width": 768, "height": 9117, "language": "ko"},
+      "browserVersion": "151.0.7922.34",
+      "screenshotSha256": {"source": "64856910813553fbe345a541f4348577819b47aa67362ebf10cbe2b9484e6dc3", "target": "1c0424fbc84bd141ec3de51cbe80572615dd64614405a193f9e636674eecbe82"}
+    },
+    {
+      "state": "default", "width": 390, "height": 900, "status": "completed",
+      "changedPixels": 0, "totalPixels": 351000, "changedPixelRatio": 0,
+      "visualGate": "not_requested", "warnings": [],
+      "sourceDocument": {"width": 390, "height": 12617, "language": "ko"},
+      "targetDocument": {"width": 390, "height": 12625, "language": "ko"},
+      "browserVersion": "151.0.7922.34",
+      "screenshotSha256": {"source": "2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f", "target": "2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f"}
+    },
+    {
+      "state": "menu-open", "width": 390, "height": 900, "status": "completed",
+      "changedPixels": 6776, "totalPixels": 351000, "changedPixelRatio": 0.019304843304843305,
+      "visualGate": "not_requested", "warnings": [],
+      "sourceDocument": {"width": 390, "height": 12617, "language": "ko"},
+      "targetDocument": {"width": 390, "height": 12625, "language": "ko"},
+      "browserVersion": "151.0.7922.34",
+      "screenshotSha256": {"source": "3d24ba9fbecf87f2dc5f4c5298e0e874e6157d2a39eac212a662abf9772f5ba6", "target": "56152ac777c7d0f314386ea343b30a94beebf261579f8b4e2526b99c541b3295"}
+    }
+  ]
+}

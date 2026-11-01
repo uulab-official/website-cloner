@@ -95,7 +95,7 @@ async function main(argv) {
         command = execute('compare.mjs', args, 60000);
         comparison = await readJson(path.join(out, 'comparisons', folder, 'report.json'));
       }
-      const row = { width, height, ...assessPair(source, target, comparison),
+      const row = { width, height, ...assessPair(source, target, comparison, maxDiffRatio),
         sourceCaptured: source?.status === 'completed', targetCaptured: target?.status === 'completed',
         hasComparison: ['compared', 'threshold_exceeded'].includes(comparison?.status), command };
       if (command && (command.error || command.exitCode !== 0)) {
