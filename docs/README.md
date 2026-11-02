@@ -9,6 +9,7 @@
 | 코딩 에이전트로 재구현 | [website-clone 스킬](../skills/website-clone/SKILL.md) | 기존 프로젝트의 프레임워크 유지 |
 | 새 사이트 작업 묶음 | `npm run init -- --help` | 검증 설정·자산 기록·에이전트 지시서 생성 |
 | 원본 캡처를 관찰 보고서로 정리 | `npm run observe -- --help` | 오프라인 측정값·이미지 후보·진단, 구현/권리 승인 아님 |
+| 새 작업과 원본 관찰 준비 | `npm run prepare:clone -- --help` | 명시한 원본만 캡처, 구현 서버 불필요 |
 | 페이지 관찰·PNG 수집 | `npm run capture -- --help` | 지정한 URL, 선택한 엔진 |
 | 기존 PNG 두 장 비교 | `npm run compare -- --help` | 같은 크기의 이미지, 두 가지 차이 지표 |
 | 원본·구현 한 경로 비교 | `npm run verify -- --help` | 양쪽을 같은 엔진에서 새 캡처 |
@@ -19,7 +20,7 @@
 
 ## 현재 사용 안내
 
-[설치·시작](../README.md) · [작업 초기화](project-init.md) · [원본 관찰 보고서](source-observations.md) · [짝 비교](paired-verification.md) · [일괄 비교](verification-suites.md) · [엔진 선택](capture-engines.md) · [무오차 픽셀 진단](exact-pixel-evidence.md) · [예제 브라우저 검사](browser-compatibility.md) · [빌드·CI 운영](build-and-ci.md) · [빌드·CI 정비 검증](build-readiness-2026-11-02.md)
+[설치·시작](../README.md) · [원본 준비](prepare-clone.md) · [작업 초기화](project-init.md) · [원본 관찰 보고서](source-observations.md) · [짝 비교](paired-verification.md) · [일괄 비교](verification-suites.md) · [엔진 선택](capture-engines.md) · [무오차 픽셀 진단](exact-pixel-evidence.md) · [예제 브라우저 검사](browser-compatibility.md) · [빌드·CI 운영](build-and-ci.md) · [빌드·CI 정비 검증](build-readiness-2026-11-02.md)
 
 `capture`, `verify`, `verify:suite`는 `--browser chromium|firefox|webkit`를 지원합니다. 기본은 Chromium입니다. 서로 다른 엔진에서 얻은 원본/구현을 한 쌍으로 비교하지 않습니다. 새 엔진 실행은 기존 출력과 다른 디렉터리를 사용하세요.
 
