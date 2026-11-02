@@ -35,3 +35,5 @@ npm run verify:suite -- --manifest artifacts/projects/my-site/suite.json --out a
 기존 목적지·도구 보호 폴더·잘못된 옵션은 시작 전에 거부합니다. child exit 0만으로 성공 처리하지 않고 capture의 원본·폭·높이·엔진·상태·테마를 요청과 대조합니다. HTTP 오류, 브라우저 미설치, 취소·시간 초과, 증거 누락·불일치는 실패와 종료 코드 1로 남깁니다. 나중 단계는 not_started이고 생성된 파일은 지우지 않습니다. 초기 파일 생성이나 디스크 오류 때는 journal조차 없거나 마지막 running 상태일 수 있으며 이를 성공으로 해석하면 안 됩니다. 다시 시도할 때 새 폴더를 사용하세요. overwrite·resume·자동 서버 실행·자산 다운로드·권리 승인·프런트엔드 생성·백엔드 검증은 제공하지 않습니다.
 
 npm의 자동 설치 lifecycle과 충돌하지 않도록 명령을 **prepare:clone**으로 정했습니다. npm ci/install만으로 사이트를 방문하지 않습니다. URL 쿼리·페이지 텍스트·이미지·로그의 민감정보는 공유 전에 검토하세요. 입력 해시는 출처 진위 인증이 아니며 적대적 동시 파일 변경을 격리하지 않습니다. 실제 Safari·실기기·터치 검증도 별도입니다.
+
+[검사 결과와 실제 운영 원본 준비 기록](prepare-clone-verification-2026-11-02.md)
