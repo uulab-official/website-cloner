@@ -29,7 +29,7 @@ jobs:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CAPTURE_TEST_ENGINES: chromium,firefox,webkit
           CLONER_PREPARE_EVIDENCE_DIR: artifacts/prepare-clone/fixtures
-        run: set -o pipefail; node --test tests/prepare-project.test.mjs tests/prepare-pipeline.test.mjs 2>&1 | tee artifacts/prepare-clone/prepare-tests.log
+        run: set -o pipefail; node --test tests/prepare-project.test.mjs tests/prepare-recovery.test.mjs tests/prepare-pipeline.test.mjs 2>&1 | tee artifacts/prepare-clone/prepare-tests.log
       - name: Prepare fresh owned-source evidence without a target server
         if: ${{ !cancelled() }}
         run: |

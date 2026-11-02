@@ -75,8 +75,8 @@ export async function prepareProject({ source, target, out, widths, height, brow
   let stage;
   try {
     stage = record.stages[1]; stage.status = 'running'; stage.startedAt = new Date().toISOString();
-    await mkdir(path.join(destination, 'logs')); await persist(destination, record);
-    record.networkAccess = true;
+    await mkdir(path.join(destination, 'logs'));
+    record.networkAccess = true; await persist(destination, record);
     const result = await execute(captureScript, args, { timeoutMs: timeout, maxOutputChars: logLimit });
     record.captureCommand = { exitCode: result?.exitCode ?? null, signal: result?.signal ?? null, error: result?.error ? String(result.error).slice(-logLimit) : null, timedOut: Boolean(result?.timedOut), interrupted: Boolean(result?.interrupted), logTailCharacters: logLimit };
     for (const stream of ['stdout', 'stderr']) await writeFile(path.join(destination, `logs/capture.${stream}.log`), String(result?.[stream] ?? '').slice(-logLimit), { flag: 'wx' });
