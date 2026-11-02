@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "3c5f6834ab11598d3d7b93a36e392db0d5414c20",
+  "codeCommit": "4efb59a8535bff8e30fd1892934a1a80788c7455",
+  "baselineRun": 41374963898,
+  "redRun": 41375444585,
+  "verifiedRun": 41375861403,
+  "generalCiRun": 41375861410,
+  "artifactId": 13111012244,
+  "artifactSha256": "680994a27f59fb4c73e154e36bd76bedfe840f5885559dba6a487ab83faae2cc",
+  "artifactExpiresAt": "2026-11-16T02:09:24Z",
+  "captureStartedAt": "2026-11-02T02:08:11.746Z",
+  "captureCompletedAt": "2026-11-02T02:09:18.883Z",
+  "environment": {"browser":"Chromium 151.0.7922.34","os":"Linux","locale":"en-US","timezoneId":"UTC","deviceScaleFactor":1,"isMobile":false,"hasTouch":false},
+  "tests": {"toolkitAndBrowser":227,"productionDemo":9,"total":236,"failed":0,"skipped":0,"cancelled":0,"newTests":13,"redFailures":11},
+  "suiteSummary": {"total":6,"completed":6,"failed":0,"skipped":0,"reviewRequired":2,"visualNotRequested":6},
+  "functionalParity": "not_verified",
+  "fullPageReviewRequired": true,
+  "crosscheck": {"viewportPairs":10,"exactMasks":10,"compatibleFullPages":2,"method":"Pillow RGBA decoding and NumPy any-channel inequality","codeSnapshotBytesMatch":true},
+  "ratiosAreFractionsNotPercentages": true,
+  "rows": [
+    {"case":"services-dark-desktop","viewport":"1440x900","beforeTolerance":0.0013811728395061729,"afterTolerance":0.0013811728395061729,"beforeExact":0.01015817901234568,"afterExact":0.010159722222222223,"changedPixels":13167,"totalPixels":1296000,"sourceUnchanged":false,"targetUnchanged":true,"sourceSha256":"f302649cef62a7fc1fb99e3811cf32b0427e9ab6de3bec5930dec54c826f2c40","targetSha256":"929b88c77223ed12e98e465ef4642b804d83fefdb6d8207ad70c9338a4a8ac88","maskValidated":true},
+    {"case":"services-dark-menu-mobile","viewport":"390x900","beforeTolerance":0.00010541310541310541,"afterTolerance":0.00010541310541310541,"beforeExact":0.4377293447293447,"afterExact":0.4377293447293447,"changedPixels":153643,"totalPixels":351000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"5900713cdca334b71d81673c296199efbd6e4d84707482de181fdaf90d5e1908","targetSha256":"58c91f011bf8d4d01d74043e22c8cb61cc9d233554a22c8a31dce10976fe2fbf","maskValidated":true},
+    {"case":"services-default","viewport":"1440x900","beforeTolerance":0.0017098765432098765,"afterTolerance":0.0017098765432098765,"beforeExact":0.010357253086419754,"afterExact":0.010357253086419754,"changedPixels":13423,"totalPixels":1296000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"6ead0465c2674fb5d1fc73a43bafa2d3f8ab10a11a2bfe16f1f7e16fc3d544c5","targetSha256":"1e934f6a440ef10cebf6ae2ab6e0ed00e7ff5fce0248e8085f1ffc2fc2d9c5d7","maskValidated":true},
+    {"case":"services-default","viewport":"390x900","beforeTolerance":0,"afterTolerance":0,"beforeExact":0,"afterExact":0,"changedPixels":0,"totalPixels":351000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f","targetSha256":"2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f","maskValidated":true},
+    {"case":"services-default","viewport":"768x900","beforeTolerance":0.001623263888888889,"afterTolerance":0.001623263888888889,"beforeExact":0.008595196759259259,"afterExact":0.008595196759259259,"changedPixels":5941,"totalPixels":691200,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"64856910813553fbe345a541f4348577819b47aa67362ebf10cbe2b9484e6dc3","targetSha256":"1c0424fbc84bd141ec3de51cbe80572615dd64614405a193f9e636674eecbe82","maskValidated":true},
+    {"case":"services-faq-open","viewport":"1440x900","beforeTolerance":0.002496141975308642,"afterTolerance":0,"beforeExact":0.0038086419753086418,"afterExact":0.0018387345679012346,"changedPixels":2383,"totalPixels":1296000,"sourceUnchanged":true,"targetUnchanged":false,"sourceSha256":"d08e623ccf8b64089b3d9313a22216f88d49580111d240965a85a64898a735a9","targetSha256":"ff24281223adf193eedca84c2112249a5666aad58034aab7ea0f3332e97b019e","maskValidated":true},
+    {"case":"services-faq-open","viewport":"390x900","beforeTolerance":0.004521367521367521,"afterTolerance":0,"beforeExact":0.008903133903133903,"afterExact":0.0020056980056980056,"changedPixels":704,"totalPixels":351000,"sourceUnchanged":true,"targetUnchanged":false,"sourceSha256":"af86b3283a1ec3932307200e95c8c90b0e02963cdb90e7dd121a5ea29def4a5c","targetSha256":"dbb3dcfbe7be7b11781e3ceecd0a2f4fe9ce2f857cac3a636ed1365a59da873e","maskValidated":true},
+    {"case":"services-menu-mobile","viewport":"390x900","beforeTolerance":0,"afterTolerance":0,"beforeExact":0.3498717948717949,"afterExact":0.3498717948717949,"changedPixels":122805,"totalPixels":351000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"3d24ba9fbecf87f2dc5f4c5298e0e874e6157d2a39eac212a662abf9772f5ba6","targetSha256":"c57328e282846ee41f87d709d658d2304662071a3b91e0bccb18ab10929313cd","maskValidated":true},
+    {"case":"services-root-alias","viewport":"1440x900","beforeTolerance":0.0017098765432098765,"afterTolerance":0.0017098765432098765,"beforeExact":0.010357253086419754,"afterExact":0.010357253086419754,"changedPixels":13423,"totalPixels":1296000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"6ead0465c2674fb5d1fc73a43bafa2d3f8ab10a11a2bfe16f1f7e16fc3d544c5","targetSha256":"1e934f6a440ef10cebf6ae2ab6e0ed00e7ff5fce0248e8085f1ffc2fc2d9c5d7","maskValidated":true},
+    {"case":"services-root-alias","viewport":"390x900","beforeTolerance":0,"afterTolerance":0,"beforeExact":0,"afterExact":0,"changedPixels":0,"totalPixels":351000,"sourceUnchanged":true,"targetUnchanged":true,"sourceSha256":"2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f","targetSha256":"2845d01ba27cfc0fb28ec0897c610da6d2acf605fe3026dede1f5c2f2a9b039f","maskValidated":true}
+  ],
+  "fullPages": [
+    {"width":1440,"exitCode":0,"status":"compared","dimensions":{"source":{"width":1440,"height":7129},"target":{"width":1440,"height":7129}},"tolerance":0.0013481710073097364,"exact":0.006710754975764094,"rawCountValidated":true},
+    {"width":768,"exitCode":0,"status":"compared","dimensions":{"source":{"width":768,"height":9117},"target":{"width":768,"height":9117}},"tolerance":0.0019766187707944867,"exact":0.009724278819787211,"rawCountValidated":true},
+    {"width":390,"exitCode":1,"status":"dimension_mismatch","dimensions":{"source":{"width":390,"height":12617},"target":{"width":390,"height":12625}},"tolerance":null,"exact":null}
+  ],
+  "decisions": ["Initialize zero at the top instead of copying source startup full-width state.","Preserve readable legal-link wrapping with an 8px row gap; retain mobile dimension mismatch.","Preserve opaque menu background and readable moon icon."],
+  "limitations": ["Self-review, not independent code review.","No real-device, Safari/Firefox, Windows/macOS runner or backend verification.","Filtered zero is not exact pixel identity.","Existing Vite outDir and Actions v4 runtime warnings remain."]
+}

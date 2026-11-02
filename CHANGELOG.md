@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-02 — scroll progress and responsive controls
+
+- Restored the observed decorative 4px scroll progress bar using the existing animation-frame scheduler; recalculates for scrolling, resizing, FAQ expansion, media loading and observed document-size changes.
+- Kept finite zero progress on non-scrollable/no-JavaScript pages and preserved keyboard return-to-main, header focus protection and reduced-motion behavior.
+- Removed the mobile-only 20px back-to-top offsets; the 48px control now uses the observed 24px bottom/right offsets at all tested widths.
+- Added 13 browser regressions. Verified 11 expected assertion failures before the fix; final full gate passes 227 toolkit/browser + 9 production-demo tests, 236 total, with no failures or skips.
+- Captured six cases/ten viewports afresh. FAQ filtered differences become zero, but exact RGBA differences remain 0.183873% desktop and 0.200570% mobile; neither is a site quality score.
+- Re-ran full-page comparison without resizing. Desktop/tablet comparisons complete; the intentional readable footer wrapping retains an 8px mobile height mismatch, recorded as dimension_mismatch/exit 1/reviewRequired.
+- Added opt-in **Scroll progress fidelity** workflow and preserved normal CI independence from the production source. No dependency or threshold changes.
+
+[Fresh evidence, source observations and remaining gaps](docs/case-studies/uulab-services/progress-fidelity-2026-11-02.md)
+
 ## 2026-11-02 — FAQ scroll and focus fidelity
 
 - Matched the observed 100px scroll threshold: hide the fixed header on downward scroll and reveal it on upward scroll or at the top.
