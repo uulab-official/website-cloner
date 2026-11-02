@@ -21,6 +21,12 @@ For screenshot-only input, compare only the provided visible region and availabl
 
 Recheck only the affected views plus shared-layout regressions after fixes. Do not promise a quantitative similarity score without a defined, executed comparison method. Pixel metrics are sensitive to fonts, rasterization, animation, and dynamic content; report those conditions when using them.
 
+## Distinguish tolerant differences from exact equality
+
+A tolerance-filtered zero does not mean identical pixels. Record the comparison method, color tolerance and anti-aliasing policy alongside its result. When exact decoded RGBA comparison is available, report it separately, including equality, differing-pixel count and the exact difference mask. If it was not run, say **not measured**, not identical.
+
+Exact RGBA equality is equality of decoded channel values, not PNG file bytes, semantic fidelity or functional correctness. It includes alpha and potentially invisible RGB values. A large exact ratio can reflect a small color change over a large area. If a tolerant comparison reports zero while decoded pixels differ, flag the evidence for visual review and preserve both measurements; do not hide the difference or relax the gate. Continue reviewing source/target screenshots and exercising interactions.
+
 ## Functional checks
 
 Exercise the meaningful local workflow: route links and direct loading, back/forward navigation where relevant, mobile menu, tabs, accordion open/close, filters, carousel boundaries, dialogs, keyboard activation/focus, and media controls. Confirm controls do what their labels promise.

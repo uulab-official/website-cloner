@@ -2,6 +2,8 @@
 
 `verify:suite`는 기존 `verify`를 순서대로 실행하는 로컬 도구입니다. 사이트 자동 생성기나 완성도 점수 계산기가 아닙니다. 추가 npm 의존성 없이 개별 캡처·픽셀 비교를 묶고 HTML/JSON 보고서를 만듭니다. 스킬만 독립 설치하는 방식은 바뀌지 않습니다.
 
+[무오차 RGBA 진단과 필드 해석](exact-pixel-evidence.md) · [2026-11-02 새 캡처 검증 결과](case-studies/uulab-services/exact-pixels-2026-11-02.md)
+
 ## 실행
 
 ```bash
@@ -67,6 +69,8 @@ npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/se
 
 **비교기의 0%도 픽셀 동일성을 뜻하지 않습니다.** 기본 pixelmatch는 색상 허용 오차 0.1과 안티앨리어싱 제외를 사용합니다. 약한 색 차이는 넓은 면적에 있어도 무시할 수 있습니다. 실제 메뉴 사례는 기본 결과 0%인데 반투명/불투명 배경이 눈으로 다르고, 허용 오차 없는 RGBA 비교에서는 약 34.99%의 픽셀이 달랐습니다. [실측 설명](case-studies/uulab-services/fidelity-polish-2026-11-01.md)을 참고하고 반드시 side-by-side 이미지를 검토하세요. RGBA 차이 비율 역시 품질 점수가 아닙니다.
 
+새 보고서는 기존 비율과 별개로 `exactPixels` 및 `exact-diff.png`를 제공합니다. 허용 오차 기준 0%인데 실제 RGBA 값이 다르면 자동 검토 경고를 남깁니다. 과거 보고서의 미측정 값은 동일하다고 추정하지 않으며, 기존 `maxDiffRatio`는 계속 허용 오차 적용 비율에만 적용됩니다. [무오차 진단 안내](exact-pixel-evidence.md)에서 정확한 의미와 호환성을 확인하세요.
+
 종료 코드 0은 비교 완료, 1은 입력/실행/비교 실패입니다. 임계값 없는 종료 코드 0을 시각적 승인으로 해석하지 마세요. `--overwrite`는 같은 도구가 만든 출력만 교체하며 입력 파일을 보호합니다. 기존 출력에 개인 파일을 넣은 뒤 덮어쓰지 마세요. 보고서에는 페이지 텍스트·URL·로그가 들어갈 수 있으므로 게시 전에 민감정보를 검토하세요.
 
 집계기는 URL, 화면 크기, 상태, 테마, 임계값, 하위 프로세스와 행별 결과를 교차 확인합니다. 필수 증거의 누락·빈 파일·최종 파일 심볼릭 링크를 실패 처리합니다. PNG 디코딩/픽셀 계산은 기존 compare가 담당합니다. 집계기 테스트의 계약용 fixture는 실제 브라우저 캡처가 아닙니다.
@@ -81,3 +85,5 @@ npm run check
 새 테스트는 기존 전체 검사에 자동 포함됩니다. `.github/workflows/verification-suite.yml`은 전체 검사 후 실제 운영 원본과 프로덕션 빌드를 비교하고 성공/실패 모두 로그와 증거를 14일 보관합니다. Actions의 **Verification suite integration → Run workflow**로 수동 실행할 수 있습니다. 작업 브랜치 `feat/verification-suite-integration`의 push에서도 실행하지만 일반 main/PR CI에는 실사이트 의존성을 추가하지 않습니다.
 
 **Clone fidelity review → Run workflow**는 동일한 스위트에 더해 390 × 320 메뉴 캡처와 기본 상태 full-page 비교를 수행합니다. 이 워크플로는 `work/clone-fidelity` push에서도 실행합니다. full-page 결과는 아티팩트 `full-page/summary.json`에 별도 보관하며, 크기 불일치는 비율을 계산하지 않고 `dimension_mismatch`, exit code 1, `reviewRequired: true`로 남깁니다. 워크플로는 그 명시적인 진단을 보존하되 그 밖의 비교 실패는 실패 처리합니다. 따라서 워크플로 완료를 전체 페이지 합격으로 해석하면 안 됩니다.
+
+**Exact pixel evidence → Run workflow**는 전체 검사 후 같은 10개 화면에 두 측정값과 무오차 마스크를 기록합니다. `work/exact-pixel-evidence` push에서도 실행하며, 스크린샷·JSON·로그를 14일 보관합니다.

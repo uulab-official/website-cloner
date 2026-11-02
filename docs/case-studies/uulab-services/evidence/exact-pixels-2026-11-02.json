@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "codeCommit": "d7339296a94f6cb5934c1b47fbbe79d3504e54c3",
+  "workflowRun": 41367233245,
+  "artifactId": 13107851927,
+  "archiveSha256": "c9a06e1893288a346d052bda6127f446657b2a2520b652980fc73725b3f9d15a",
+  "startedAt": "2026-11-02T00:28:22.915Z",
+  "completedAt": "2026-11-02T00:29:37.840Z",
+  "tests": {"toolkitAndBrowser": 204, "productionDemo": 9, "total": 213, "failed": 0, "skipped": 0},
+  "summary": {"total": 6, "completed": 6, "failed": 0, "skipped": 0, "pending": 0, "reviewRequired": 1, "visualPassed": 0, "visualFailed": 0, "visualNotRequested": 6, "visualNotEvaluated": 0},
+  "independentCheck": "Pillow RGBA decode + NumPy channel, bound, mean/max and binary-mask checks; not a new browser capture and not independent code review",
+  "checkedViewports": 10,
+  "rows": [
+    {"case": "services-default", "width": 1440, "height": 900, "tolerantRatio": 0.0017098765432098765, "exactChangedPixels": 13423, "totalPixels": 1296000, "exactRatio": 0.010357253086419754, "decodedRgbaIdentical": false},
+    {"case": "services-default", "width": 768, "height": 900, "tolerantRatio": 0.001623263888888889, "exactChangedPixels": 5941, "totalPixels": 691200, "exactRatio": 0.008595196759259259, "decodedRgbaIdentical": false},
+    {"case": "services-default", "width": 390, "height": 900, "tolerantRatio": 0, "exactChangedPixels": 0, "totalPixels": 351000, "exactRatio": 0, "decodedRgbaIdentical": true},
+    {"case": "services-menu-mobile", "width": 390, "height": 900, "tolerantRatio": 0, "exactChangedPixels": 122805, "totalPixels": 351000, "exactRatio": 0.3498717948717949, "decodedRgbaIdentical": false},
+    {"case": "services-dark-desktop", "width": 1440, "height": 900, "tolerantRatio": 0.0013811728395061729, "exactChangedPixels": 13167, "totalPixels": 1296000, "exactRatio": 0.010159722222222223, "decodedRgbaIdentical": false},
+    {"case": "services-root-alias", "width": 1440, "height": 900, "tolerantRatio": 0.0017098765432098765, "exactChangedPixels": 13423, "totalPixels": 1296000, "exactRatio": 0.010357253086419754, "decodedRgbaIdentical": false},
+    {"case": "services-root-alias", "width": 390, "height": 900, "tolerantRatio": 0, "exactChangedPixels": 0, "totalPixels": 351000, "exactRatio": 0, "decodedRgbaIdentical": true},
+    {"case": "services-faq-open", "width": 1440, "height": 900, "tolerantRatio": 0.016487654320987654, "exactChangedPixels": 67577, "totalPixels": 1296000, "exactRatio": 0.05214274691358025, "decodedRgbaIdentical": false},
+    {"case": "services-faq-open", "width": 390, "height": 900, "tolerantRatio": 0.024455840455840455, "exactChangedPixels": 24868, "totalPixels": 351000, "exactRatio": 0.07084900284900285, "decodedRgbaIdentical": false},
+    {"case": "services-dark-menu-mobile", "width": 390, "height": 900, "tolerantRatio": 0.00010541310541310541, "exactChangedPixels": 153643, "totalPixels": 351000, "exactRatio": 0.4377293447293447, "decodedRgbaIdentical": false}
+  ],
+  "mobileMenuImageHashes": {
+    "sourceSha256": "3d24ba9fbecf87f2dc5f4c5298e0e874e6157d2a39eac212a662abf9772f5ba6",
+    "targetSha256": "c57328e282846ee41f87d709d658d2304662071a3b91e0bccb18ab10929313cd",
+    "exactMaskSha256": "f234318ebf9262fc0656aff02a276ebb8880954a19f72ff727d2dedf6c5915d8"
+  }
+}
