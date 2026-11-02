@@ -29,7 +29,7 @@ jobs:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CAPTURE_TEST_ENGINES: chromium,firefox,webkit
           CLONER_MEDIA_EVIDENCE_DIR: artifacts/media-assets/fixtures
-        run: set -o pipefail; node --test tests/media-assets.test.mjs tests/media-evidence.test.mjs tests/media-observations.test.mjs tests/media-pipeline.test.mjs 2>&1 | tee artifacts/media-assets/media-tests.log
+        run: set -o pipefail; node --test tests/media-assets.test.mjs tests/media-edgecases.test.mjs tests/media-evidence.test.mjs tests/media-observations.test.mjs tests/media-pipeline.test.mjs 2>&1 | tee artifacts/media-assets/media-tests.log
       - name: Fresh owned-source capture and observations
         if: ${{ !cancelled() }}
         run: |

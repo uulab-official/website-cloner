@@ -37,7 +37,7 @@ export function cssImageUrls(value) {
     if (value[i] === '"' || value[i] === "'") result = quoted();
     else {
       while (i < value.length && value[i] !== ')' && !space(value[i])) {
-        if (/[('"\u0000-\u001f\u007f]/.test(value[i])) invalid();
+        if (/[('"\u0000-\u001f\u007f]/.test(value[i]) || (value[i] === '\\' && /[\n\r\f]/.test(value[i + 1] || ''))) invalid();
         result += value[i] === '\\' ? escaped() : value[i++];
       }
     }
@@ -83,7 +83,12 @@ function text(value, field, max = 8000) { check(typeof value === 'string' && val
 function count(value, field, max = 1_000_000_000) { check(Number.isSafeInteger(value) && value >= 0 && value <= max, field); return value; }
 function assetUrl(value, base) {
   if (!value || value.startsWith('#') || /[\u0000-\u001f\u007f]/.test(value)) return null;
-  try { return httpUrl(new URL(value, base).href); } catch { return null; }
+  try {
+    const resolved = new URL(httpUrl(new URL(value, base).href));
+    const original = new URL(base);
+    if (resolved.hash && resolved.origin === original.origin && resolved.pathname === original.pathname && resolved.search === original.search) return null;
+    return resolved.href;
+  } catch { return null; }
 }
 
 /** Validate optional capture extension and return unapproved asset references. */
@@ -101,7 +106,9 @@ export function mediaCandidates(data, baseUrl) {
   if (c.scannedElements < c.totalElements || c.scannedMedia < c.totalMedia || c.droppedBackgrounds || c.droppedSources || c.truncatedStrings) {
     warn('media_inventory_incomplete', 'The bounded CSS/media scan omitted or truncated records; inspect asset coverage counters.');
   }
+  let references = 0, omittedReferences = 0;
   const add = (value, kind, observation) => {
+    if (++references > 5000) { omittedReferences++; return; }
     const source = assetUrl(value, baseUrl);
     if (!source) { warn('asset_url_unsupported', 'An empty, local-fragment, credential-bearing, control-character or non-HTTP(S) asset reference was excluded.'); return; }
     candidates.push({ source_url: source, kind, observation });
@@ -123,7 +130,8 @@ export function mediaCandidates(data, baseUrl) {
     if (m.truncated) { warn('media_inventory_incomplete', 'A truncated media URL was excluded.'); continue; }
     add(m.url, m.role === 'poster' ? 'image' : m.tag, { role: m.role === 'poster' ? 'video-poster' : m.role, tag: m.tag, selector: m.selector, selected: m.selected, declaredType: m.declaredType || null, media: m.media || null, playbackVerified: false });
   }
-  return { candidates, coverage: { status: 'recorded', ...c }, warnings };
+  if (omittedReferences) warn('media_inventory_incomplete', `${omittedReferences} additional CSS/media references were omitted by the 5000-reference limit.`);
+  return { candidates, coverage: { status: 'recorded', ...c, omittedReferences }, warnings };
 }
 
 /** Merge by URL without confusing CSS box size with intrinsic image dimensions. */

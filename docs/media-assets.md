@@ -18,7 +18,7 @@ npm run observe -- --capture artifacts/media-source --out artifacts/media-report
 
 ## 수집 제한과 안전
 
-DOM 5,000개, 배경 기록 500개, 미디어 요소 100개, 요소당 source 20개, 문자열당 8,000자(타입/쿼리는 1,000자), 추가 값 문자열 총 500,000자를 상한으로 한다. 생략·잘림을 coverage에 남기고 잘린 CSS/URL은 후보로 만들지 않는다. 프레임·Shadow DOM·폰트 파일·마스크·border-image·canvas는 미지원이다. CSS 토큰 추출기는 일반 CSS 검증기가 아니다.
+DOM 5,000개, 배경 기록 500개, 미디어 요소 100개, 요소당 source 20개, 문자열당 8,000자(타입/쿼리는 1,000자), 추가 값 문자열 총 500,000자와 화면당 CSS/미디어 URL 참조 5,000개를 상한으로 한다. 생략·잘림을 coverage에 남기고 잘린 CSS/URL은 후보로 만들지 않는다. 프레임·Shadow DOM·폰트 파일·마스크·border-image·canvas는 미지원이다. CSS 토큰 추출기는 일반 CSS 검증기가 아니다.
 
 수집기는 DOM을 읽을 뿐 play/load/fetch를 호출하거나 페이지를 바꾸지 않는다. 원본 페이지 자체가 로딩·스크립트 실행 중 발생시키는 네트워크는 기존 브라우저 캡처 범위에 속한다. observe는 오프라인이다. data/blob/file/javascript URL, 로컬 fragment와 계정정보가 포함된 URL은 재사용 후보에서 제외한다. 일부 capture 원시 텍스트에는 민감정보가 남을 수 있으므로 공유 전 검토한다.
 
