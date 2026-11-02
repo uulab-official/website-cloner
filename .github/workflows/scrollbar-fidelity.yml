@@ -1,0 +1,62 @@
+name: Scrollbar fidelity
+on:
+  workflow_dispatch:
+  push:
+    branches: [work/scrollbar-fidelity]
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: mkdir -p artifacts/scrollbars
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Full regression gate
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/scrollbars/check.log
+      - name: Viewport evidence in three engines
+        if: ${{ !cancelled() }}
+        env:
+          CAPTURE_TEST_BUNDLED_BROWSER: '1'
+          CLONER_CAPTURE_ENGINES: chromium,firefox,webkit
+        run: set -o pipefail; node --test tests/viewport-evidence.test.mjs 2>&1 | tee artifacts/scrollbars/viewport-tests.log
+      - name: Source diagnosis and unmodified paired captures
+        if: ${{ !cancelled() }}
+        shell: bash
+        run: |
+          npm run build > artifacts/scrollbars/build.log 2>&1
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/scrollbars/preview.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/services/ > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" -eq 1
+          failed=0
+          node scripts/case-studies/inspect-uulab-scrollbars.mjs artifacts/scrollbars/inspection > artifacts/scrollbars/inspection.log 2>&1 || failed=1
+          for engine in chromium firefox webkit; do
+            node scripts/verify-suite.mjs --manifest suites/uulab-services.json --browser "$engine" --out "artifacts/scrollbars/live/$engine" > "artifacts/scrollbars/$engine-live.log" 2>&1 || failed=1
+          done
+          exit "$failed"
+      - name: Record revision without fonts
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/scrollbars/commit.txt
+          node --version > artifacts/scrollbars/node-version.txt
+          npm ls --depth=0 > artifacts/scrollbars/dependencies.txt || true
+          tar -czf artifacts/scrollbars/code.tar.gz scripts tests examples/uulab-services/src package.json .github/workflows/scrollbar-fidelity.yml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: scrollbar-fidelity-${{ github.sha }}
+          path: artifacts/scrollbars
+          retention-days: 14
