@@ -1,0 +1,74 @@
+name: Scroll progress fidelity
+on:
+  workflow_dispatch:
+  push:
+    branches: [work/progress-controls-fidelity]
+permissions:
+  contents: read
+jobs:
+  evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: mkdir -p artifacts/progress
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Full regression gate
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/progress/check.log
+      - name: Fresh source inspection and paired capture
+        shell: bash
+        run: |
+          node node_modules/vite/bin/vite.js preview examples/uulab-services --outDir ../../dist/demo --host 127.0.0.1 --port 4173 --strictPort > artifacts/progress/preview.log 2>&1 &
+          preview_pid=$!
+          trap 'kill "$preview_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/services/ >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1
+          node scripts/case-studies/inspect-uulab-progress.mjs
+          set -o pipefail
+          npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/progress/live 2>&1 | tee artifacts/progress/live.log
+      - name: Compare full pages without resizing or hiding dimension failures
+        run: |
+          node --input-type=module <<'JS'
+          import { readFile, mkdir, writeFile } from 'node:fs/promises';
+          import { spawnSync } from 'node:child_process';
+          const root='artifacts/progress', summary={reviewRequired:false,results:[]};
+          await mkdir(`${root}/full-page`,{recursive:true});
+          for (const width of [1440,768,390]) {
+            const base=`${root}/live/cases/services-default`, out=`${root}/full-page/${width}`;
+            const run=spawnSync(process.execPath,['scripts/compare.mjs','--source',`${base}/source/${width}x900/full-page.png`,'--target',`${base}/target/${width}x900/full-page.png`,'--out',out],{encoding:'utf8'});
+            let report; try {report=JSON.parse(await readFile(`${out}/report.json`,'utf8'));} catch {}
+            summary.results.push({width,exitCode:run.status,error:run.error?.message,stdout:run.stdout,stderr:run.stderr,report});
+            if (run.status!==0) {
+              summary.reviewRequired=true;
+              if (report?.status!=='dimension_mismatch') process.exitCode=1;
+            }
+          }
+          await writeFile(`${root}/full-page/summary.json`,JSON.stringify(summary,null,2)+'\n');
+          JS
+      - name: Record revision and toolchain
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/progress/commit.txt
+          node --version > artifacts/progress/node-version.txt
+          npm ls --depth=0 > artifacts/progress/dependencies.txt
+          tar -czf artifacts/progress/code.tar.gz scripts tests examples/uulab-services/src package.json
+      - name: Preserve evidence even when checks fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scroll-progress-${{ github.sha }}
+          path: artifacts/progress/
+          if-no-files-found: error
+          retention-days: 14
