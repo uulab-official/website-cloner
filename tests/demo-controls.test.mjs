@@ -44,7 +44,8 @@ test('mobile menu matches observed settled link geometry without losing opacity'
     const box = await menu.boundingBox();
     assert.equal(box.x, 16);
     assert.equal(box.y, 88);
-    assert.equal(box.width, 358);
+    const layoutWidth = await page.evaluate(() => document.documentElement.clientWidth);
+    assert.equal(box.width, layoutWidth - 32, 'keep the observed 16px gutters inside the layout viewport');
     assert.equal(box.height, 346, '6 links use 24px line height, 4px spacing and no trailing margin');
     assert.equal(await menu.evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(255, 255, 255)');
     const links = await menu.locator('a').evaluateAll(elements => elements.map(el => ({ y: el.getBoundingClientRect().y, height: el.getBoundingClientRect().height })));

@@ -52,7 +52,7 @@ async function progress(page) {
     const s=getComputedStyle(el), b=el.getBoundingClientRect();
     const range=Math.max(0,document.documentElement.scrollHeight-innerHeight);
     const ratio=range>0?Math.max(0,Math.min(1,scrollY/range)):0;
-    return {actual:b.width,expected:innerWidth*ratio,x:b.x,y:b.y,height:b.height,position:s.position,pointerEvents:s.pointerEvents,transition:s.transitionDuration,hidden:el.hidden,ariaHidden:el.getAttribute('aria-hidden')};
+    return {actual:b.width,expected:document.documentElement.clientWidth*ratio,x:b.x,y:b.y,height:b.height,position:s.position,pointerEvents:s.pointerEvents,transition:s.transitionDuration,hidden:el.hidden,ariaHidden:el.getAttribute('aria-hidden')};
   });
 }
 async function assertProgress(page) {
@@ -69,7 +69,7 @@ for (const width of [390,1440]) {
       assert.equal(start.actual,0); assert.equal(start.position,'fixed'); assert.equal(start.y,0); assert.equal(start.x,0); assert.equal(start.height,4);
       assert.equal(start.ariaHidden,'true'); assert.equal(start.pointerEvents,'none'); assert.equal(start.hidden,false);
       await scroll(page,Math.floor((height-900)/2)); await assertProgress(page);
-      await scroll(page,height); const end=await assertProgress(page); assert.equal(end.actual,width);
+      await scroll(page,height); const end=await assertProgress(page); assert.equal(end.actual,await page.evaluate(()=>document.documentElement.clientWidth));
       assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),height);
     });
   });
@@ -127,7 +127,8 @@ for (const width of [320,390,768,769,1440]) {
       await scroll(page,300); const button=page.locator('#backToTopButton'); assert.equal(await button.isVisible(),false);
       await scroll(page,301); const box=await button.boundingBox(); assert.ok(box);
       assert.equal(box.width,48);assert.equal(box.height,48);
-      assert.equal(width-box.x-box.width,24);assert.equal(900-box.y-box.height,24);
+      const edge=await page.evaluate(()=>({width:document.documentElement.clientWidth,height:document.documentElement.clientHeight}));
+      assert.equal(edge.width-box.x-box.width,24);assert.equal(edge.height-box.y-box.height,24);
       await button.press('Enter'); await settle(page); assert.equal(await page.evaluate(()=>scrollY),0);
       assert.equal(await page.locator('#main-content').evaluate(el=>el===document.activeElement),true);
     });

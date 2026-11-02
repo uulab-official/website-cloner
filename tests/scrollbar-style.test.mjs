@@ -25,12 +25,24 @@ for (const engine of engines) {
       await p.setContent(`<!doctype html><style>${css}</style><main style="height:2000px"><div class="container">Fixture</div></main>`);
       const observed = await p.evaluate(() => {
         const root = document.documentElement;
-        return { width: getComputedStyle(root, '::-webkit-scrollbar').width, track: getComputedStyle(root, '::-webkit-scrollbar-track').backgroundColor,
+        const rules = Array.from(document.styleSheets[0].cssRules);
+        const declared = selector => rules.find(rule => rule.selectorText === selector)?.style;
+        return { declaredTrack: declared('::-webkit-scrollbar-track')?.backgroundColor, declaredThumb: declared('::-webkit-scrollbar-thumb')?.backgroundColor, declaredRadius: declared('::-webkit-scrollbar-thumb')?.borderRadius,
+          width: getComputedStyle(root, '::-webkit-scrollbar').width, track: getComputedStyle(root, '::-webkit-scrollbar-track').backgroundColor,
           thumb: getComputedStyle(root, '::-webkit-scrollbar-thumb').backgroundColor, radius: getComputedStyle(root, '::-webkit-scrollbar-thumb').borderRadius,
           overflow: root.scrollWidth > root.clientWidth, contentWidth: document.querySelector('.container').getBoundingClientRect().width, available: root.clientWidth };
       });
-      assert.equal(observed.width, '6px'); assert.equal(observed.track, 'rgb(249, 250, 251)');
-      assert.equal(observed.thumb, 'rgb(37, 99, 235)'); assert.equal(observed.radius, '3px');
+      assert.equal(observed.width, '6px');
+      assert.equal(observed.declaredTrack, 'rgb(249, 250, 251)');
+      assert.equal(observed.declaredThumb, 'rgb(37, 99, 235)'); assert.equal(observed.declaredRadius, '3px');
+      // The pinned Firefox source/target return no computed thumb/track style.
+      // Validate its declarations and actual geometry, not invented paint support.
+      if (engine === 'firefox') {
+        assert.equal(observed.track, ''); assert.equal(observed.thumb, ''); assert.equal(observed.radius, '');
+      } else {
+        assert.equal(observed.track, 'rgb(249, 250, 251)');
+        assert.equal(observed.thumb, 'rgb(37, 99, 235)'); assert.equal(observed.radius, '3px');
+      }
       assert.equal(observed.overflow, false); assert.equal(observed.contentWidth, observed.available);
     } finally { await browser.close(); }
   });
