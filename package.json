@@ -10,6 +10,7 @@
     "dev": "vite examples/uulab-services",
     "build": "vite build examples/uulab-services --outDir ../../dist/demo",
     "preview": "vite preview examples/uulab-services --outDir ../../dist/demo",
+    "init": "node scripts/init.mjs",
     "capture": "node scripts/capture.mjs",
     "compare": "node scripts/compare.mjs",
     "verify": "node scripts/verify.mjs",
