@@ -17,7 +17,7 @@ async function observe(page, label) {
       const s = getComputedStyle(el), b = el.getBoundingClientRect();
       return { x:b.x,y:b.y,width:b.width,height:b.height,bottom:b.bottom,transform:s.transform,display:s.display,visibility:s.visibility,opacity:s.opacity,outline:s.outline,outlineOffset:s.outlineOffset,boxShadow:s.boxShadow,transition:s.transition,focused:el===document.activeElement,focusVisible:el.matches(':focus-visible') };
     };
-    return { label, scrollY, documentHeight:document.documentElement.scrollHeight, header:style('#navigation'), summary:style('.faq-list details:first-child summary'), faqOpen:document.querySelector('.faq-list details:first-child')?.open, activeElement:document.activeElement?.tagName };
+    return { label, scrollY, documentHeight:document.documentElement.scrollHeight, header:style('#navigation'), summary:style('details:first-of-type summary'), faqOpen:document.querySelector('details:first-of-type')?.open, activeElement:document.activeElement?.tagName };
   }, label);
 }
 try {
@@ -36,7 +36,7 @@ try {
           await page.evaluate(y => window.scrollTo({top:y,behavior:'instant'}), y);
           run.observations.push(await observe(page,`scroll-${y}`));
         }
-        const summary = page.locator('.faq-list details:first-child summary');
+        const summary = page.locator('details:first-of-type summary');
         await summary.scrollIntoViewIfNeeded();
         run.observations.push(await observe(page,'faq-scroll'));
         await summary.click();
