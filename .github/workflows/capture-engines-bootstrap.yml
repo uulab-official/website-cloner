@@ -1,0 +1,80 @@
+name: Apply and verify capture engine change
+on:
+  push:
+    branches: [work/capture-engines-live]
+permissions:
+  contents: read
+concurrency:
+  group: capture-engines-bootstrap
+  cancel-in-progress: false
+jobs:
+  apply:
+    if: github.ref == 'refs/heads/work/capture-engines-live'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: mkdir -p artifacts/engines
+      - name: Apply the reviewed change only to its pinned base
+        run: |
+          test "$(git rev-parse HEAD^)" = d6ac5a819365492240e356775e764a86f148cee7
+          python .maintenance/apply-capture-engines.py
+          git diff --check
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Full regression gate
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/engines/check.log
+      - name: Local pipeline in all three engines
+        env:
+          CAPTURE_TEST_BUNDLED_BROWSER: '1'
+          CLONER_CAPTURE_ENGINES: chromium,firefox,webkit
+        run: set -o pipefail; node --test tests/capture-engine.test.mjs 2>&1 | tee artifacts/engines/engine-tests.log
+      - name: Commit checked files and remove the one-shot writer
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .maintenance/apply-capture-engines.py .github/workflows/capture-engines-bootstrap.yml
+          git add scripts tests docs README.md .github/workflows/capture-engines.yml
+          git commit -m 'feat: select and verify capture engines end to end'
+          git push origin HEAD:refs/heads/work/capture-engines-live
+      - name: Fresh authorized source and implementation pairs
+        shell: bash
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/engines/preview.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:4173/services/ > /dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" -eq 1
+          failed=0
+          for engine in chromium firefox webkit; do
+            node scripts/verify-suite.mjs --manifest suites/uulab-services.json --browser "$engine" --out "artifacts/engines/live/$engine" > "artifacts/engines/$engine-live.log" 2>&1 || failed=1
+          done
+          exit "$failed"
+      - name: Record revision and reviewable source without fonts
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/engines/commit.txt
+          git rev-parse HEAD^{tree} > artifacts/engines/tree.txt
+          git status --short > artifacts/engines/status.txt
+          node --version > artifacts/engines/node-version.txt
+          npm ls --depth=0 > artifacts/engines/dependencies.txt || true
+          tar -czf artifacts/engines/code.tar.gz scripts tests package.json .github/workflows docs/capture-engines.md docs/browser-compatibility.md
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capture-engine-pipeline-${{ github.sha }}
+          path: artifacts/engines
+          retention-days: 14

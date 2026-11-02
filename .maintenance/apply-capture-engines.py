@@ -1,0 +1,62 @@
+from pathlib import Path
+root = Path.cwd()
+def edit(p, old, new):
+    f = root / p
+    s = f.read_text()
+    assert old in s, (p, old[:100])
+    f.write_text(s.replace(old, new))
+edit('scripts/lib/browser-check.mjs','/** Test-only selection. Capture/verify commands remain Chromium-only. */','''/** Capture commands use explicit CLI options, not demo-test environment overrides. */
+export function captureBrowserOptions({ browser = 'chromium', executablePath } = {}) {
+  if (!supportedBrowsers.includes(browser)) throw new Error('--browser must be chromium, firefox or webkit');
+  if (executablePath && browser !== 'chromium') throw new Error('Chromium executable overrides cannot be used with Firefox or WebKit');
+  return { name: browser, launchOptions: { headless: true, ...(executablePath ? { executablePath: path.resolve(executablePath) } : {}) } };
+}
+
+/** Test-only selection; independent from capture CLI options. */''')
+for p in ['scripts/capture.mjs','scripts/verify.mjs','scripts/verify-suite.mjs']:
+    edit(p, "import path from 'node:path';", "import path from 'node:path';\nimport { captureBrowserOptions } from './lib/browser-check.mjs';")
+edit('scripts/capture.mjs','fresh, headless Playwright Chromium session','fresh, headless Playwright session in the selected engine')
+edit('scripts/capture.mjs','  --executable-path FILE    Explicit alternative Chromium executable','  --browser NAME            chromium (default), firefox or webkit\n  --executable-path FILE    Explicit alternative Chromium executable (Chromium only)')
+edit('scripts/capture.mjs', "'actions', 'executable-path']", "'actions', 'executable-path', 'browser']")
+edit('scripts/capture.mjs', '  options.url = httpUrl(options.url);', "  const selected = captureBrowserOptions({ browser: options.browser, executablePath: options['executable-path'] });\n  options.browser = selected.name;\n  options.url = httpUrl(options.url);")
+edit('scripts/capture.mjs', "browser: 'chromium', browserVersion: browser.version()", "browser: browser.browserType().name(), browserVersion: browser.version()")
+edit('scripts/capture.mjs', 'requestedUrl: options.url, widths, height:', 'browser: selected.name, actualBrowser: null, requestedUrl: options.url, widths, height:')
+edit('scripts/capture.mjs', "    const { chromium } = await import('playwright');\n    browser = await chromium.launch({ headless: true, ...(options['executable-path'] ? { executablePath: path.resolve(options['executable-path']) } : {}) });", "    const playwright = await import('playwright');\n    browser = await playwright[selected.name].launch(selected.launchOptions);\n    manifest.actualBrowser = browser.browserType().name();\n    if (manifest.actualBrowser !== selected.name) throw new Error('Launched browser does not match requested browser');")
+edit('scripts/verify.mjs', '  --executable-path FILE     Explicit Chromium executable for both captures', '  --browser NAME             chromium (default), firefox or webkit for BOTH sides\n  --executable-path FILE     Explicit Chromium executable for both captures (Chromium only)')
+edit('scripts/verify.mjs', "'executable-path', 'max-diff-ratio']", "'executable-path', 'max-diff-ratio', 'browser']")
+edit('scripts/verify.mjs', '  const sourceUrl = httpUrl(options.source);', "  const selected = captureBrowserOptions({ browser: options.browser, executablePath: options['executable-path'] });\n  const sourceUrl = httpUrl(options.source);")
+edit('scripts/verify.mjs','    sourceUrl, targetUrl, state, widths, height, scheme, maxDiffRatio,','    browser: selected.name, sourceUrl, targetUrl, state, widths, height, scheme, maxDiffRatio,')
+edit('scripts/verify.mjs', "const shared = ['--widths'", "const shared = ['--browser', selected.name, '--widths'")
+edit('scripts/verify.mjs', 'assessPair(source, target, null).comparable', 'assessPair(source, target, null, maxDiffRatio, selected.name).comparable')
+edit('scripts/verify.mjs','...assessPair(source, target, comparison, maxDiffRatio)', '...assessPair(source, target, comparison, maxDiffRatio, selected.name)')
+edit('scripts/verify-suite.mjs','  --executable-path FILE   Explicit Chromium executable for all cases','  --browser NAME           chromium (default), firefox or webkit for the whole suite\n  --executable-path FILE   Explicit Chromium executable for all cases (Chromium only)')
+edit('scripts/verify-suite.mjs',"'target-origin', 'executable-path']", "'target-origin', 'executable-path', 'browser']")
+edit('scripts/verify-suite.mjs',"  if (!options['dry-run'] && !options.out)","  const selected = captureBrowserOptions({ browser: options.browser, executablePath: options['executable-path'] });\n  if (!options['dry-run'] && !options.out)")
+edit('scripts/verify-suite.mjs','JSON.stringify(plan, null, 2)', 'JSON.stringify({ ...plan, browser: selected.name }, null, 2)')
+edit('scripts/verify-suite.mjs',"    executablePath: options['executable-path'],", "    browser: selected.name, executablePath: options['executable-path'],")
+edit('scripts/lib/suite-config.mjs', "  if (item.keepScroll) args.push('--keep-scroll');", "  if (item.browser !== undefined) args.push('--browser', item.browser);\n  if (item.keepScroll) args.push('--keep-scroll');")
+edit('scripts/lib/verification.mjs',"/** Assess captured evidence", "import { supportedBrowsers } from './browser-check.mjs';\n\n/** Assess captured evidence")
+edit('scripts/lib/verification.mjs','requestedMaxDiffRatio = comparison?.maxDiffRatio ?? null)', 'requestedMaxDiffRatio = comparison?.maxDiffRatio ?? null, requestedBrowser)')
+edit('scripts/lib/verification.mjs',"    if (!record?.screenshots?.viewport)","    if (!supportedBrowsers.includes(record?.environment?.browser)) errors.push(`${label}: unsupported or missing browser engine`);\n    if (typeof record?.environment?.browserVersion !== 'string' || !record.environment.browserVersion.trim()) errors.push(`${label}: missing browser version`);\n    if (requestedBrowser !== undefined && (!supportedBrowsers.includes(requestedBrowser) || record?.environment?.browser !== requestedBrowser)) errors.push(`${label}: capture does not match requested browser`);\n    if (!record?.screenshots?.viewport)")
+edit('scripts/lib/verification.mjs','  return { comparable, status:', "  return { browser: source?.environment?.browser ?? null, browserVersion: source?.environment?.browserVersion ?? null, comparable, status:")
+edit('scripts/lib/verification.mjs','<p>Source: ${escapeHtml(report.sourceUrl)}', '<p>Browser: ${escapeHtml(report.browser ?? \'not recorded\')}</p><p>Source: ${escapeHtml(report.sourceUrl)}')
+edit('scripts/lib/verification.mjs','<h2>${escapeHtml(row.width)} × ${escapeHtml(row.height)}</h2>', '<h2>${escapeHtml(row.width)} × ${escapeHtml(row.height)}</h2><p>Observed engine: ${escapeHtml(row.browser ?? \'not recorded\')} · Version: ${escapeHtml(row.browserVersion ?? \'not recorded\')}</p>')
+edit('scripts/lib/suite-runner.mjs',"import { safeError } from './cli.mjs';", "import { safeError } from './cli.mjs';\nimport { captureBrowserOptions } from './browser-check.mjs';")
+edit('scripts/lib/suite-runner.mjs','const result = { id: item.id, state:', 'const result = { id: item.id, browser: item.browser ?? null, state:')
+edit('scripts/lib/suite-runner.mjs', "  if (JSON.stringify(report.widths)", "  if (item.browser !== undefined && report.browser !== item.browser) result.errors.push('Report does not match requested browser');\n  if (JSON.stringify(report.widths)")
+edit('scripts/lib/suite-runner.mjs',"    if (row.status !== 'completed'", "    if (item.browser !== undefined && (row.browser !== item.browser || typeof row.browserVersion !== 'string' || !row.browserVersion.trim())) result.errors.push(`${label}: missing or mismatched requested browser evidence`);\n    if (row.status !== 'completed'")
+edit('scripts/lib/suite-runner.mjs','result.rows.push({ width, height:', 'result.rows.push({ browser: row.browser ?? null, browserVersion: row.browserVersion ?? null, width, height:')
+edit('scripts/lib/suite-runner.mjs','overwrite = false, failFast = false, executablePath,','overwrite = false, failFast = false, executablePath, browser,')
+edit('scripts/lib/suite-runner.mjs','  const executable = executablePath ?', "  const selected = captureBrowserOptions({ browser, executablePath });\n  const cases = plan.cases.map(item => ({ ...item, browser: selected.name }));\n  const executable = executablePath ?")
+edit('scripts/lib/suite-runner.mjs','sourceOrigin: plan.sourceOrigin, targetOrigin: plan.targetOrigin, failFast,','browser: selected.name, sourceOrigin: plan.sourceOrigin, targetOrigin: plan.targetOrigin, failFast,')
+edit('scripts/lib/suite-runner.mjs','cases: plan.cases.map(item => ({ id: item.id, state:', 'cases: cases.map(item => ({ id: item.id, browser: item.browser, state:')
+edit('scripts/lib/suite-runner.mjs','of plan.cases.entries()', 'of cases.entries()')
+edit('scripts/lib/suite-runner.mjs','<p>Source: ${escapeHtml(report.sourceOrigin)}', '<p>Browser: ${escapeHtml(report.browser ?? \'not recorded\')}</p><p>Source: ${escapeHtml(report.sourceOrigin)}')
+edit('tests/suite-runner.test.mjs', "tool: 'website-cloner/verify', status: 'completed', sourceUrl", "tool: 'website-cloner/verify', status: 'completed', browser: item.browser, sourceUrl")
+edit('tests/suite-runner.test.mjs','rows: item.widths.map(width => ({ width, height:', "rows: item.widths.map(width => ({ browser: item.browser, browserVersion: 'contract-fixture', width, height:")
+edit('tests/suite-cli.test.mjs',"tool:'website-cloner/verify',status:'completed',sourceUrl", "tool:'website-cloner/verify',status:'completed',browser:o.browser,sourceUrl")
+edit('tests/suite-cli.test.mjs','rows:widths.map(width=>({width,height,',"rows:widths.map(width=>({browser:o.browser,browserVersion:'contract-fixture',width,height,")
+edit('tests/suite-cli.test.mjs', "'lib/exact-pixels.mjs']", "'lib/exact-pixels.mjs', 'lib/browser-check.mjs']")
+edit('tests/exact-report.test.mjs', "tool:'website-cloner/verify',...item,status:pair.status", "tool:'website-cloner/verify',...item,browser:pair.browser,status:pair.status")
+edit('docs/browser-compatibility.md', '기존 `capture`, `verify`, `verify:suite`는 여전히 Chromium 전용입니다.', '`capture`, `verify`, `verify:suite`도 이제 `--browser`로 엔진을 지정할 수 있습니다. 원본·구현의 짝 비교는 [캡처 엔진 선택](capture-engines.md)을 참고하세요.')
+edit('README.md', '# Website Cloner\n\n', '# Website Cloner\n\n**브라우저 지정 캡처:** `capture`, `verify`, `verify:suite`에 `--browser chromium|firefox|webkit`를 사용할 수 있습니다. [실행 방법과 검증 범위](docs/capture-engines.md)\n\n')
