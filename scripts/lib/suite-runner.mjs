@@ -13,18 +13,18 @@ const successful = result => result && result.exitCode === 0 && !result.error &&
 const validRatio = value => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1;
 
 /** Execute a fixed local Node script with literal arguments, bounded logs and a process-tree timeout. */
-export function executeNodeScript(script, args, { timeoutMs }) {
+export function executeNodeScript(script, args, { timeoutMs, env = process.env, maxOutputChars = 12000 }) {
   return new Promise(resolve => {
     const record = { exitCode: null, signal: null, error: null, timedOut: false, stdout: '', stderr: '' };
     let child;
     try {
       child = spawn(process.execPath, [script, ...args], {
-        shell: false, windowsHide: true, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
+        env, shell: false, windowsHide: true, detached: process.platform !== 'win32', stdio: ['ignore', 'pipe', 'pipe'],
       });
     } catch (error) { record.error = safeError(error); resolve(record); return; }
     for (const stream of ['stdout', 'stderr']) {
       child[stream].setEncoding('utf8');
-      child[stream].on('data', chunk => { record[stream] = (record[stream] + chunk).slice(-12000); });
+      child[stream].on('data', chunk => { record[stream] = (record[stream] + chunk).slice(-maxOutputChars); });
     }
     const terminateTree = () => {
       if (!child.pid) return;

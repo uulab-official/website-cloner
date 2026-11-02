@@ -1,0 +1,40 @@
+name: Demo browser compatibility
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, work/cross-browser-regressions]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  browsers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: mkdir -p artifacts/cross-browser
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Existing full Chromium gate
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/cross-browser/check.log
+      - name: Same behavior checks in three engines
+        if: ${{ !cancelled() }}
+        run: set -o pipefail; npm run check:browsers -- --out artifacts/cross-browser/report 2>&1 | tee artifacts/cross-browser/browsers.log
+      - name: Record revision and reviewable code without font files
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/cross-browser/commit.txt
+          node --version > artifacts/cross-browser/node-version.txt
+          npm ls --depth=0 > artifacts/cross-browser/dependencies.txt
+          tar -czf artifacts/cross-browser/code.tar.gz scripts tests examples/uulab-services/src package.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: demo-browser-compatibility-${{ github.sha }}
+          path: artifacts/cross-browser
+          retention-days: 14

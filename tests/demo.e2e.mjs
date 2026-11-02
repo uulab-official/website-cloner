@@ -3,7 +3,7 @@ import { before, after, test } from 'node:test';
 import { createServer } from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
-import { chromium } from 'playwright';
+import { launchDemoBrowser } from './helpers/demo-browser.mjs';
 
 let server;
 let browser;
@@ -27,8 +27,7 @@ before(async () => {
   });
   await new Promise((resolve, reject) => { server.once('error',reject); server.listen(0,'127.0.0.1',resolve); });
   base = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({headless:true,...(process.env.CLONER_CHROMIUM_PATH ? {executablePath:process.env.CLONER_CHROMIUM_PATH} : {})});
-  process.stdout.write(`Demo browser: ${browser.version()}\n`);
+  browser = await launchDemoBrowser();
 });
 after(async () => {
   await browser?.close();
@@ -143,3 +142,36 @@ for (const width of [320,390,768,1024,1440]) {
     } finally { await context.close(); }
   });
 }
+
+// These are production-implementation views, not source/clone comparisons.
+test('production states render as reviewable desktop and mobile evidence', async () => {
+  const views=[];
+  const evidenceDirectory=process.env.CLONER_DEMO_EVIDENCE_DIR;
+  const { mkdir, writeFile }=await import('node:fs/promises');
+  if(evidenceDirectory)await mkdir(evidenceDirectory,{recursive:true});
+  for(const width of [1440,390]) {
+    const {context,page,errors}=await pageAt({width,height:900});
+    try {
+      await page.evaluate(()=>document.fonts.ready);
+      const save=async state=>{
+        const filename=`${width}x900-${state}.png`;
+        const metadata=await page.evaluate(()=>({scrollX,scrollY,viewport:{width:innerWidth,height:innerHeight},theme:document.documentElement.dataset.theme,faqOpen:document.querySelector('details').open,menuOpen:document.querySelector('.navbar-toggler').getAttribute('aria-expanded')==='true'}));
+        const image=await page.screenshot({animations:'disabled',caret:'hide',...(evidenceDirectory?{path:path.join(evidenceDirectory,filename)}:{})});
+        assert.ok(image.length>1000,'real production screenshot must not be empty');
+        views.push({state,filename,...metadata});
+      };
+      await save('default');
+      if(width===390){await page.locator('.navbar-toggler').click();await save('menu');await page.keyboard.press('Escape');}
+      await page.locator(width===390?'#darkModeToggleMobile':'#darkModeToggle').click();
+      await save('dark');
+      await page.locator(width===390?'#darkModeToggleMobile':'#darkModeToggle').click();
+      const summary=page.locator('details').first().locator('summary');
+      await summary.click();await summary.scrollIntoViewIfNeeded();
+      await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+      await save('faq');
+      assert.deepEqual(errors,[]);
+    } finally {await context.close();}
+  }
+  assert.equal(views.length,7);
+  if(evidenceDirectory)await writeFile(path.join(evidenceDirectory,'evidence.json'),JSON.stringify({schemaVersion:1,kind:'production-implementation-only',browser:browser.browserType().name(),version:browser.version(),platform:process.platform,sourceCompared:false,physicalDevice:false,hasTouch:false,reducedMotion:'reduce',timestamp:new Date().toISOString(),views},null,2)+'\n');
+});

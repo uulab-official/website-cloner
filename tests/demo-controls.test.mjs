@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { launchDemoBrowser } from './helpers/demo-browser.mjs';
 import { renderPage } from '../examples/uulab-services/src/render.js';
 
 // Authored markup, stylesheet and enhancement in a local control-only fixture.
@@ -11,7 +12,6 @@ const enabled = Boolean(process.env.CAPTURE_TEST_BUNDLED_BROWSER || process.env.
 let browser, server, base;
 before(async () => {
   if (!enabled) return;
-  const { chromium } = await import('playwright');
   const css = await readFile(new URL('../examples/uulab-services/src/styles.css', import.meta.url), 'utf8');
   const js = await readFile(new URL('../examples/uulab-services/src/main.js', import.meta.url), 'utf8');
   const html = `<!doctype html><html lang="ko" data-theme="light"><meta charset="utf-8"><style>${css}</style><body>${renderPage()}<script>${js}</script></body></html>`;
@@ -22,7 +22,7 @@ before(async () => {
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   base = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({ ...(process.env.CAPTURE_TEST_EXECUTABLE_PATH ? { executablePath: process.env.CAPTURE_TEST_EXECUTABLE_PATH } : {}) });
+  browser = await launchDemoBrowser();
 });
 after(async () => {
   await browser?.close();

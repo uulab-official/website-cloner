@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { before, after, test } from 'node:test';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
+import { launchDemoBrowser } from './helpers/demo-browser.mjs';
 import { renderPage } from '../examples/uulab-services/src/render.js';
 
 // Real authored markup/CSS/JS, local non-visual asset placeholders only.
@@ -10,7 +11,6 @@ const options = { skip: !enabled, timeout: 20000 };
 let browser, server, base;
 before(async () => {
   if (!enabled) return;
-  const { chromium } = await import('playwright');
   const css = await readFile(new URL('../examples/uulab-services/src/styles.css', import.meta.url), 'utf8');
   const js = await readFile(new URL('../examples/uulab-services/src/main.js', import.meta.url), 'utf8');
   const html = `<!doctype html><html lang="ko" data-theme="light"><meta charset="utf-8"><style>${css}</style><body>${renderPage()}<script>${js}</script></body></html>`;
@@ -21,7 +21,7 @@ before(async () => {
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve); });
   base = `http://127.0.0.1:${server.address().port}`;
-  browser = await chromium.launch({ ...(process.env.CAPTURE_TEST_EXECUTABLE_PATH ? { executablePath: process.env.CAPTURE_TEST_EXECUTABLE_PATH } : {}) });
+  browser = await launchDemoBrowser();
 });
 after(async () => {
   await browser?.close();
@@ -63,7 +63,7 @@ for (const width of [390,1440]) {
       await visible(page,false);
       await page.evaluate(()=>window.dispatchEvent(new Event('scroll')));
       await settle(page);
-      await visible(page,false); // duplicate scroll event must not reveal it
+      await visible(page,false);
       await scrollTo(page,590);
       await visible(page,true);
       await scrollTo(page,700);
@@ -123,7 +123,7 @@ test('FAQ click hides the scrolled header without removing keyboard focus visibi
 test('static no-JavaScript header stays visible when the document is scrolled', options, async () => {
   await withPage(390, async page => {
     await page.evaluate(()=>window.scrollTo(0,600));
-    await page.waitForTimeout(100); // page RAF callbacks do not run with JS disabled
+    await page.waitForTimeout(100);
     await visible(page,true);
   }, {javaScriptEnabled:false});
 });
