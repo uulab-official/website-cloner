@@ -134,8 +134,9 @@ for (const width of [390,1440]) {
       const summary=page.locator('.faq-list details:first-child summary');
       const check=async () => assert.deepEqual(await summary.evaluate(el=>{
         const s=getComputedStyle(el);
-        return {outline:s.outline,offset:s.outlineOffset,shadow:s.boxShadow};
-      }), {outline:'rgb(59, 130, 246) solid 3px',offset:'2px',shadow:'rgba(59, 130, 246, 0.3) 0px 0px 0px 3px'});
+        // Compare longhand values: equivalent shorthand serialization order differs by engine.
+        return {color:s.outlineColor,style:s.outlineStyle,width:s.outlineWidth,offset:s.outlineOffset,shadow:s.boxShadow};
+      }), {color:'rgb(59, 130, 246)',style:'solid',width:'3px',offset:'2px',shadow:'rgba(59, 130, 246, 0.3) 0px 0px 0px 3px'});
       await summary.click();
       await check();
       await summary.press('Enter');

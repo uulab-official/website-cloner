@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, realpath, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { parseOptions, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
@@ -19,12 +19,31 @@ function html(report) {
   const rows=report.browsers.map(row=>`<tr><td>${escape(row.name)}</td><td>${escape(row.version || 'not measured')}</td><td>${escape(row.status)}</td><td>${escape(row.counts?.pass ?? '—')} / ${escape(row.counts?.tests ?? '—')}</td><td><a href="${row.name}/tests.log">Test log</a> · <a href="${row.name}/evidence.json">Production views</a></td></tr>`).join('');
   return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — browser behavior checks</title><style>body{max-width:1000px;margin:auto;padding:32px;font:16px/1.6 system-ui}table{border-collapse:collapse;width:100%}td,th{text-align:left;padding:12px;border-bottom:1px solid}p,li{overflow-wrap:anywhere}</style><h1>Browser behavior checks</h1><p>Status: <strong>${escape(report.status)}</strong></p><p>Authored demo only. Screenshots are implementation evidence, not comparisons with the source. Linux WebKit is not branded Safari, a physical iPhone, or a touch-device test. Capture/verify remains Chromium-only.</p><table><tr><th>Engine</th><th>Version</th><th>Status</th><th>Passed / tests</th><th>Evidence</th></tr>${rows}</table><ul>${report.browsers.flatMap(row=>row.errors.map(error=>`<li>${escape(row.name)}: ${escape(error)}</li>`)).join('')}</ul><p><a href="browser-check.json">Complete results</a> · <a href="build.log">Build log</a></p></html>\n`;
 }
+async function canonical(filename) {
+  const absolute=path.resolve(filename);
+  try { return await realpath(absolute); }
+  catch(error) {
+    if(error.code!=='ENOENT')throw error;
+    const parent=path.dirname(absolute);
+    if(parent===absolute)throw error;
+    return path.join(await canonical(parent),path.basename(absolute));
+  }
+}
+function contains(parent,child) {
+  const relative=path.relative(parent,child);
+  return relative==='' || (relative!=='..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative));
+}
 async function main(argv) {
   const options=parseOptions(argv,{values:['browsers','out'],booleans:['dry-run','overwrite']});
   if(options.help){ process.stdout.write(help); return; }
   const names=parseBrowsers(options.browsers);
   for(const name of names) demoBrowserOptions({...process.env,CLONER_TEST_BROWSER:name});
   const plan={browsers:names,tests:testFiles,build:'vite build examples/uulab-services --outDir ../../dist/demo',out:path.resolve(options.out || 'artifacts/browser-check')};
+  const canonicalOut=await canonical(plan.out);
+  for(const protectedDirectory of ['scripts','tests','examples','node_modules','dist/demo']) {
+    const protectedPath=await canonical(protectedDirectory);
+    if(contains(protectedPath,canonicalOut) || contains(canonicalOut,protectedPath))throw new Error(`Output must not overlap ${protectedDirectory}`);
+  }
   if(options['dry-run']) { process.stdout.write(JSON.stringify(plan,null,2)+'\n'); return; }
   const out=await prepareOutputDirectory(plan.out,{overwrite:options.overwrite,tool:'browser-check',protectedPaths:['scripts','tests','examples','package.json','package-lock.json','node_modules',...['CLONER_CHROMIUM_PATH','CAPTURE_TEST_EXECUTABLE_PATH'].map(key=>process.env[key]).filter(Boolean)]});
   const report={schemaVersion:1,tool:'website-cloner/browser-check',timestamp:new Date().toISOString(),status:'running',platform:process.platform,requestedBrowsers:names,tests:testFiles,liveSourceComparison:false,physicalDeviceVerified:false,browsers:names.map(name=>({name,status:'pending',errors:[]}))};

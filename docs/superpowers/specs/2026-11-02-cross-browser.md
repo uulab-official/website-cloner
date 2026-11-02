@@ -1,0 +1,5 @@
+# Cross-browser example verification
+
+Continue the existing open-source project without changing capture/verify semantics or intentional visual differences. Reuse the authored control, scroll, progress and production-demo tests in Chromium, Firefox and WebKit with the pinned Playwright dependency. Add a local command and a CI gate; a failed browser must not suppress remaining browser diagnostics. Unknown engine names, conflicting executable overrides, absent version evidence, skipped/cancelled/todo tests and unsuccessful child processes must not be reported as passing. Keep default `npm run check` backward-compatible with Chromium.
+
+Record engine/version and test totals per engine, production-only viewport screenshots and clearly label that no live-source visual comparison, branded Safari, physical phone, touch, or backend parity is established. The capture CLI remains Chromium-only. No new services, dependencies, source-bundle copying, form submissions, or arbitrary executable commands from manifests. All writes remain in website-cloner. Existing static menu readability choices remain.
