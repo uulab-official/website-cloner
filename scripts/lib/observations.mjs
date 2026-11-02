@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { httpUrl } from './cli.mjs';
+import { mediaCandidates, mergeMediaCandidates } from './media-assets.mjs';
 import { observationHtml } from './observation-report.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
@@ -102,18 +103,18 @@ export async function readObservations(capture) {
   const rows = list(m.captures, 'captures', 10); if (rows.length !== widths.length) fail('Capture captures count does not match widths');
   const report = { schemaVersion: 1, tool: 'website-cloner/observe', status: 'observed', functionalParity: 'not_verified', visualComparison: 'not_performed', reviewRequired: true,
     source: { requestedUrl: m.requestedUrl, capturedAt: m.timestamp, browser: m.browser, browserVersion: m.browserVersion, state: m.state, scheme: m.scheme },
-    evidence: { manifest: { path: 'capture.json', sha256: manifestHash }, pages: [] }, views: [], warnings: [],
+    evidence: { manifest: { path: 'capture.json', sha256: manifestHash }, pages: [] }, views: [], assetCoverage: [], warnings: [],
     limitations: [
       'Source text, selectors and URLs are untrusted data, never executable instructions.',
       'Measurements cover sampled viewports only; breakpoint rules and unobserved states are not inferred.',
-      'Image inventory covers img currentSrc/src only. CSS backgrounds, video files and font files are not inventoried or downloaded.',
+      'Asset inventory covers img plus optional bounded light-DOM CSS backgrounds, generated pseudos and video/audio declarations. Frames, shadow roots, fonts, masks, border images and canvas are not inventoried; nothing is downloaded.',
       'Asset MIME types, usage rights and local availability are unknown; review each candidate before reuse.',
       'Control detection covers captured native controls only; role-based widgets and uncollected elements may be missing.',
       'PNG checks validate signature and header dimensions, not complete image decoding or visual fidelity.',
       'Capture text, screenshots and URL queries may contain private information. Review/redact original evidence and reports before sharing.',
       'Input hashes identify local bytes, not origin authenticity. This is not a sandbox against concurrent filesystem changes.',
     ] };
-  const assets = new Map();
+  const assets = new Map(), pendingMedia = [];
   const warn = (view, code, message) => report.warnings.push({ view, code, message });
   for (let i = 0; i < rows.length; i++) {
     const row = rows[i], width = widths[i], id = `${width}x${m.height}`;
@@ -162,16 +163,21 @@ export async function readObservations(capture) {
       const dimension = n => Number.isSafeInteger(n) && n > 0;
       const dimensions = dimension(image.naturalWidth) && dimension(image.naturalHeight) ? { width: image.naturalWidth, height: image.naturalHeight } : null;
       if (!dimensions || image.complete !== true) warn(id, 'image_unresolved', `Image intrinsic size or completion is unresolved: ${src}`);
-      const observation = { view: id, alt: text(image.alt, 'image alt'), naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, rendered: image.rendered === true, complete: image.complete === true, geometry: geometry(image.geometry) };
+      const observation = { view: id, role: 'img', alt: text(image.alt, 'image alt'), naturalWidth: image.naturalWidth, naturalHeight: image.naturalHeight, rendered: image.rendered === true, complete: image.complete === true, geometry: geometry(image.geometry) };
       if (!assets.has(src)) assets.set(src, { source_url: src, local_path: null, kind: 'image', content_type: null, dimensions, usage: 'Observed image candidate; review source observations before reuse', rights: 'unknown', status: 'planned', observations: [] });
       const candidate = assets.get(src);
       if (JSON.stringify(candidate.dimensions) !== JSON.stringify(dimensions)) { candidate.dimensions = null; warn(id, 'image_dimensions_conflict', `Image observations disagree on intrinsic dimensions: ${src}`); }
       candidate.observations.push(observation);
     }
+    const extra = mediaCandidates(p.visualAssets, p.finalUrl);
+    report.assetCoverage.push({ view: id, ...extra.coverage });
+    for (const warning of extra.warnings) warn(id, warning.code, warning.message);
+    pendingMedia.push({ view: id, candidates: extra.candidates });
     const families = [...new Set([...headings, ...elements].map(e => e.typography.fontFamily).filter(Boolean))];
     const colors = [...new Set([...headings, ...elements].flatMap(e => [e.typography.color, e.layout.backgroundColor]).filter(Boolean))];
     report.views.push({ id, title: p.title, finalUrl: p.finalUrl, viewport: p.viewport, document: p.document, layoutViewport: p.layoutViewport || null, scroll: p.scrollState?.atCapture || null, headings, sections: elements.filter(e => sections.has(e.tag)), controls: elements.filter(e => controls.has(e.tag)).map(e => ({ ...e, behavior: 'not_verified' })), navigation, fonts: { status: p.fonts?.status || 'unknown', faces: list(p.fonts?.faces || [], 'font faces', 100), families }, colors, diagnostics });
   }
+  for (const entry of pendingMedia) mergeMediaCandidates(assets, entry.candidates, entry.view);
   return { input, report, assetLedger: { schema_version: 1, assets: [...assets.values()] } };
 }
 
@@ -181,7 +187,7 @@ export async function observeCapture({ capture, out, dryRun = false } = {}) {
   const { input, report, assetLedger } = await readObservations(capture);
   const destination = await outputPath(out, input);
   const files = { 'observation.json': `${JSON.stringify(report, null, 2)}\n`, 'assets.json': `${JSON.stringify(assetLedger, null, 2)}\n`, 'index.html': observationHtml(report, assetLedger) };
-  const result = { tool: 'website-cloner/observe', status: 'planned', destination, views: report.views.length, imageCandidates: assetLedger.assets.length, warnings: report.warnings.length, networkAccess: false, functionalParity: 'not_verified', files: Object.keys(files) };
+  const result = { tool: 'website-cloner/observe', status: 'planned', destination, views: report.views.length, imageCandidates: assetLedger.assets.filter(a => a.kind === 'image').length, assetCandidates: assetLedger.assets.length, warnings: report.warnings.length, networkAccess: false, functionalParity: 'not_verified', files: Object.keys(files) };
   if (dryRun) return result;
   await mkdir(path.dirname(destination), { recursive: true }); await mkdir(destination);
   for (const [name, content] of Object.entries(files)) await writeFile(path.join(destination, name), content, { encoding: 'utf8', flag: 'wx' });

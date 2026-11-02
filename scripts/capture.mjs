@@ -4,6 +4,7 @@ import path from 'node:path';
 import { captureBrowserOptions } from './lib/browser-check.mjs';
 import { httpUrl, parseOptions, positiveInteger, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
+import { collectMediaEvidence } from './lib/media-evidence.mjs';
 import { collectDomEvidence } from './lib/page-evidence.mjs';
 import { normalizeAnimations, revealLazyMedia, scrollPosition, settleResources } from './lib/settle.mjs';
 
@@ -162,6 +163,7 @@ async function captureWidth(browser, options, width, actions, out) {
     record.scrollState = { ...record.scrollState, ...evidence.scrollState };
     delete evidence.scrollState;
     Object.assign(record, evidence);
+    record.visualAssets = await page.evaluate(collectMediaEvidence);
     if (record.mainDocumentHttpError) throw new Error(`Main document returned HTTP ${record.mainDocumentHttpError}`);
     httpUrl(record.finalUrl);
     if (record.document.width * record.document.height > 100_000_000 || record.document.height > 65_535) {
@@ -182,6 +184,7 @@ async function captureWidth(browser, options, width, actions, out) {
         record.scrollState = { ...record.scrollState, ...evidence.scrollState };
         delete evidence.scrollState;
         Object.assign(record, evidence);
+        record.visualAssets = await page.evaluate(collectMediaEvidence);
       } catch { record.finalUrl = safeUrl(page.url()); }
     }
   } finally {
