@@ -3,6 +3,7 @@ import { lstat, mkdir, readFile, rename, stat, writeFile } from 'node:fs/promise
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { safeError } from './cli.mjs';
+import { captureBrowserOptions } from './browser-check.mjs';
 import { validateExactPixels, formatPixelRatio, exactPixelSummary, zeroDifferenceWarning } from './exact-pixels.mjs';
 import { prepareOutputDirectory } from './output.mjs';
 import { buildVerifyArgs, validCaseId } from './suite-config.mjs';
@@ -55,7 +56,7 @@ export function executeNodeScript(script, args, { timeoutMs, env = process.env, 
 
 /** Do not let a child exit code or a partial/stale report substitute for complete evidence. */
 export function assessCase(report, item, command) {
-  const result = { id: item.id, state: item.state, sourceUrl: item.sourceUrl, targetUrl: item.targetUrl,
+  const result = { id: item.id, browser: item.browser ?? null, state: item.state, sourceUrl: item.sourceUrl, targetUrl: item.targetUrl,
     widths: item.widths, height: item.height, scheme: item.scheme, maxDiffRatio: item.maxDiffRatio,
     status: 'failed', visualGate: item.maxDiffRatio === null ? 'not_requested' : 'not_evaluated',
     functionalParity: 'not_verified', reviewRequired: false, errors: [], warnings: [], rows: [], command };
@@ -68,6 +69,7 @@ export function assessCase(report, item, command) {
   for (const field of ['sourceUrl', 'targetUrl', 'state', 'scheme', 'height', 'maxDiffRatio']) {
     if (report[field] !== item[field]) result.errors.push(`Report does not match requested ${field}`);
   }
+  if (item.browser !== undefined && report.browser !== item.browser) result.errors.push('Report does not match requested browser');
   if (JSON.stringify(report.widths) !== JSON.stringify(item.widths)) result.errors.push('Report does not match requested widths');
   if (!strings(report.errors)) result.errors.push('Invalid verification error list');
   else result.errors.push(...report.errors);
@@ -79,6 +81,7 @@ export function assessCase(report, item, command) {
     const matches = rows.filter(row => row && row.width === width && row.height === item.height);
     if (matches.length !== 1) { result.errors.push(`Missing or duplicate result for ${width}x${item.height}`); continue; }
     const row = matches[0]; const label = `${width}x${item.height}`;
+    if (item.browser !== undefined && (row.browser !== item.browser || typeof row.browserVersion !== 'string' || !row.browserVersion.trim())) result.errors.push(`${label}: missing or mismatched requested browser evidence`);
     if (row.status !== 'completed' || row.comparable !== true || row.sourceCaptured !== true || row.targetCaptured !== true || row.hasComparison !== true) result.errors.push(`${label}: incomplete capture or comparison`);
     if (!successful(row.command)) result.errors.push(`${label}: comparison command did not succeed`);
     if (!strings(row.errors) || !strings(row.warnings)) result.errors.push(`${label}: invalid diagnostics`);
@@ -98,7 +101,7 @@ export function assessCase(report, item, command) {
         if (row.changedPixelRatio === 0 && !exactPixels.identical) result.warnings.push(`${label}: ${zeroDifferenceWarning}`);
       } catch (error) { result.errors.push(`${label}: ${error.message}`); }
     }
-    result.rows.push({ width, height: item.height, exactPixels, changedPixelRatio: measured ? row.changedPixelRatio : null,
+    result.rows.push({ browser: row.browser ?? null, browserVersion: row.browserVersion ?? null, width, height: item.height, exactPixels, changedPixelRatio: measured ? row.changedPixelRatio : null,
       visualGate: gate, status: row.status === 'completed' ? 'completed' : 'failed', errors, warnings });
   }
   result.errors = [...new Set(result.errors)]; result.warnings = [...new Set(result.warnings)]; result.reviewRequired = result.warnings.length > 0;
@@ -152,20 +155,22 @@ async function persist(out, report) {
 }
 
 /** execute is a test seam only; the CLI cannot configure an executable script. */
-export async function runSuite(plan, { out: requestedOut, overwrite = false, failFast = false, executablePath,
+export async function runSuite(plan, { out: requestedOut, overwrite = false, failFast = false, executablePath, browser,
   execute = ({ item, args }) => executeNodeScript(verifyScript, args, { timeoutMs: item.timeoutMs }), onProgress = () => {} } = {}) {
+  const selected = captureBrowserOptions({ browser, executablePath });
+  const cases = plan.cases.map(item => ({ ...item, browser: selected.name }));
   const executable = executablePath ? path.resolve(executablePath) : undefined;
   if (executable && !(await stat(executable)).isFile()) throw new Error('Chromium executable must be a regular file');
   const out = await prepareOutputDirectory(requestedOut, { overwrite, tool: 'verify-suite', protectedPaths: [...plan.protectedPaths, ...(executable ? [executable] : [])] });
   const report = { schemaVersion: 1, tool: 'website-cloner/verify-suite', createdAt: new Date().toISOString(), status: 'running',
-    sourceOrigin: plan.sourceOrigin, targetOrigin: plan.targetOrigin, failFast, functionalParity: 'not_verified', motionVerified: false,
+    browser: selected.name, sourceOrigin: plan.sourceOrigin, targetOrigin: plan.targetOrigin, failFast, functionalParity: 'not_verified', motionVerified: false,
     note: 'Execution status is not a fidelity score or a functional test pass. Open each case to inspect screenshots and diagnostics.',
-    errors: [], cases: plan.cases.map(item => ({ id: item.id, state: item.state, status: 'pending',
+    errors: [], cases: cases.map(item => ({ id: item.id, browser: item.browser, state: item.state, status: 'pending',
       visualGate: item.maxDiffRatio === null ? 'not_requested' : 'not_evaluated', errors: [], warnings: [], reviewRequired: false, reportAvailable: false })) };
   await mkdir(path.join(out, 'cases')); await persist(out, report);
   let failed = false; let interrupted = false;
   try {
-    for (const [index, item] of plan.cases.entries()) {
+    for (const [index, item] of cases.entries()) {
       if ((failFast && failed) || interrupted) {
         report.cases[index].status = 'skipped'; report.cases[index].errors = [interrupted ? 'Not executed because the suite was interrupted' : 'Not executed because --fail-fast stopped after an earlier failure'];
         continue;
@@ -211,5 +216,5 @@ export function renderSuiteReport(report) {
     return `<tr><th scope="row">${link}</th><td>${escapeHtml(item.state)}</td><td>${escapeHtml(item.status)}</td><td>${escapeHtml(item.visualGate)}</td><td>${measurements}${notes ? `<ul>${notes}</ul>` : '—'}</td></tr>`;
   }).join('\n');
   const summary = Object.entries(report.summary || {}).map(([name, count]) => `${escapeHtml(name)}: ${escapeHtml(count)}`).join(' · ');
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — verification suite</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1200px;margin:auto;padding:28px}h1{line-height:1.2}table{border-collapse:collapse;width:100%}td,th{border:1px solid;padding:12px;text-align:left;vertical-align:top}p,td,th,li{overflow-wrap:anywhere}.table{overflow-x:auto}ul{padding-left:20px}@media(max-width:600px){body{padding:16px}td,th{padding:8px}}</style><h1>Verification suite</h1><p>Execution: <strong>${escapeHtml(report.status)}</strong></p><p>Source: ${escapeHtml(report.sourceOrigin)}<br>Target: ${escapeHtml(report.targetOrigin)}</p><p>${summary}</p><p>${escapeHtml(report.note)}</p><p>Functional parity: <strong>not_verified</strong>. Completed means the comparison ran, not that the clone is correct. “not_requested” means no visual threshold was set; “not_evaluated” means a requested threshold could not be reliably evaluated. Warnings require review. Tolerant zero does not mean identical; Exact RGBA counts all decoded channel differences (including alpha/invisible RGB), not PNG file bytes or visual quality. Static screenshots do not verify motion, physical devices, backend behavior or all interactions.</p><p><a href="suite.json">Complete suite JSON</a></p>${report.errors?.length ? `<ul>${list(report.errors)}</ul>` : ''}<div class="table"><table><thead><tr><th>Case</th><th>State</th><th>Execution</th><th>Visual threshold</th><th>Diagnostics</th></tr></thead><tbody>${rows}</tbody></table></div></html>\n`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — verification suite</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1200px;margin:auto;padding:28px}h1{line-height:1.2}table{border-collapse:collapse;width:100%}td,th{border:1px solid;padding:12px;text-align:left;vertical-align:top}p,td,th,li{overflow-wrap:anywhere}.table{overflow-x:auto}ul{padding-left:20px}@media(max-width:600px){body{padding:16px}td,th{padding:8px}}</style><h1>Verification suite</h1><p>Execution: <strong>${escapeHtml(report.status)}</strong></p><p>Browser: ${escapeHtml(report.browser ?? 'not recorded')}</p><p>Source: ${escapeHtml(report.sourceOrigin)}<br>Target: ${escapeHtml(report.targetOrigin)}</p><p>${summary}</p><p>${escapeHtml(report.note)}</p><p>Functional parity: <strong>not_verified</strong>. Completed means the comparison ran, not that the clone is correct. “not_requested” means no visual threshold was set; “not_evaluated” means a requested threshold could not be reliably evaluated. Warnings require review. Tolerant zero does not mean identical; Exact RGBA counts all decoded channel differences (including alpha/invisible RGB), not PNG file bytes or visual quality. Static screenshots do not verify motion, physical devices, backend behavior or all interactions.</p><p><a href="suite.json">Complete suite JSON</a></p>${report.errors?.length ? `<ul>${list(report.errors)}</ul>` : ''}<div class="table"><table><thead><tr><th>Case</th><th>State</th><th>Execution</th><th>Visual threshold</th><th>Diagnostics</th></tr></thead><tbody>${rows}</tbody></table></div></html>\n`;
 }

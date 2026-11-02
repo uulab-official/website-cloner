@@ -122,6 +122,7 @@ export function buildVerifyArgs(item, out, executablePath) {
   const args = ['--source', item.sourceUrl, '--target', item.targetUrl, '--out', out,
     '--widths', item.widths.join(','), '--height', String(item.height), '--scheme', item.scheme, '--state', item.state];
   for (const [key, flag] of [['sourceActions', '--source-actions'], ['targetActions', '--target-actions']]) if (item[key]) args.push(flag, item[key]);
+  if (item.browser !== undefined) args.push('--browser', item.browser);
   if (item.keepScroll) args.push('--keep-scroll');
   if (item.maxDiffRatio !== null) args.push('--max-diff-ratio', String(item.maxDiffRatio));
   if (executablePath) args.push('--executable-path', executablePath);

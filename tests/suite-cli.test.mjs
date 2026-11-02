@@ -50,7 +50,7 @@ const o=Object.fromEntries(Array.from({length:(process.argv.length-2)/2},(_,i)=>
 const command={exitCode:0,signal:null,error:null};
 const widths=o.widths.split(',').map(Number), height=Number(o.height), gate=o['max-diff-ratio']===undefined?null:Number(o['max-diff-ratio']);
 await mkdir(o.out,{recursive:true});
-const report={schemaVersion:1,tool:'website-cloner/verify',status:'completed',sourceUrl:o.source,targetUrl:o.target,widths,height,scheme:o.scheme,state:o.state,maxDiffRatio:gate,errors:[],commands:{source:command,target:command},rows:widths.map(width=>({width,height,status:'completed',comparable:true,sourceCaptured:true,targetCaptured:true,hasComparison:true,changedPixelRatio:0,visualGate:gate===null?'not_requested':'passed',errors:[],warnings:[],command}))};
+const report={schemaVersion:1,tool:'website-cloner/verify',status:'completed',browser:o.browser,sourceUrl:o.source,targetUrl:o.target,widths,height,scheme:o.scheme,state:o.state,maxDiffRatio:gate,errors:[],commands:{source:command,target:command},rows:widths.map(width=>({browser:o.browser,browserVersion:'contract-fixture',width,height,status:'completed',comparable:true,sourceCaptured:true,targetCaptured:true,hasComparison:true,changedPixelRatio:0,visualGate:gate===null?'not_requested':'passed',errors:[],warnings:[],command}))};
 await writeFile(path.join(o.out,'verification.json'),JSON.stringify(report));
 await writeFile(path.join(o.out,'index.html'),'<title>Contract fixture; not screenshot evidence</title>');
 for(const width of widths){
@@ -65,7 +65,7 @@ if(o.source.endsWith('/fail')) process.exitCode=1;
 async function isolatedCli(t) {
   const context = await temp(t); const scripts = path.join(context.dir, 'tool', 'scripts');
   await mkdir(path.join(scripts, 'lib'), { recursive: true });
-  for (const file of ['verify-suite.mjs', 'lib/cli.mjs', 'lib/output.mjs', 'lib/suite-config.mjs', 'lib/suite-runner.mjs', 'lib/exact-pixels.mjs']) await copyFile(path.join(root, 'scripts', file), path.join(scripts, file));
+  for (const file of ['verify-suite.mjs', 'lib/cli.mjs', 'lib/output.mjs', 'lib/suite-config.mjs', 'lib/suite-runner.mjs', 'lib/exact-pixels.mjs', 'lib/browser-check.mjs']) await copyFile(path.join(root, 'scripts', file), path.join(scripts, file));
   await writeFile(path.join(scripts, 'verify.mjs'), stub);
   return { ...context, script: path.join(scripts, 'verify-suite.mjs'), out: path.join(context.dir, 'out') };
 }

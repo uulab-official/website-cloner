@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
+import { captureBrowserOptions } from './lib/browser-check.mjs';
 import { parseOptions, safeError } from './lib/cli.mjs';
 import { loadSuite } from './lib/suite-config.mjs';
 import { runSuite } from './lib/suite-runner.mjs';
@@ -13,7 +14,8 @@ Write suite.json and a script-free index.html linking each paired capture report
   --out DIR                New/empty output directory (required unless --dry-run)
   --source-origin URL      Override source origin, without credentials/path/query
   --target-origin URL      Override target origin, e.g. http://localhost:4173
-  --executable-path FILE   Explicit Chromium executable for all cases
+  --browser NAME           chromium (default), firefox or webkit for the whole suite
+  --executable-path FILE   Explicit Chromium executable for all cases (Chromium only)
   --dry-run                Validate manifest/actions and print plan; no captures/writes
   --fail-fast              Stop after first failed case; remaining cases are skipped
   --overwrite              Replace only a prior verify-suite-owned output directory
@@ -30,16 +32,17 @@ URLs: do not use secrets in URLs and review artifacts before publishing them.
 `;
 async function main(argv) {
   const options = parseOptions(argv, {
-    values: ['manifest', 'out', 'source-origin', 'target-origin', 'executable-path'],
+    values: ['manifest', 'out', 'source-origin', 'target-origin', 'executable-path', 'browser'],
     booleans: ['dry-run', 'fail-fast', 'overwrite'], required: ['manifest'],
   });
   if (options.help) { process.stdout.write(help); return; }
+  const selected = captureBrowserOptions({ browser: options.browser, executablePath: options['executable-path'] });
   if (!options['dry-run'] && !options.out) throw new Error('Required option missing: --out');
   // Preflight EVERY referenced action before prepareOutputDirectory can replace output.
   const plan = await loadSuite(options.manifest, { sourceOrigin: options['source-origin'], targetOrigin: options['target-origin'] });
-  if (options['dry-run']) { process.stdout.write(`${JSON.stringify(plan, null, 2)}\n`); return; }
+  if (options['dry-run']) { process.stdout.write(`${JSON.stringify({ ...plan, browser: selected.name }, null, 2)}\n`); return; }
   const report = await runSuite(plan, { out: options.out, overwrite: options.overwrite, failFast: options['fail-fast'],
-    executablePath: options['executable-path'], onProgress: message => process.stdout.write(`${message}\n`) });
+    browser: selected.name, executablePath: options['executable-path'], onProgress: message => process.stdout.write(`${message}\n`) });
   process.stdout.write(`Suite: ${report.status}; ${report.summary.completed} completed, ${report.summary.failed} failed, ${report.summary.skipped} skipped\nReport: ${path.resolve(options.out, 'index.html')}\n`);
   if (report.status !== 'completed') process.exitCode = 1;
 }

@@ -1,6 +1,6 @@
 # 예제 브라우저 호환성 검사
 
-`npm run check:browsers`는 **편집 가능한 유유랩 예제**의 같은 동작 검사를 Chromium, Firefox, WebKit에서 실행합니다. 임의 사이트가 모든 브라우저에서 동일하게 복제됐다는 인증이 아닙니다. 기존 `capture`, `verify`, `verify:suite`는 여전히 Chromium 전용입니다.
+`npm run check:browsers`는 **편집 가능한 유유랩 예제**의 같은 동작 검사를 Chromium, Firefox, WebKit에서 실행합니다. 임의 사이트가 모든 브라우저에서 동일하게 복제됐다는 인증이 아닙니다. `capture`, `verify`, `verify:suite`도 이제 `--browser`로 엔진을 지정할 수 있습니다. 원본·구현의 짝 비교는 [캡처 엔진 선택](capture-engines.md)을 참고하세요.
 
 ## 실행
 

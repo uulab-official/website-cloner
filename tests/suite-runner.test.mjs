@@ -9,8 +9,8 @@ import { assessCase, executeNodeScript, renderSuiteReport, runSuite } from '../s
 const command = { exitCode: 0, signal: null, error: null, timedOut: false, stdout: '', stderr: '' };
 const planFor = root => normalizeSuite({ schemaVersion: 1, sourceOrigin: 'https://source.test', targetOrigin: 'http://localhost:4173', defaults: { widths: [390] }, cases: [{ id: 'first', path: '/' }, { id: 'second', path: '/services/' }] }, { manifestPath: path.join(root, 'suite.json') });
 function evidence(item) {
-  return { schemaVersion: 1, tool: 'website-cloner/verify', status: 'completed', sourceUrl: item.sourceUrl, targetUrl: item.targetUrl, widths: item.widths, height: item.height, scheme: item.scheme, state: item.state, maxDiffRatio: item.maxDiffRatio, errors: [], commands: { source: command, target: command }, functionalParity: 'not_verified', motionVerified: false,
-    rows: item.widths.map(width => ({ width, height: item.height, status: 'completed', comparable: true, sourceCaptured: true, targetCaptured: true, hasComparison: true, visualGate: item.maxDiffRatio === null ? 'not_requested' : 'passed', changedPixelRatio: 0, errors: [], warnings: [], command })) };
+  return { schemaVersion: 1, tool: 'website-cloner/verify', status: 'completed', browser: item.browser, sourceUrl: item.sourceUrl, targetUrl: item.targetUrl, widths: item.widths, height: item.height, scheme: item.scheme, state: item.state, maxDiffRatio: item.maxDiffRatio, errors: [], commands: { source: command, target: command }, functionalParity: 'not_verified', motionVerified: false,
+    rows: item.widths.map(width => ({ browser: item.browser, browserVersion: 'contract-fixture', width, height: item.height, status: 'completed', comparable: true, sourceCaptured: true, targetCaptured: true, hasComparison: true, visualGate: item.maxDiffRatio === null ? 'not_requested' : 'passed', changedPixelRatio: 0, errors: [], warnings: [], command })) };
 }
 async function fixture(t) {
   const root = await mkdtemp(path.join(os.tmpdir(), 'cloner-suite-run-'));
