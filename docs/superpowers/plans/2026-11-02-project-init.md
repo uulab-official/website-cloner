@@ -20,14 +20,16 @@ No new dependencies. No existing app changes. No network during initialization. 
 ## Task 1: Offline plan and exclusive bundle creation
 - [x] Add tests/init.test.mjs for defaults, invalid inputs, filesystem safety and dry-run compatibility; observe RED.
 - [x] Add scripts/lib/project-init.mjs and scripts/init.mjs; observe GREEN with the same tests.
-- [ ] Add the npm init command and docs/project-init.md; link from current README.
+- [x] Add the npm init command and docs/project-init.md; link from current README.
 
 ## Task 2: End-to-end generated suite and integration
 - [x] Add real HTTP fixture test with generated suite; assert actual PNGs, engine and failure preservation.
-- [ ] Run full npm run check and existing check:browsers in a full GitHub Actions checkout.
-- [ ] Self-review the diff and evidence; document exact limitations and only integrate verified code.
+- [x] Run full npm run check and existing check:browsers in a full GitHub Actions checkout.
+- [x] Self-review the diff and evidence; document exact limitations and only integrate verified code.
 
 ## Execution ledger
-- Isolated local text snapshot from prior verified artifact; full source/assets and fixed dependencies will be verified in Actions, not inferred from the snapshot.
+- Isolated local text snapshot from prior verified artifact; full source/assets and fixed dependencies were verified in Actions, not inferred from the snapshot.
 - Ruling: continue without another approval round, as requested repeatedly. Keep the existing toolkit, preserve authored apps, and deliver a bounded initialization feature.
 - RED: 44 tests, 43 failed and 1 passed before the feature existed; GREEN: 44 passed, no failures/skips. Related local regression: 214 passed, 2 browser tests unrun due to unavailable local dependencies.
+- Verification completed on aecbad6 in Actions run 41444611714: full check 391 passes, initialization/pipeline 50 passes, existing browser checks 38 per engine. Fresh generated-manifest live comparison completed at 3 viewport widths.
+- Self-review completed; no independent reviewer. README/result-only integration preserves the tested implementation.

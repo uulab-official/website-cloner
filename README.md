@@ -46,6 +46,18 @@ website-clone 스킬을 사용해 https://내사이트.example/services/ 를 재
 
 브랜드 변경을 원할 때는 “구성은 참고하고 유유랩 브랜드로 바꿔줘”라고 명시합니다. 그대로 재현하는 작업에서는 스킬이 임의로 다른 디자인으로 바꾸지 않습니다. 사례 예제의 가독성 개선처럼 의도적인 차이는 별도로 기록합니다.
 
+## 새 사이트의 작업 묶음 만들기
+
+`init`은 원본·구현 URL을 받아 **검증 설정, 자산 목록, 진행 보고서, 에이전트 지시서와 사용 안내**를 새 디렉터리에 만듭니다. 기존 앱 코드를 변경하거나 사이트를 자동 복제하는 명령이 아닙니다. 브라우저와 네트워크 없이 실행하며, 초기화만으로 검증 완료나 자산 사용 권한을 표시하지 않습니다.
+
+```bash
+npm run init -- --source https://example.com/services/ --target http://localhost:5173/rebuilt/ --out artifacts/projects/my-site --dry-run
+npm run init -- --source https://example.com/services/ --target http://localhost:5173/rebuilt/ --out artifacts/projects/my-site
+npm run verify:suite -- --manifest artifacts/projects/my-site/suite.json --dry-run
+```
+
+생성한 `HANDOFF.md`와 나머지 파일을 대상 앱의 코딩 에이전트에 전달합니다. 다른 경로·상태는 관찰한 뒤 `suite.json`에 추가합니다. 기존 디렉터리는 비어 있어도 거부하며 덮어쓰기 옵션은 없습니다. URL 쿼리의 민감정보는 저장 전에 제거하세요. [자세한 시작 절차](docs/project-init.md)
+
 ## 2. 실제 예제 실행
 
 도구와 예제는 Node.js 22.12+에서 실행합니다.
