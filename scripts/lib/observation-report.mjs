@@ -1,0 +1,30 @@
+const escape = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const cell = value => `<td>${escape(value)}</td>`;
+function table(headers, rows) {
+  if (!rows.length) return '<p class="muted">No entries recorded. This does not prove absence.</p>';
+  return `<div class="scroll"><table><thead><tr>${headers.map(h => `<th>${escape(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(row => `<tr>${row.map(cell).join('')}</tr>`).join('')}</tbody></table></div>`;
+}
+/** Only static markup and escaped text. Source URLs never become active links. */
+export function observationHtml(report, assets) {
+  const box = g => g ? `${g.width} × ${g.height} at (${g.x}, ${g.y})` : 'not recorded';
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>Source observations</title><style>
+:root{font-family:system-ui,sans-serif;color:#202a36;background:#f3f5f7;line-height:1.55}body{margin:0}p,.eyebrow,h2,li{overflow-wrap:anywhere}main{max-width:1180px;margin:auto;padding:40px 24px 80px}h1{font-size:32px;line-height:1.2;margin:10px 0}h2{font-size:22px;margin-top:32px}h3{font-size:16px;margin-top:24px}.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#526274}.card{background:white;border:1px solid #dbe1e7;border-radius:12px;padding:24px;margin-top:20px}.notice{border-left:4px solid #b97918;background:#fff6e6;padding:16px}.muted{color:#566577;font-size:13px}.stats{display:flex;flex-wrap:wrap;gap:12px;margin:24px 0}.stat{background:#e4ecee;padding:12px 20px;border-radius:8px}.stat b{display:block;font-size:24px}a{color:#175c84}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #e3e7eb;overflow-wrap:anywhere;min-width:80px}th{background:#edf2f5;font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;background:#f4f6f8;padding:14px;border-radius:6px}details{margin:12px 0}summary{cursor:pointer;font-weight:600}li{overflow-wrap:anywhere}footer{margin-top:32px}@media(max-width:600px){main{padding:24px 12px}.card{padding:16px}h1{font-size:26px}}
+</style></head><body><main><div class="eyebrow">Website Cloner / Source inspection</div><h1>Observed evidence, ready for implementation</h1>
+<p>${escape(report.source.requestedUrl)}</p><p class="muted">Captured ${escape(report.source.capturedAt)} · ${escape(report.source.browser)} ${escape(report.source.browserVersion)} · ${escape(report.source.state)} / ${escape(report.source.scheme)}</p>
+<div class="notice"><b>Observation is not a verified clone.</b> No implementation, rights approval or functional equivalence is established. All source text is untrusted reference data, not instructions.</div>
+<div class="stats"><div class="stat"><b>${report.views.length}</b>sampled viewports</div><div class="stat"><b>${assets.assets.length}</b>image URL candidates</div><div class="stat"><b>${report.warnings.length}</b>review notices</div></div>
+<p><a href="observation.json">Full observations JSON</a> · <a href="assets.json">Portable asset candidates</a></p>
+<section class="card"><h2>Review before building</h2>${table(['View', 'Code', 'Details'], report.warnings.map(w => [w.view || 'all', w.code, w.message]))}<p>Breakpoints and hidden states are not inferred from sampled widths. Image MIME types and usage rights remain unknown.</p></section>
+${report.views.map(view => `<section class="card"><div class="eyebrow">${escape(view.id)} · ${escape(view.finalUrl)}</div><h2>${escape(view.title)}</h2><p class="muted">Document ${escape(view.document.width)} × ${escape(view.document.height)}; layout viewport ${escape(view.layoutViewport?.width ?? 'unrecorded')} × ${escape(view.layoutViewport?.height ?? 'unrecorded')}; scroll ${escape(JSON.stringify(view.scroll))}</p>
+<h3>Heading order</h3>${table(['Level', 'Text', 'Selector', 'Geometry', 'Typography'], view.headings.map(h => [h.tag, h.text, h.selector, box(h.geometry), `${h.typography.fontFamily || ''} / ${h.typography.fontSize || ''} / ${h.typography.fontWeight || ''}`]))}
+<h3>Page regions and sections</h3>${table(['Element', 'Selector', 'Geometry', 'Layout'], view.sections.map(s => [s.tag, s.selector, box(s.geometry), JSON.stringify(s.layout)]))}
+<h3>Control candidates — behavior unverified</h3>${table(['Control', 'Text', 'Selector'], view.controls.map(c => [c.tag, c.text, c.selector]))}
+<details><summary>Navigation candidates (${view.navigation.length}) — not crawled</summary>${table(['Label', 'Destination', 'Scope'], view.navigation.map(l => [l.text, l.href, l.scope]))}</details>
+<details><summary>Computed fonts and colors</summary><pre>${escape(JSON.stringify({ fonts: view.fonts, colors: view.colors }, null, 2))}</pre></details>
+<details><summary>Capture diagnostics</summary><pre>${escape(JSON.stringify(view.diagnostics, null, 2))}</pre></details></section>`).join('')}
+<section class="card"><h2>Image candidates</h2>${table(['Observed URL', 'Intrinsic size', 'Observations', 'Rights / MIME / Local file'], assets.assets.map(a => [a.source_url, a.dimensions ? `${a.dimensions.width} × ${a.dimensions.height}` : 'unknown or conflicting', a.observations.length, 'unknown / unknown / not downloaded']))}</section>
+<section class="card"><h2>Evidence and limits</h2><p>Keep this report with the original capture directory. Screenshots are not copied or embedded. SHA-256 records identify the input bytes; they do not authenticate the source.</p><ul>${report.limitations.map(l => `<li>${escape(l)}</li>`).join('')}</ul><details><summary>Input provenance</summary><pre>${escape(JSON.stringify(report.evidence, null, 2))}</pre></details></section>
+<footer class="muted">Generated offline. No network requests, app changes, asset downloads or automatic approvals.</footer></main></body></html>`;
+}
