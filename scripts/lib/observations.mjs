@@ -146,7 +146,11 @@ export async function readObservations(capture) {
     }
     diagnostics.dropped = p.diagnosticsDropped || {};
     diagnostics.settling = p.settling || {};
-    if (/timed_out|timeout|failed/.test(JSON.stringify(diagnostics.settling))) warn(id, 'resources_unsettled', 'Some resource settling stages failed or timed out; inspect settling diagnostics.');
+    const stages = ['initial', 'afterLazyMedia', 'final'].flatMap(name => [p.settling?.[name]?.fonts, p.settling?.[name]?.images]);
+    if ([p.settling?.load, ...stages].some(value => ['timed_out', 'timeout', 'failed'].includes(value))
+      || p.settling?.animationNormalization?.failed > 0 || p.settling?.final?.pendingImages > 0 || p.settling?.final?.brokenImages > 0) {
+      warn(id, 'resources_unsettled', 'Some resource settling stages failed, timed out or left unresolved images; inspect settling diagnostics.');
+    }
     if (Object.values(diagnostics.dropped).some(v => Number(v) > 0)) warn(id, 'diagnostics_truncated', 'Capture dropped additional diagnostics.');
     if (p.overflow?.horizontal) warn(id, 'horizontal_overflow', 'Capture reports horizontal content overflow.');
     if (p.fonts?.status !== 'loaded') warn(id, 'fonts_unsettled', 'Font readiness was not loaded at capture.');

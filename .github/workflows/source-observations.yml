@@ -29,7 +29,7 @@ jobs:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CAPTURE_TEST_ENGINES: chromium,firefox,webkit
           CLONER_OBSERVE_EVIDENCE_DIR: artifacts/observations/fixtures
-        run: set -o pipefail; node --test tests/observations.test.mjs tests/observe-pipeline.test.mjs 2>&1 | tee artifacts/observations/observe-tests.log
+        run: set -o pipefail; node --test tests/observations.test.mjs tests/observations-settling.test.mjs tests/observe-pipeline.test.mjs 2>&1 | tee artifacts/observations/observe-tests.log
       - name: Observe a fresh capture of the owned live source
         if: ${{ !cancelled() }}
         run: |
