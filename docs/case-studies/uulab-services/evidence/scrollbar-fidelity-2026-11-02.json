@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "0cf11fb971d708844af4553da7a98d0aa8def931",
+  "verifiedCodeCommit": "1a690453e195f4dae2c6dc9ad6fb5ac45cbc4e81",
+  "verifiedCodeTree": "dd9ae4d2191b790f1f4981f6d4008fdfcd976970",
+  "workflowRun": 41419109262,
+  "workflowJob": 125190093390,
+  "artifactId": 13129612094,
+  "artifactSha256": "799f5efe729ad8ac5b4e5dbc3e85aca3380f3a5dbc58670fecf2a7c211fe4e11",
+  "artifactExpiresAt": "2026-11-16T09:27:10Z",
+  "environment": {
+    "platform": "linux", "node": "v22.23.4", "playwright": "1.62.1",
+    "engines": {"chromium": "151.0.7922.34", "firefox": "153.0", "webkit": "26.5"},
+    "dpr": 1, "locale": "en-US", "timezone": "UTC", "headless": true,
+    "isMobile": false, "hasTouch": false, "reducedMotion": "reduce"
+  },
+  "checks": {
+    "toolkitAndBrowser": 327, "productionExample": 10, "fullTotal": 337,
+    "targetedThreeEngineExecutions": 32, "repeatedExampleExecutionsPerEngine": 38,
+    "productionBaselineContexts": 8, "productionBaselineAllStatesMatched": 8,
+    "countsOverlap": true, "failed": 0, "cancelled": 0, "skipped": 0, "todo": 0
+  },
+  "comparisons": {
+    "cases": 18, "views": 30, "layoutWidthsMatch": 30, "independentMetricsAndMasksMatch": 30,
+    "sourcePngUnchangedFromBaseline": 27, "chromiumTargetPngUnchanged": 10, "firefoxTargetPngUnchanged": 10,
+    "visualGate": "not_requested", "functionalParity": "not_verified", "fullPagePixelComparisonRun": false
+  },
+  "runs": {
+    "chromium": {"startedAt": "2026-11-02T09:22:42.178Z", "completedAt": "2026-11-02T09:23:57.266Z", "completedCases": 6, "reviewRequired": 2},
+    "firefox": {"startedAt": "2026-11-02T09:23:57.314Z", "completedAt": "2026-11-02T09:25:28.291Z", "completedCases": 6, "reviewRequired": 3},
+    "webkit": {"startedAt": "2026-11-02T09:25:28.336Z", "completedAt": "2026-11-02T09:27:09.365Z", "completedCases": 6, "reviewRequired": 3}
+  },
+  "webkitFaq": [
+    {"view": "1440x900", "toleranceRatioBefore": 0.0179429012345679, "toleranceRatioAfter": 0.00002777777777777778, "exactRatioBefore": 0.04437345679012346, "exactRatioAfter": 0.0024891975308641975, "sourceSha256Before": "921d12f183b5022c8bddfe442a4d497726ef86d99f976f9a47aa423c30515aed", "sourceSha256After": "921d12f183b5022c8bddfe442a4d497726ef86d99f976f9a47aa423c30515aed", "sourceUnchanged": true, "layoutWidth": 1434},
+    {"view": "390x900", "toleranceRatioBefore": 0.04623361823361823, "toleranceRatioAfter": 0.000048433048433048433, "exactRatioBefore": 0.08676923076923077, "exactRatioAfter": 0.002735042735042735, "sourceSha256Before": "0b871e7802cca55c640f4f8d45c9683ed2ca8ec0184ec7cb0e14458a620e2550", "sourceSha256After": "0b871e7802cca55c640f4f8d45c9683ed2ca8ec0184ec7cb0e14458a620e2550", "sourceUnchanged": true, "layoutWidth": 384}
+  ],
+  "mobileFullPage": {
+    "chromium": {"source": [390, 12617], "target": [390, 12625]},
+    "firefox": {"source": [390, 12680], "target": [390, 12688]},
+    "webkit": {"source": [384, 12749], "target": [384, 12757]}
+  },
+  "limits": ["No independent code review", "No actual Safari or physical mobile/touch verification", "No Windows/macOS runner verification", "No complete motion/backend/site equivalence", "Intentional opaque menu, readable dark icon and footer layout remain", "Existing Vite output and Actions runtime warnings remain", "Legacy browser report/help copy contains a stale Chromium-only sentence"]
+}
