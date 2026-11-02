@@ -62,7 +62,7 @@ jobs:
           git rev-parse HEAD > artifacts/scrollbars/commit.txt
           node --version > artifacts/scrollbars/node-version.txt
           npm ls --depth=0 > artifacts/scrollbars/dependencies.txt || true
-          tar -czf artifacts/scrollbars/code.tar.gz scripts tests examples/uulab-services/src examples/uulab-services/index.html package.json .github/workflows/scrollbar-fidelity.yml
+          tar -czf artifacts/scrollbars/code.tar.gz scripts tests examples/uulab-services/src examples/uulab-services/index.html examples/uulab-services/services/index.html package.json .github/workflows/scrollbar-fidelity.yml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
