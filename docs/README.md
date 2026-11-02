@@ -17,7 +17,7 @@
 
 ## 현재 사용 안내
 
-[설치·시작](../README.md) · [짝 비교](paired-verification.md) · [일괄 비교](verification-suites.md) · [엔진 선택](capture-engines.md) · [무오차 픽셀 진단](exact-pixel-evidence.md) · [예제 브라우저 검사](browser-compatibility.md) · [빌드·CI 운영](build-and-ci.md)
+[설치·시작](../README.md) · [짝 비교](paired-verification.md) · [일괄 비교](verification-suites.md) · [엔진 선택](capture-engines.md) · [무오차 픽셀 진단](exact-pixel-evidence.md) · [예제 브라우저 검사](browser-compatibility.md) · [빌드·CI 운영](build-and-ci.md) · [빌드·CI 정비 검증](build-readiness-2026-11-02.md)
 
 `capture`, `verify`, `verify:suite`는 `--browser chromium|firefox|webkit`를 지원합니다. 기본은 Chromium입니다. 서로 다른 엔진에서 얻은 원본/구현을 한 쌍으로 비교하지 않습니다. 새 엔진 실행은 기존 출력과 다른 디렉터리를 사용하세요.
 
