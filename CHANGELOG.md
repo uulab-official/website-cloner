@@ -1,5 +1,17 @@
 # Changelog
 
+## 2026-11-02 — three-engine example regression gate
+
+- Added `npm run check:browsers` to build once and run the same authored example behavior tests in Chromium, Firefox and WebKit.
+- Kept capture/verify commands Chromium-only; no application CSS/JS, dependency or lockfile changes.
+- Require complete test counts and matching browser/version evidence; failed, skipped, cancelled, missing and timed-out tests cannot pass silently. Added canonical output path protection.
+- Preserved 21 production-implementation screenshots and engine-specific logs. They are not source/clone comparisons or real device certification.
+- Fixed two WebKit test failures caused by equivalent CSS shorthand serialization order by comparing identical longhand properties, not by changing the application or weakening values.
+- Verified full gate: 268 toolkit/browser + 10 production-demo tests, 278 total. Repeated behavior suite: 38/38 in each engine, 114 executions of the same 38 checks, not additional unique tests.
+- Added main/PR **Demo browser compatibility** CI with failure evidence. Linux WebKit is not branded Safari or a physical iPhone.
+
+[Usage](docs/browser-compatibility.md) · [Versions, test evidence and remaining gaps](docs/case-studies/uulab-services/browser-compatibility-2026-11-02.md)
+
 ## 2026-11-02 — scroll progress and responsive controls
 
 - Restored the observed decorative 4px scroll progress bar using the existing animation-frame scheduler; recalculates for scrolling, resizing, FAQ expansion, media loading and observed document-size changes.
