@@ -43,8 +43,11 @@ try {
             if (!response?.ok()) throw new Error(`${side}: main HTTP response ${response?.status()}`);
             await settleResources(page); await page.waitForTimeout(200);
             const observation = { side, url, original: await page.evaluate(inspect) }; pair.observations.push(observation);
+            const theme = page.locator(width < 1024 ? '#darkModeToggleMobile' : '#darkModeToggle');
+            await theme.click(); await page.waitForTimeout(200); observation.dark = await page.evaluate(inspect);
+            await theme.click(); await page.waitForTimeout(200);
             if (engine === 'webkit') {
-              const css = side === 'source' ? '*::-webkit-scrollbar{width:0!important;height:0!important}' : '*::-webkit-scrollbar{width:6px!important;height:6px!important}';
+              const css = side === 'source' ? '*::-webkit-scrollbar{width:0!important;height:0!important}' : '::-webkit-scrollbar{width:6px!important}::-webkit-scrollbar-track{background:#f9fafb!important}::-webkit-scrollbar-thumb{background:#2563eb!important;border-radius:3px!important}';
               await page.addStyleTag({ content: css }); await page.waitForTimeout(200);
               observation.diagnosticIntervention = { notFidelityEvidence: true, css, result: await page.evaluate(inspect) };
             }

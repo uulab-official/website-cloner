@@ -294,3 +294,10 @@ html.dark { color-scheme: dark; --text: #f1f5f9; --muted: #94a3b8; --subtle: #94
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; }
 }
+
+/* Observed source scrollbar styling. Do not fake the viewport with padding or
+ * hide scrollbars: WebKit reserves this space when painting custom controls. */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f9fafb; }
+::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #1d4ed8; }

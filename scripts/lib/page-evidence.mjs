@@ -65,14 +65,25 @@ export function collectDomEvidence(limits) {
   const images = Array.from(document.images);
   const text = document.body?.innerText || '';
   const root = document.documentElement;
-  const documentWidth = Math.max(root.scrollWidth, document.body?.scrollWidth || 0, innerWidth);
-  const documentHeight = Math.max(root.scrollHeight, document.body?.scrollHeight || 0, innerHeight);
+  const viewportRoot = document.compatMode === 'BackCompat' && document.body ? document.body : root;
+  // innerWidth includes a classic scrollbar. Keep it in the conservative PNG
+  // allocation bound, but never count that reserved space as content overflow.
+  const contentWidth = Math.max(root.scrollWidth, document.body?.scrollWidth || 0);
+  const documentWidth = Math.max(contentWidth, innerWidth);
+  const layoutViewport = {
+    width: viewportRoot.clientWidth, height: viewportRoot.clientHeight,
+    windowWidth: innerWidth, windowHeight: innerHeight,
+    verticalGutter: Math.max(0, innerWidth - viewportRoot.clientWidth),
+    horizontalGutter: Math.max(0, innerHeight - viewportRoot.clientHeight),
+  };
+  const contentHeight = Math.max(root.scrollHeight, document.body?.scrollHeight || 0);
+  const documentHeight = Math.max(contentHeight, innerHeight);
   const overflowElements = [];
   const inspected = Array.from(document.querySelectorAll('body *')).slice(0, limits.overflowScan);
   for (const element of inspected) {
     if (!rendered(element)) continue;
     const rectangle = element.getBoundingClientRect();
-    if (rectangle.left < -1 || rectangle.right > root.clientWidth + 1) {
+    if (rectangle.left < -1 || rectangle.right > layoutViewport.width + 1) {
       overflowElements.push({ selector: selector(element), geometry: geometry(element) });
       if (overflowElements.length >= limits.overflowElements) break;
     }
@@ -80,6 +91,7 @@ export function collectDomEvidence(limits) {
   return {
     finalUrl: cleanUrl(location.href), title: document.title,
     document: { width: documentWidth, height: documentHeight, language: root.lang || null },
+    layoutViewport,
     userAgent: navigator.userAgent,
     scrollState: { atCapture: { x: scrollX, y: scrollY } },
     headings: headings.slice(0, limits.headings).map(elementRecord),
@@ -109,10 +121,10 @@ export function collectDomEvidence(limits) {
       })),
     },
     overflow: {
-      horizontal: documentWidth > root.clientWidth + 1,
-      vertical: documentHeight > innerHeight + 1,
-      viewportWidth: root.clientWidth, documentWidth, documentHeight,
-      horizontalPixels: Math.max(0, documentWidth - root.clientWidth),
+      horizontal: contentWidth > layoutViewport.width + 1,
+      vertical: contentHeight > layoutViewport.height + 1,
+      viewportWidth: layoutViewport.width, documentWidth: contentWidth, documentHeight,
+      horizontalPixels: Math.max(0, contentWidth - layoutViewport.width),
       elements: overflowElements, scannedElements: inspected.length,
       note: 'Overflow element bounds are diagnostic and may include intentional off-canvas content.',
     },

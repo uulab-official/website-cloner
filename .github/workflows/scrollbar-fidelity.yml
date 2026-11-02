@@ -26,7 +26,10 @@ jobs:
         env:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CLONER_CAPTURE_ENGINES: chromium,firefox,webkit
-        run: set -o pipefail; node --test tests/viewport-evidence.test.mjs 2>&1 | tee artifacts/scrollbars/viewport-tests.log
+        run: set -o pipefail; node --test tests/viewport-evidence.test.mjs tests/scrollbar-style.test.mjs 2>&1 | tee artifacts/scrollbars/viewport-tests.log
+      - name: Example interactions in three engines
+        if: ${{ !cancelled() }}
+        run: set -o pipefail; npm run check:browsers -- --out artifacts/scrollbars/browsers 2>&1 | tee artifacts/scrollbars/browsers.log
       - name: Source diagnosis and unmodified paired captures
         if: ${{ !cancelled() }}
         shell: bash

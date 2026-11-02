@@ -18,6 +18,16 @@ export function assessPair(source, target, comparison, requestedMaxDiffRatio = c
     if (typeof record?.environment?.browserVersion !== 'string' || !record.environment.browserVersion.trim()) errors.push(`${label}: missing browser version`);
     if (requestedBrowser !== undefined && (!supportedBrowsers.includes(requestedBrowser) || record?.environment?.browser !== requestedBrowser)) errors.push(`${label}: capture does not match requested browser`);
     if (!record?.screenshots?.viewport) errors.push(`${label}: viewport screenshot missing`);
+    if (record && Object.hasOwn(record, 'layoutViewport')) {
+      const v = record.layoutViewport;
+      if (!v || !['width', 'height', 'windowWidth', 'windowHeight'].every(key => Number.isInteger(v[key]) && v[key] > 0)
+        || !['verticalGutter', 'horizontalGutter'].every(key => Number.isInteger(v[key]) && v[key] >= 0)
+        || v.windowWidth !== record.viewport?.width || v.windowHeight !== record.viewport?.height
+        || v.width + v.verticalGutter !== v.windowWidth || v.height + v.horizontalGutter !== v.windowHeight) {
+        errors.push(`${label}: invalid or inconsistent layout viewport evidence`);
+      }
+    }
+    if (record?.overflow?.horizontal === true) warnings.push(`${label}: horizontal content overflow=${record.overflow.horizontalPixels}px; inspect page.json`);
     for (const name of ['consoleErrors', 'pageErrors', 'requestFailures', 'failedResponses']) {
       if (record?.[name]?.length) warnings.push(`${label}: ${name}=${record[name].length}; inspect page.json`);
     }
@@ -28,6 +38,14 @@ export function assessPair(source, target, comparison, requestedMaxDiffRatio = c
     if (a === undefined || a === null || b === undefined || b === null || a !== b) {
       errors.push(`Incompatible or missing capture condition: ${keys.join('.')}`);
     }
+  }
+  const sourceLayout = source?.layoutViewport, targetLayout = target?.layoutViewport;
+  if (sourceLayout && targetLayout) {
+    if (sourceLayout.width !== targetLayout.width || sourceLayout.height !== targetLayout.height) {
+      warnings.push(`Rendered layout viewport differs: source ${sourceLayout.width} x ${sourceLayout.height}; target ${targetLayout.width} x ${targetLayout.height}. Scrollbar space may affect wrapping; pixel comparison is retained.`);
+    }
+  } else if (sourceLayout || targetLayout) {
+    warnings.push('Rendered layout viewport not recorded on both sides; layout parity is unverified.');
   }
   const comparable = errors.length === 0;
   let visualGate = requestedMaxDiffRatio === null ? 'not_requested' : 'not_evaluated';
