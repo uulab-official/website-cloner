@@ -1,5 +1,7 @@
 # Website Cloner
 
+**브라우저 지정 캡처:** `capture`, `verify`, `verify:suite`에 `--browser chromium|firefox|webkit`를 사용할 수 있습니다. [실행 방법과 검증 범위](docs/capture-engines.md)
+
 **URL을 관찰하고, 편집 가능한 프런트엔드로 재구현하고, 화면과 동작을 확인하는 에이전트 스킬.**
 
 Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 원본 관찰부터 반응형 구현, 자산 출처, 화면 비교, 미검증 항목까지 프로젝트 안에 기록합니다.

@@ -10,7 +10,14 @@ export function parseBrowsers(value = supportedBrowsers.join(',')) {
   return names;
 }
 
-/** Test-only selection. Capture/verify commands remain Chromium-only. */
+/** Capture commands use explicit CLI options, not demo-test environment overrides. */
+export function captureBrowserOptions({ browser = 'chromium', executablePath } = {}) {
+  if (!supportedBrowsers.includes(browser)) throw new Error('--browser must be chromium, firefox or webkit');
+  if (executablePath && browser !== 'chromium') throw new Error('Chromium executable overrides cannot be used with Firefox or WebKit');
+  return { name: browser, launchOptions: { headless: true, ...(executablePath ? { executablePath: path.resolve(executablePath) } : {}) } };
+}
+
+/** Test-only selection; independent from capture CLI options. */
 export function demoBrowserOptions(env = process.env) {
   const name = env.CLONER_TEST_BROWSER ?? 'chromium';
   if (!supportedBrowsers.includes(name)) throw new Error('Test browser must be chromium, firefox or webkit');

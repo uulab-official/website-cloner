@@ -1,7 +1,9 @@
 import { validateExactPixels, formatPixelRatio, exactPixelSummary, zeroDifferenceWarning } from './exact-pixels.mjs';
 
+import { supportedBrowsers } from './browser-check.mjs';
+
 /** Assess captured evidence, not the semantic quality of a rebuilt website. */
-export function assessPair(source, target, comparison, requestedMaxDiffRatio = comparison?.maxDiffRatio ?? null) {
+export function assessPair(source, target, comparison, requestedMaxDiffRatio = comparison?.maxDiffRatio ?? null, requestedBrowser) {
   const errors = [];
   const warnings = [];
   const fields = [
@@ -12,6 +14,9 @@ export function assessPair(source, target, comparison, requestedMaxDiffRatio = c
   ];
   for (const [label, record] of [['source', source], ['target', target]]) {
     if (record?.status !== 'completed') errors.push(`${label}: capture not completed${record?.error ? `: ${record.error}` : ''}`);
+    if (!supportedBrowsers.includes(record?.environment?.browser)) errors.push(`${label}: unsupported or missing browser engine`);
+    if (typeof record?.environment?.browserVersion !== 'string' || !record.environment.browserVersion.trim()) errors.push(`${label}: missing browser version`);
+    if (requestedBrowser !== undefined && (!supportedBrowsers.includes(requestedBrowser) || record?.environment?.browser !== requestedBrowser)) errors.push(`${label}: capture does not match requested browser`);
     if (!record?.screenshots?.viewport) errors.push(`${label}: viewport screenshot missing`);
     for (const name of ['consoleErrors', 'pageErrors', 'requestFailures', 'failedResponses']) {
       if (record?.[name]?.length) warnings.push(`${label}: ${name}=${record[name].length}; inspect page.json`);
@@ -53,7 +58,7 @@ export function assessPair(source, target, comparison, requestedMaxDiffRatio = c
       }
     }
   }
-  return { comparable, status: errors.length ? 'failed' : 'completed', visualGate, changedPixelRatio, exactPixels, functionalParity: 'not_verified', errors, warnings };
+  return { browser: source?.environment?.browser ?? null, browserVersion: source?.environment?.browserVersion ?? null, comparable, status: errors.length ? 'failed' : 'completed', visualGate, changedPixelRatio, exactPixels, functionalParity: 'not_verified', errors, warnings };
 }
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
@@ -71,7 +76,7 @@ export function renderReport(report) {
     ].join('') : '';
     const links = folder && row.hasComparison ? `<p><a href="comparisons/${folder}/diff.png">Tolerance-filtered diff</a> · ${row.exactPixels ? `<a href="comparisons/${folder}/exact-diff.png">Exact RGBA mask</a> · ` : ''} <a href="comparisons/${folder}/side-by-side.png">Side by side</a> · <a href="comparisons/${folder}/report.json">Comparison JSON</a></p>` : '';
     const notes = [...(row.errors || []), ...(row.warnings || [])].map(item => `<li>${escapeHtml(item)}</li>`).join('');
-    return `<section><h2>${escapeHtml(row.width)} × ${escapeHtml(row.height)}</h2><p>Execution: <strong>${escapeHtml(row.status)}</strong> · Visual threshold: ${escapeHtml(row.visualGate)}</p><p>Tolerance-filtered difference: ${escapeHtml(formatPixelRatio(row.changedPixelRatio))} (pixelmatch 0.1; anti-aliasing excluded; not a fidelity score)</p><p>${escapeHtml(exactPixelSummary(row.exactPixels, row.width, row.height))}</p>${notes ? `<ul>${notes}</ul>` : ''}<div class="pair">${images}</div>${links}</section>`;
+    return `<section><h2>${escapeHtml(row.width)} × ${escapeHtml(row.height)}</h2><p>Observed engine: ${escapeHtml(row.browser ?? 'not recorded')} · Version: ${escapeHtml(row.browserVersion ?? 'not recorded')}</p><p>Execution: <strong>${escapeHtml(row.status)}</strong> · Visual threshold: ${escapeHtml(row.visualGate)}</p><p>Tolerance-filtered difference: ${escapeHtml(formatPixelRatio(row.changedPixelRatio))} (pixelmatch 0.1; anti-aliasing excluded; not a fidelity score)</p><p>${escapeHtml(exactPixelSummary(row.exactPixels, row.width, row.height))}</p>${notes ? `<ul>${notes}</ul>` : ''}<div class="pair">${images}</div>${links}</section>`;
   }).join('\n');
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — paired verification</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1280px;margin:auto;padding:32px}h1{line-height:1.2}section{border-top:1px solid;padding:24px 0}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}figure{margin:0}img{display:block;width:100%;height:auto}p,li{overflow-wrap:anywhere}figcaption{font-weight:bold;margin-bottom:8px}@media(max-width:600px){body{padding:16px}.pair{grid-template-columns:1fr}}</style><h1>Paired verification</h1>${runErrors ? `<ul>${runErrors}</ul>` : ''}<p>Execution: <strong>${escapeHtml(report.status)}</strong> · State: ${escapeHtml(report.state)}</p><p>Source: ${escapeHtml(report.sourceUrl)}<br>Implementation: ${escapeHtml(report.targetUrl)}</p><p>Functional parity: <strong>not_verified</strong>. Static reduced-motion screenshots do not verify motion, physical devices, backend behavior, or interaction correctness. Diagnostics are warnings, not a functional test pass.</p><p>Tolerant zero does not mean identical. Exact RGBA compares decoded channels including alpha and invisible RGB, not PNG file bytes. In the exact mask, white pixels differ and black pixels are equal. Neither metric verifies function or visual quality.</p><p><a href="verification.json">Complete JSON evidence</a></p>${rows}</html>\n`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — paired verification</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1280px;margin:auto;padding:32px}h1{line-height:1.2}section{border-top:1px solid;padding:24px 0}.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}figure{margin:0}img{display:block;width:100%;height:auto}p,li{overflow-wrap:anywhere}figcaption{font-weight:bold;margin-bottom:8px}@media(max-width:600px){body{padding:16px}.pair{grid-template-columns:1fr}}</style><h1>Paired verification</h1>${runErrors ? `<ul>${runErrors}</ul>` : ''}<p>Execution: <strong>${escapeHtml(report.status)}</strong> · State: ${escapeHtml(report.state)}</p><p>Browser: ${escapeHtml(report.browser ?? 'not recorded')}</p><p>Source: ${escapeHtml(report.sourceUrl)}<br>Implementation: ${escapeHtml(report.targetUrl)}</p><p>Functional parity: <strong>not_verified</strong>. Static reduced-motion screenshots do not verify motion, physical devices, backend behavior, or interaction correctness. Diagnostics are warnings, not a functional test pass.</p><p>Tolerant zero does not mean identical. Exact RGBA compares decoded channels including alpha and invisible RGB, not PNG file bytes. In the exact mask, white pixels differ and black pixels are equal. Neither metric verifies function or visual quality.</p><p><a href="verification.json">Complete JSON evidence</a></p>${rows}</html>\n`;
 }

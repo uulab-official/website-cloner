@@ -7,7 +7,7 @@ const exact={schemaVersion:1,method:'decoded-rgba8',width:2,height:2,totalPixels
 const page=()=>({status:'completed',viewport:{width:2,height:2,deviceScaleFactor:1},state:'default',scheme:'light',reducedMotion:'reduce',environment:{browser:'chromium',browserVersion:'test',headless:true,locale:'en-US',timezoneId:'UTC',isMobile:false,hasTouch:false,freshContext:true},screenshots:{viewport:'viewport.png',animations:'disabled',caret:'hide'}});
 const comparison=(extra={})=>({status:'compared',changedPixelRatio:0,maxDiffRatio:null,passed:null,...extra});
 const item={id:'example',sourceUrl:'https://source.test/',targetUrl:'http://localhost/',widths:[2],height:2,scheme:'light',state:'default',maxDiffRatio:null};
-function verified(pair) {return {schemaVersion:1,tool:'website-cloner/verify',...item,status:pair.status,errors:[],commands:{source:command,target:command},rows:[{width:2,height:2,...pair,sourceCaptured:true,targetCaptured:true,hasComparison:true,command}]};}
+function verified(pair) {return {schemaVersion:1,tool:'website-cloner/verify',...item,browser:pair.browser,status:pair.status,errors:[],commands:{source:command,target:command},rows:[{width:2,height:2,...pair,sourceCaptured:true,targetCaptured:true,hasComparison:true,command}]};}
 
 test('tolerant zero retains exact nonzero difference and warns without changing gate',()=>{
   const result=assessPair(page(),page(),comparison({exactPixels:exact}));

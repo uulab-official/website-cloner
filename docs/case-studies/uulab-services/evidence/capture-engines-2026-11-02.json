@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "codeCommit": "b4040bfd08ed048121f1a836b82dc17665d5bb45",
+  "codeTree": "85c02b5bb40389c51c3885f72dc1a37322126d47",
+  "runId": 41391886995,
+  "jobId": 125104875633,
+  "artifactId": 13118161024,
+  "artifactSHA256": "c46b950d51c50f869fc4762af2a0b2a729b0055e9ef56b852b5bf0badae90f32",
+  "artifactExpiresAt": "2026-11-16T05:10:00Z",
+  "fullCheck": {"toolkitAndBrowser": 303, "productionDemo": 10, "failed": 0, "skipped": 0},
+  "targetedEngineCheck": {"tests": 39, "failed": 0, "skipped": 0, "note": "Overlaps fullCheck; do not sum as unique tests"},
+  "environment": {"node": "v22.23.4", "playwright": "1.62.1", "platform": "Linux", "locale": "en-US", "timezoneId": "UTC", "deviceScaleFactor": 1, "headless": true, "isMobile": false, "hasTouch": false},
+  "engines": [
+    {"browser": "chromium", "version": "151.0.7922.34", "startedAt": "2026-11-02T05:06:14.260Z", "completedAt": "2026-11-02T05:07:18.495Z", "casesCompleted": 6, "viewsCompared": 10, "reviewRequiredCases": 2},
+    {"browser": "firefox", "version": "153.0", "startedAt": "2026-11-02T05:07:18.533Z", "completedAt": "2026-11-02T05:08:32.912Z", "casesCompleted": 6, "viewsCompared": 10, "reviewRequiredCases": 3},
+    {"browser": "webkit", "version": "26.5", "startedAt": "2026-11-02T05:08:32.945Z", "completedAt": "2026-11-02T05:09:59.804Z", "casesCompleted": 6, "viewsCompared": 10, "reviewRequiredCases": 0}
+  ],
+  "representativePixels": [
+    {"browser":"chromium","case":"services-default","viewport":"1440x900","filteredPercent":0.17098765432098764,"exactChangedPixels":13423,"totalPixels":1296000},
+    {"browser":"firefox","case":"services-default","viewport":"1440x900","filteredPercent":0,"exactChangedPixels":602709,"totalPixels":1296000,"maxChannelDelta":1},
+    {"browser":"webkit","case":"services-default","viewport":"1440x900","filteredPercent":1.7340277777777777,"exactChangedPixels":663240,"totalPixels":1296000},
+    {"browser":"chromium","case":"services-faq-open","viewport":"390x900","filteredPercent":0,"exactChangedPixels":704,"totalPixels":351000},
+    {"browser":"firefox","case":"services-faq-open","viewport":"390x900","filteredPercent":0.006552706552706553,"exactChangedPixels":999,"totalPixels":351000},
+    {"browser":"webkit","case":"services-faq-open","viewport":"390x900","filteredPercent":4.623361823361823,"exactChangedPixels":30456,"totalPixels":351000}
+  ],
+  "mobileDefaultFullPageDimensions": {
+    "chromium":{"source":[390,12617],"target":[390,12625]},
+    "firefox":{"source":[390,12680],"target":[390,12688]},
+    "webkit":{"source":[384,12749],"target":[390,12625]}
+  },
+  "newFullPagePixelComparison": false,
+  "visualGate": "not_requested",
+  "functionalParity": "not_verified",
+  "crossCalculation": {"matchedPairs":30,"tools":"Pillow and NumPy","independentCodeReview":false,"recapture":false},
+  "diagnostics": {"pageRecords":60,"consoleErrors":0,"pageErrors":0,"requestFailures":0,"failedResponses":0,"webkitSourceHorizontalOverflowPixels":6,"webkitSourceOverflowRecords":10},
+  "limitations": ["Engine-local comparisons, not cross-engine image equivalence", "reviewRequired false is not visual approval", "Linux WebKit is not actual Safari or iPhone", "No physical devices, backend, complete motion or all-route parity", "Known intentional opaque menu and readable footer differences remain"]
+}

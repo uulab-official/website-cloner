@@ -3,6 +3,7 @@ import { readFile, stat, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import { captureBrowserOptions } from './lib/browser-check.mjs';
 import { parseOptions, httpUrl, positiveInteger, ratio, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
 import { assessPair, renderReport } from './lib/verification.mjs';
@@ -20,7 +21,8 @@ write verification.json plus a script-free index.html with local PNG evidence.
   --source-actions FILE      Source click/scroll JSON, using source selectors
   --target-actions FILE      Target click/scroll JSON, using target selectors
   --keep-scroll              Preserve scroll after actions on both pages
-  --executable-path FILE     Explicit Chromium executable for both captures
+  --browser NAME             chromium (default), firefox or webkit for BOTH sides
+  --executable-path FILE     Explicit Chromium executable for both captures (Chromium only)
   --max-diff-ratio NUMBER    Optional pixel threshold 0..1; no default pass gate
   --overwrite               Replace only a prior verify-owned output directory
   --help                     Show help
@@ -46,10 +48,11 @@ async function readJson(filename) {
 }
 async function main(argv) {
   const options = parseOptions(argv, {
-    values: ['source', 'target', 'out', 'widths', 'height', 'scheme', 'state', 'source-actions', 'target-actions', 'executable-path', 'max-diff-ratio'],
+    values: ['source', 'target', 'out', 'widths', 'height', 'scheme', 'state', 'source-actions', 'target-actions', 'executable-path', 'max-diff-ratio', 'browser'],
     booleans: ['keep-scroll', 'overwrite'], required: ['source', 'target', 'out'],
   });
   if (options.help) { process.stdout.write(help); return; }
+  const selected = captureBrowserOptions({ browser: options.browser, executablePath: options['executable-path'] });
   const sourceUrl = httpUrl(options.source); const targetUrl = httpUrl(options.target);
   const widths = (options.widths || '1440,768,390').split(',').map(value => positiveInteger(value.trim(), '--widths'));
   if (widths.length > 10 || new Set(widths).size !== widths.length) throw new Error('--widths must contain at most 10 unique widths');
@@ -68,12 +71,12 @@ async function main(argv) {
   }
   const out = await prepareOutputDirectory(options.out, { overwrite: options.overwrite, tool: 'verify', protectedPaths });
   const report = { schemaVersion: 1, tool: 'website-cloner/verify', createdAt: new Date().toISOString(), status: 'running',
-    sourceUrl, targetUrl, state, widths, height, scheme, maxDiffRatio, functionalParity: 'not_verified', motionVerified: false,
+    browser: selected.name, sourceUrl, targetUrl, state, widths, height, scheme, maxDiffRatio, functionalParity: 'not_verified', motionVerified: false,
     note: 'Live URL capture. Static screenshots and pixel differences are evidence, not a semantic fidelity score. No functional parity claim.',
     commands: {}, errors: [], rows: [] };
   await writeJson(path.join(out, 'verification.json'), report);
   try {
-    const shared = ['--widths', widths.join(','), '--height', String(height), '--scheme', scheme, '--state', state];
+    const shared = ['--browser', selected.name, '--widths', widths.join(','), '--height', String(height), '--scheme', scheme, '--state', state];
     if (options['keep-scroll']) shared.push('--keep-scroll');
     if (options['executable-path']) shared.push('--executable-path', path.resolve(options['executable-path']));
     for (const [side, url] of [['source', sourceUrl], ['target', targetUrl]]) {
@@ -89,13 +92,13 @@ async function main(argv) {
       const source = await readJson(path.join(out, 'source', folder, 'page.json'));
       const target = await readJson(path.join(out, 'target', folder, 'page.json'));
       let comparison = null; let command = null;
-      if (assessPair(source, target, null).comparable) {
+      if (assessPair(source, target, null, maxDiffRatio, selected.name).comparable) {
         const args = ['--source', path.join(out, 'source', folder, 'viewport.png'), '--target', path.join(out, 'target', folder, 'viewport.png'), '--out', path.join(out, 'comparisons', folder)];
         if (maxDiffRatio !== null) args.push('--max-diff-ratio', String(maxDiffRatio));
         command = execute('compare.mjs', args, 60000);
         comparison = await readJson(path.join(out, 'comparisons', folder, 'report.json'));
       }
-      const row = { width, height, ...assessPair(source, target, comparison, maxDiffRatio),
+      const row = { width, height, ...assessPair(source, target, comparison, maxDiffRatio, selected.name),
         sourceCaptured: source?.status === 'completed', targetCaptured: target?.status === 'completed',
         hasComparison: ['compared', 'threshold_exceeded'].includes(comparison?.status), command };
       if (command && (command.error || command.exitCode !== 0)) {
