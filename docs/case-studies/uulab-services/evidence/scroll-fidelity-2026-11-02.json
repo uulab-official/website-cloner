@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "codeCommit": "db9b8aa3d1ee19a37c6d00b0534556fb6caf4ef1",
+  "baselineCommit": "c5d2e68be45747b7eaa8a3d0aed43f0f23427396",
+  "workflowRunId": 41372670881,
+  "artifactId": 13110226970,
+  "artifactSha256": "e9b66fe8d71ff2647963d8bd103bb197b1ea6af0b85959df6051283e25d68f06",
+  "baselineArtifactSha256": "e2258f224ccb9ae1ce1b18526607f7a729ea2e364262843c0c03862df4c31767",
+  "captureStartedAt": "2026-11-02T01:30:00.009Z",
+  "captureCompletedAt": "2026-11-02T01:31:12.733Z",
+  "tests": { "toolkitAndBrowser": 214, "productionDemo": 9, "failed": 0, "cancelled": 0, "skipped": 0 },
+  "casesCompleted": 6,
+  "viewsCompleted": 10,
+  "reviewRequiredCases": 1,
+  "visualGate": "not_requested",
+  "functionalParity": "not_verified",
+  "unchangedNonFaqTargetPngs": 8,
+  "independentlyRecomputedExactRatios": 20,
+  "measurements": [
+    {
+      "viewport": "1440x900",
+      "beforeTolerantPercent": 1.6487654320987655,
+      "afterTolerantPercent": 0.2496141975308642,
+      "beforeExactPercent": 5.214274691358025,
+      "afterExactPercent": 0.3808641975308642,
+      "sourceUnchanged": true,
+      "sourceSha256": "d08e623ccf8b64089b3d9313a22216f88d49580111d240965a85a64898a735a9",
+      "targetSha256": "8cba7d71d996fd49aeb1bdcb5d36a77f5174dc588a060ee125c118d40c89fd29"
+    },
+    {
+      "viewport": "390x900",
+      "beforeTolerantPercent": 2.4455840455840456,
+      "afterTolerantPercent": 0.45213675213675214,
+      "beforeExactPercent": 7.084900284900285,
+      "afterExactPercent": 0.8903133903133903,
+      "sourceUnchanged": true,
+      "sourceSha256": "af86b3283a1ec3932307200e95c8c90b0e02963cdb90e7dd121a5ea29def4a5c",
+      "targetSha256": "40e2ddae6f46be65443f3c0fe2f6ab662deb73f62587fc31893d3db8f2da320d"
+    }
+  ],
+  "mobileFullPageHeight": { "source": 12617, "target": 12625, "newFullPagePixelComparison": false },
+  "review": "author_self_review_not_independent"
+}
