@@ -20,7 +20,14 @@ jobs:
       - run: sudo apt-get install -y fonts-noto-cjk
       - run: mkdir -p artifacts/scrollbar-init
       - run: npm run build > artifacts/scrollbar-init/build.log 2>&1
-      - run: node scripts/case-studies/probe-uulab-scrollbar-init.mjs artifacts/scrollbar-init > artifacts/scrollbar-init/probe.log 2>&1
+      - name: Reproduce delayed stylesheet geometry
+        env:
+          CAPTURE_TEST_BUNDLED_BROWSER: '1'
+          CLONER_CAPTURE_ENGINES: webkit
+        run: set -o pipefail; node --test tests/scrollbar-loading.test.mjs 2>&1 | tee artifacts/scrollbar-init/regression.log
+      - name: Compare isolated response variants
+        if: ${{ !cancelled() }}
+        run: node scripts/case-studies/probe-uulab-scrollbar-init.mjs artifacts/scrollbar-init > artifacts/scrollbar-init/probe.log 2>&1
       - uses: actions/upload-artifact@v4
         if: always()
         with:
