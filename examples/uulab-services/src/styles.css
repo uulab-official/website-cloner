@@ -71,6 +71,10 @@ main { min-height: 100vh; padding-top: 80px; }
 
 /* Header: an 80px fixed bar and the source's 1024px navigation breakpoint. */
 .navbar { position: fixed; inset: 0 0 auto; z-index: 1000; height: 80px; border-bottom: 1px solid rgb(0 0 0 / 5%); background: rgb(255 255 255 / 80%); backdrop-filter: blur(12px); }
+/* Scroll direction changes visibility; focus must reveal controls immediately. */
+.navbar { transition: transform 300ms ease; }
+.navbar.is-hidden { transform: translateY(-100%); }
+.navbar:focus-within { transform: translateY(0); transition: none; }
 .navbar.is-scrolled { background: rgb(255 255 255 / 95%); border-bottom-color: rgb(0 0 0 / 10%); box-shadow: 0 1px 3px rgb(0 0 0 / 10%), 0 1px 2px rgb(0 0 0 / 6%); }
 .navbar-container { position: relative; }
 .navbar-row { display: flex; align-items: center; justify-content: space-between; height: 80px; }
@@ -197,6 +201,8 @@ main { min-height: 100vh; padding-top: 80px; }
 .faq-list details { padding-block: 20px; }
 .faq-list details + details { border-top: 1px solid var(--border); }
 .faq-list summary { cursor: pointer; font-size: 18px; line-height: 32px; font-weight: 700; }
+/* Preserve the observed indicator for both pointer and keyboard focus. */
+.faq-list summary:focus { outline: 3px solid #3b82f6; outline-offset: 2px; box-shadow: 0 0 0 3px rgb(59 130 246 / 30%); }
 .faq-list details p { margin-top: 16px; color: var(--muted); line-height: 32px; }
 .contact-section { color: #fff; background: linear-gradient(to right, #2563eb, #9333ea); text-align: center; }
 .contact-section h2 { margin-bottom: 24px; font-size: 30px; line-height: 36px; }

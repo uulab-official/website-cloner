@@ -42,6 +42,7 @@ function openMenu() {
   mobileMenu.hidden = false;
   mobileMenu.inert = false;
   mobileMenu.setAttribute('aria-hidden', 'false');
+  showHeader();
 }
 
 menuButton.hidden = false;
@@ -73,10 +74,29 @@ const backToTop = document.querySelector('#backToTopButton');
 const navbar = document.querySelector('#navigation');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let scrollFrame = 0;
+let previousScrollY = Math.max(0, window.scrollY);
+let headerHidden = false;
+
+function showHeader() {
+  headerHidden = false;
+  navbar.classList.remove('is-hidden');
+}
+
+// Never leave a keyboard user focused on an off-screen control.
+navbar.addEventListener('focusin', showHeader);
 
 function updateScrollControls() {
-  backToTop.hidden = window.scrollY <= 300;
-  navbar.classList.toggle('is-scrolled', window.scrollY > 10);
+  const y = Math.max(0, window.scrollY);
+  const pinned = navbar.contains(document.activeElement)
+    || menuButton.getAttribute('aria-expanded') === 'true';
+  if (y <= 100 || pinned) headerHidden = false;
+  else if (y > previousScrollY) headerHidden = true;
+  else if (y < previousScrollY) headerHidden = false;
+  // An unchanged scroll position is not an upward scroll.
+  navbar.classList.toggle('is-hidden', headerHidden);
+  previousScrollY = y;
+  backToTop.hidden = y <= 300;
+  navbar.classList.toggle('is-scrolled', y > 10);
   scrollFrame = 0;
 }
 window.addEventListener('scroll', () => {
@@ -88,6 +108,8 @@ backToTop.addEventListener('click', () => {
 });
 window.addEventListener('pageshow', () => {
   closeMenu();
+  previousScrollY = Math.max(0, window.scrollY);
+  showHeader();
   updateScrollControls();
 });
 updateScrollControls();

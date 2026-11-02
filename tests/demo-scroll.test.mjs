@@ -55,6 +55,10 @@ for (const width of [390,1440]) {
     await withPage(width, async page => {
       await visible(page,true);
       const height=await page.evaluate(()=>document.documentElement.scrollHeight);
+      await scrollTo(page,100);
+      await visible(page,true);
+      await scrollTo(page,101);
+      await visible(page,false);
       await scrollTo(page,600);
       await visible(page,false);
       await page.evaluate(()=>window.dispatchEvent(new Event('scroll')));
@@ -118,7 +122,38 @@ test('FAQ click hides the scrolled header without removing keyboard focus visibi
 });
 test('static no-JavaScript header stays visible when the document is scrolled', options, async () => {
   await withPage(390, async page => {
-    await scrollTo(page,600);
+    await page.evaluate(()=>window.scrollTo(0,600));
+    await page.waitForTimeout(100); // page RAF callbacks do not run with JS disabled
     await visible(page,true);
   }, {javaScriptEnabled:false});
+});
+
+for (const width of [390,1440]) {
+  test(`FAQ focus ring matches observed pointer and keyboard appearance at ${width}px`, options, async () => {
+    await withPage(width, async page => {
+      const summary=page.locator('.faq-list details:first-child summary');
+      const check=async () => assert.deepEqual(await summary.evaluate(el=>{
+        const s=getComputedStyle(el);
+        return {outline:s.outline,offset:s.outlineOffset,shadow:s.boxShadow};
+      }), {outline:'rgb(59, 130, 246) solid 3px',offset:'2px',shadow:'rgba(59, 130, 246, 0.3) 0px 0px 0px 3px'});
+      await summary.click();
+      await check();
+      await summary.press('Enter');
+      await check();
+    });
+  });
+}
+test('header motion settles and changing reduced-motion preference removes transitions', options, async () => {
+  await withPage(390, async page => {
+    await page.emulateMedia({reducedMotion:'no-preference'});
+    const header=page.locator('#navigation');
+    assert.equal(await header.evaluate(el=>getComputedStyle(el).transitionDuration),'0.3s');
+    await scrollTo(page,600);
+    await page.waitForFunction(()=>document.querySelector('#navigation').getBoundingClientRect().bottom<=0);
+    await visible(page,false);
+    await page.emulateMedia({reducedMotion:'reduce'});
+    assert.equal(await header.evaluate(el=>getComputedStyle(el).transitionDuration),'0s');
+    await scrollTo(page,590);
+    await visible(page,true);
+  });
 });
