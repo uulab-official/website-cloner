@@ -22,7 +22,7 @@ npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/se
 
 `--dry-run`은 동작 파일까지 검사하지만 캡처하거나 출력 폴더를 만들지 않습니다. 예제 설정은 기본 화면(1440/768/390), 모바일 메뉴(390), 테마 버튼으로 전환한 다크 상태(1440), 구현의 루트 경로 별칭(1440/390), FAQ 열림(1440/390), 다크 모바일 메뉴(390)를 합쳐 **6개 사례·10개 화면 조건**을 요청합니다. 모바일 폭은 실제 휴대폰/터치 기기 검증을 의미하지 않습니다.
 
-오리진은 `--source-origin https://your-authorized-site.example`과 `--target-origin http://localhost:5173`으로 덮어쓸 수 있습니다. 기존 Chromium은 `--executable-path /absolute/path/to/chromium`으로 지정합니다. 실행 파일은 설정 JSON이 아닌 CLI에서만 받습니다.
+오리진은 `--source-origin https://your-authorized-site.example`과 `--target-origin http://localhost:5173`으로 덮어쓸 수 있습니다. `--browser chromium|firefox|webkit`는 스위트 전체의 원본·구현에 같은 엔진을 지정합니다. 엔진별 출력 폴더를 분리하고 필요한 엔진을 먼저 설치하세요. 기존 Chromium 실행 파일은 `--executable-path /absolute/path/to/chromium`으로 지정합니다. 실행 파일은 설정 JSON이 아닌 CLI에서만 받습니다.
 
 ## 설정 예제
 

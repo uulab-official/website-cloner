@@ -9,3 +9,11 @@ for (const directory of ['dist/demo','dist/demo/report','scripts/report','tests/
     assert.match(result.stderr,/output/i);
   });
 }
+
+test('browser check help distinguishes three-engine capture from demo-only behavior checks', () => {
+  const result = spawnSync(process.execPath, ['scripts/check-browsers.mjs', '--help'], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.doesNotMatch(result.stdout, /capture.*Chromium-only/i);
+  assert.match(result.stdout, /capture.*--browser/i);
+  assert.match(result.stdout, /No live-source capture/);
+});

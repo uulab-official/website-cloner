@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
@@ -31,6 +32,34 @@ jobs:
       - name: Three-engine production regression
         if: ${{ !cancelled() }}
         run: set -o pipefail; npm run check:browsers -- --out artifacts/readiness/browsers 2>&1 | tee artifacts/readiness/browsers.log
+      - name: Check current documentation links and npm commands
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFile, stat } from 'node:fs/promises';
+          import path from 'node:path';
+          const pkg=JSON.parse(await readFile('package.json','utf8'));
+          for (const file of ['README.md','CONTRIBUTING.md','docs/README.md','docs/build-and-ci.md','docs/paired-verification.md','docs/verification-suites.md','docs/capture-engines.md','docs/browser-compatibility.md']) {
+            const text=await readFile(file,'utf8');
+            for (const match of text.matchAll(/npm run ([a-z][a-z0-9:-]*)/g)) assert.ok(pkg.scripts[match[1]], `${file}: missing script ${match[1]}`);
+            for (const match of text.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
+              const target=match[1].split('#')[0];
+              if (!target || /^[a-z][a-z0-9+.-]*:/i.test(target)) continue;
+              assert.ok((await stat(path.resolve(path.dirname(file),target))).isFile(), `${file}: missing link ${target}`);
+            }
+          }
+          console.log('Eight maintained guides: local links and npm commands verified.');
+          JS
+      - name: Prove generated frontend files are unchanged
+        run: |
+          baseline=$(mktemp -d "$RUNNER_TEMP/cloner-base.XXXXXX")
+          git worktree add --detach "$baseline" 6880114c6cac67a85d9bc3a92b7f2c1f9fdc4ddb
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$baseline/node_modules"
+          (cd "$baseline"; node "$GITHUB_WORKSPACE/node_modules/vite/bin/vite.js" build examples/uulab-services --outDir ../../dist/demo > "$GITHUB_WORKSPACE/artifacts/readiness/baseline-build.log" 2>&1)
+          (cd "$baseline"; find dist/demo -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum) > artifacts/readiness/baseline-files.sha256
+          find dist/demo -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > artifacts/readiness/current-files.sha256
+          diff -u artifacts/readiness/baseline-files.sha256 artifacts/readiness/current-files.sha256 > artifacts/readiness/build-equivalence.diff
+          echo "Generated frontend files match the previous main byte for byte."
       - name: Preserve reviewable evidence without fonts
         if: always()
         run: |

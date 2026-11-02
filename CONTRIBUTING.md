@@ -8,11 +8,14 @@ Use Node.js 22.12+ for this repository. The optional external Skills CLI require
 
 ```bash
 npm ci
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 npm run check
+npm run check:browsers -- --out artifacts/browser-check
 ```
 
 On Linux, Playwright's `--with-deps` installer can install browser system dependencies. Install a Korean font such as Noto CJK when checking the included example. `CLONER_CHROMIUM_PATH` can explicitly select an existing Chromium; record its version when collecting evidence.
+
+The full check includes `npm run test:build`: real Vite builds in disposable fixtures verify stale-file cleanup, sibling preservation, and rejected unsafe output paths. Never put personal files in generated `dist/demo`. See [build and CI policy](docs/build-and-ci.md).
 
 The full check runs skill validation, real browser capture tests, PNG and file-protection tests, the example build, and example interaction checks. It must not silently skip browser integration. Tests use local fixtures, so they do not depend on the live UULab website.
 

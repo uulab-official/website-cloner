@@ -10,6 +10,7 @@ const tests = (await readdir('tests')).filter(name=>name.endsWith('.test.mjs')).
 const commands = [
   ['scripts/validate-skill.mjs'],
   ['--test', ...tests],
+  ['--test', 'tests/build-output.e2e.mjs'],
   ['node_modules/vite/bin/vite.js', 'build', 'examples/uulab-services', '--outDir', '../../dist/demo'],
   ['tests/demo.e2e.mjs'],
 ];

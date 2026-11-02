@@ -10,11 +10,13 @@ npm run dev
 npm run verify -- --source https://uulab.co.kr/services/ --target http://localhost:5173/services/ --out artifacts/live-check
 ```
 
-Defaults are 1440, 768, and 390 CSS pixels wide, 900 pixels high, with fresh Chromium contexts, light preference, and reduced motion. Both URLs are actually requested; the tool never silently substitutes a static reference or disables certificate checks. Small widths are not physical touch-device emulation. Linux needs appropriate fonts (for this case, Noto CJK). Both captures use the same installed browser, selected explicitly with `--executable-path` when required.
+Defaults are 1440, 768, and 390 CSS pixels wide, 900 pixels high, with fresh Chromium contexts, light preference, and reduced motion. Both URLs are actually requested; the tool never silently substitutes a static reference or disables certificate checks. Small widths are not physical touch-device emulation. Linux needs appropriate fonts (for this case, Noto CJK). Use `--browser chromium|firefox|webkit` to select the same engine for both captures; Chromium remains the default. `--executable-path` is accepted only for Chromium. See [engine selection](capture-engines.md).
 
 ## Inspect the results
 
 Open `artifacts/live-check/index.html`, or serve that directory locally. The script-free report contains source/target viewport images, full-page image links, pixel diffs, capture diagnostics, and the JSON report. It escapes evidence text and does not embed source HTML, scripts, or external assets.
+
+Both tolerance-filtered and exact RGBA diagnostics are retained; see [exact pixel evidence](exact-pixel-evidence.md). Neither ratio is a semantic quality score.
 
 `verification.json` distinguishes:
 

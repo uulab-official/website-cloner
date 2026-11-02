@@ -6,7 +6,7 @@
 
 Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 원본 관찰부터 반응형 구현, 자산 출처, 화면 비교, 미검증 항목까지 프로젝트 안에 기록합니다.
 
-[스킬](skills/website-clone/SKILL.md) · [실제 클론 사례](docs/case-studies/uulab-services/report.md) · [컨트롤 개선·최신 검증](docs/case-studies/uulab-services/fidelity-polish-2026-11-01.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
+[스킬](skills/website-clone/SKILL.md) · [실제 클론 사례](docs/case-studies/uulab-services/report.md) · [사용 안내·검증 기록](docs/README.md) · [빌드·CI](docs/build-and-ci.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
 
 ## 구성
 
@@ -18,7 +18,7 @@ Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 
 | Verify CLI | 원본·구현을 같은 환경에서 캡처하고 비교 보고서 생성 |
 | Verify Suite CLI | 여러 경로·화면 크기·동작 상태를 일괄 실행하고 통합 보고서 생성 |
 | 실제 예제 | 유유랩 서비스 페이지의 독립적인 프런트엔드 재구현 |
-| 테스트·CI | CLI 입력/파일 보호/PNG 비교/브라우저 캡처와 예제 동작 검증 |
+| 테스트·CI | CLI·파일 보호·안전한 재빌드와 Chromium/Firefox/WebKit 예제 동작 검증 |
 
 스킬만 설치해도 사용할 수 있습니다. 캡처·비교 CLI는 선택 도구입니다. 구현을 수행할 코딩 에이전트와 브라우저 접근이 필요하며, CLI 자체가 완성 앱을 자동 생성하거나 서버·인증·결제를 복원하지는 않습니다. 유료 스크래핑 API나 별도 운영 서버는 필수가 아닙니다.
 
@@ -64,11 +64,11 @@ npm run build
 npm run preview
 ```
 
-정적 빌드 결과는 `dist/demo/`입니다. 별도 서버 로직 없이 제공할 수 있습니다. 원본 전체 사이트나 문의 처리 시스템을 복원한 예제는 아닙니다.
+정적 빌드 결과는 `dist/demo/`입니다. **재빌드 시 이 생성 폴더를 비웁니다. 개인 파일을 넣지 마세요.** 소스·다른 출력 경로로의 변경과 심볼릭 링크는 정리 전에 거부합니다. [빌드 보호 정책](docs/build-and-ci.md)을 참고하세요. 별도 서버 로직 없이 제공할 수 있습니다. 원본 전체 사이트나 문의 처리 시스템을 복원한 예제는 아닙니다.
 
 ## 3. 캡처와 비교
 
-먼저 브라우저를 준비합니다.
+기본 Chromium 또는 실제 사용할 엔진을 준비합니다. 여러 엔진을 사용할 때는 `npx playwright install chromium firefox webkit`을 실행합니다.
 
 ```bash
 npx playwright install chromium
@@ -108,7 +108,7 @@ npm run capture -- --url http://localhost:5173/services/ --out artifacts/faq --w
 npm run compare -- --source artifacts/source/1440x900/viewport.png --target artifacts/local/1440x900/viewport.png --out artifacts/comparison-desktop
 ```
 
-출력은 `diff.png`, `side-by-side.png`, `report.json`입니다. 크기가 다르면 실패 기록을 남기고 종료합니다. 원본을 임의로 늘이거나 줄이지 않습니다. 전체 페이지 높이가 다르면 레이아웃 차이를 먼저 조사하거나 동일한 뷰포트 캡처를 비교합니다.
+출력은 `diff.png`, `exact-diff.png`, `side-by-side.png`, `report.json`입니다. HTML 보고서는 `verify`와 `verify:suite`가 생성합니다. 허용 오차 적용 비율과 무오차 RGBA 비율을 함께 기록합니다. 크기가 다르면 실패 기록을 남기고 종료합니다. 원본을 임의로 늘이거나 줄이지 않습니다. 전체 페이지 높이가 다르면 레이아웃 차이를 먼저 조사하거나 동일한 뷰포트 캡처를 비교합니다.
 
 변경 픽셀 비율은 오차를 찾기 위한 지표입니다. **“완성도 98%” 같은 의미 점수가 아닙니다.** 기본 비교기는 색상 허용 오차 0.1과 안티앨리어싱 제외를 사용하므로 **0%도 픽셀 동일성을 뜻하지 않습니다.** 실제 메뉴는 반투명/불투명 배경이 눈으로 다르지만 기본 결과가 0%였습니다. 반드시 나란히 보기와 기록된 차이를 확인하세요. 글꼴·동적 데이터·애니메이션의 영향을 받으며 버튼 동작을 증명하지도 않습니다. 필요한 경우에만 `--max-diff-ratio 0.02`처럼 프로젝트가 정한 기준으로 실패 여부를 지정합니다. 기본값에는 자동 합격 기준이 없습니다.
 
@@ -135,10 +135,14 @@ npm run verify:suite -- --manifest suites/uulab-services.json --out artifacts/se
 
 ```bash
 npm test
+npm run test:build
 npm run check
+npm run check:browsers -- --out artifacts/browser-check
 ```
 
-`npm test`는 CLI·PNG·스위트 검사를 실행합니다. 브라우저를 설치한 뒤 실행하는 `npm run check`는 스킬 패키지 검사, **실제 브라우저 캡처·컨트롤 회귀 테스트**, 예제 production build, 예제의 테마·메뉴·FAQ·반응형·자산 검사를 모두 실행합니다. 테스트는 로컬 fixture와 빌드된 예제를 사용하므로 운영 사이트 상태에 의존하지 않습니다.
+`npm test`는 CLI·PNG·스위트 검사를 실행합니다. 브라우저를 설치한 뒤 실행하는 `npm run check`는 스킬 패키지 검사, **실제 브라우저 캡처·컨트롤 회귀 테스트**, 안전한 재빌드 검사, 예제 production build, 예제의 테마·메뉴·FAQ·반응형·자산 검사를 모두 실행합니다. 테스트는 로컬 fixture와 빌드된 예제를 사용하므로 운영 사이트 상태에 의존하지 않습니다.
+
+`check:browsers`는 같은 예제 동작을 세 엔진에서 검사하며 원본 비교는 수행하지 않습니다. 원본 비교는 `verify` 또는 `verify:suite`에 `--browser firefox`나 `--browser webkit`을 지정하고 엔진별로 다른 출력 폴더를 사용합니다. [명령별 차이](docs/README.md)를 참고하세요.
 
 이미 설치된 다른 Chromium을 명시해야 한다면 캡처에 `--executable-path`를 지정할 수 있습니다. 전체 검사에서는 `CLONER_CHROMIUM_PATH` 환경변수로 지정합니다. 사용한 버전은 증거에 기록합니다. TLS 오류가 나면 인증서 검증을 끄지 말고 오류를 기록한 뒤 승인된 브라우저나 명시적으로 구분한 정적 참조 자료를 사용합니다.
 
@@ -150,9 +154,9 @@ npm run check
 
 [실사이트 스위트 통합 기록](docs/case-studies/uulab-services/suite-integration-2026-11-01.md)은 도구 통합 당시 178개 테스트와 4개 사례·7개 화면 조건을 기록한 과거 실행입니다.
 
-**후속 컨트롤 개선에서는 실제 예제 CSS를 수정하고 운영 HTTPS 원본을 다시 캡처했습니다.** [최신 개선·검증 기록](docs/case-studies/uulab-services/fidelity-polish-2026-11-01.md)에 **183개 테스트 통과**, 6개 사례·10개 화면 조건, 낮은 화면의 스크롤 메뉴, 전체 페이지 비교와 남은 차이를 기록했습니다. 메뉴 높이·버튼 회전·포커스를 맞추되 불투명 배경과 읽기 쉬운 달 아이콘은 유지했습니다.
+후속 작업에서 메뉴, FAQ 스크롤 헤더·포커스, 진행 막대, WebKit 스크롤바 초기화를 개선했습니다. [WebKit 레이아웃·초기화 검증](docs/case-studies/uulab-services/scrollbar-fidelity-2026-11-02.md), [세 엔진 원본 비교](docs/case-studies/uulab-services/capture-engines-2026-11-02.md), [예제 동작 검사](docs/case-studies/uulab-services/browser-compatibility-2026-11-02.md)는 **각 실행 시점의 기록**입니다. 최신 기능의 사용법은 [문서 안내](docs/README.md)를 기준으로 확인하세요.
 
-전체 페이지 390px는 여전히 원본보다 8px 길며 `dimension_mismatch`로 남습니다. 새 FAQ 검사에서 스크롤 후 헤더/포커스 표시 차이도 확인했습니다. 픽셀 수치는 화면 한 장의 진단일 뿐 전체 사이트나 모든 기능의 복제를 증명하지 않습니다. Safari·실제 휴대폰·백엔드·일반 모션·원본의 모든 상호작용은 검증되지 않았습니다.
+의도적으로 유지한 불투명 메뉴 배경·읽기 쉬운 다크 아이콘·하단 링크 구성은 원본과 다릅니다. 하단 링크의 행 간격 때문에 모바일 전체 높이에도 8px 차이가 남습니다. 픽셀 수치는 전체 사이트의 완성도나 기능 동등성이 아닙니다. Linux Playwright WebKit은 실제 Safari가 아니며, 물리 휴대폰·터치·백엔드·전체 모션은 별도 검증 대상입니다.
 
 ## 프로젝트 구조
 

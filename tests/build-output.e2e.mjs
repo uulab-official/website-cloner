@@ -6,7 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
-// Destructive scenarios are confined to disposable fixtures, never real output.
+// Every destructive scenario is confined to a disposable fixture. No real
+// repository output, source, or personal file is used as a cleanup target.
 const repo = fileURLToPath(new URL('../', import.meta.url));
 const vite = path.join(repo, 'node_modules/vite/bin/vite.js');
 async function fixture(action) {
@@ -42,7 +43,7 @@ test('clean rebuild removes stale demo files, preserves sibling output and emits
     await writeFile(path.join(root, 'dist/demo/stale.js'), 'old output');
     result = build();
     assert.equal(result.status, 0, result.output);
-    assert.doesNotMatch(result.output, /outDir.*outside|outside of project root/i);
+    assert.doesNotMatch(result.output.replace(/\u001b\[[0-9;]*m/g, ''), /outDir.*(?:outside|not inside)|outside of project root/i);
     await assert.rejects(readFile(path.join(root, 'dist/demo/stale.js')), { code: 'ENOENT' });
     assert.equal(await readFile(path.join(root, 'dist/other/keep.txt'), 'utf8'), 'sibling');
     for (const entry of ['index.html', 'services/index.html']) {
