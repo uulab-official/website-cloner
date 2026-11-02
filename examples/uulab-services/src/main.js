@@ -71,6 +71,7 @@ desktopViewport.addEventListener('change', () => {
 });
 
 const backToTop = document.querySelector('#backToTopButton');
+const scrollProgress = document.querySelector('[data-scroll-progress]');
 const navbar = document.querySelector('#navigation');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let scrollFrame = 0;
@@ -87,6 +88,10 @@ navbar.addEventListener('focusin', showHeader);
 
 function updateScrollControls() {
   const y = Math.max(0, window.scrollY);
+  const range = root.scrollHeight - window.innerHeight;
+  const progress = range > 0 ? Math.min(1, y / range) : 0;
+  scrollProgress.style.transform = `scaleX(${progress})`;
+  scrollProgress.hidden = false;
   const pinned = navbar.contains(document.activeElement)
     || menuButton.getAttribute('aria-expanded') === 'true';
   if (y <= 100 || pinned) headerHidden = false;
@@ -99,9 +104,20 @@ function updateScrollControls() {
   navbar.classList.toggle('is-scrolled', y > 10);
   scrollFrame = 0;
 }
-window.addEventListener('scroll', () => {
+function scheduleScrollControls() {
   if (!scrollFrame) scrollFrame = window.requestAnimationFrame(updateScrollControls);
-}, { passive: true });
+}
+window.addEventListener('scroll', scheduleScrollControls, { passive: true });
+window.addEventListener('resize', scheduleScrollControls);
+// FAQ expansion and late media change the denominator without a user scroll.
+document.addEventListener('toggle', scheduleScrollControls, true);
+document.addEventListener('load', scheduleScrollControls, true);
+if (typeof ResizeObserver === 'function') {
+  const progressResizeObserver = new ResizeObserver(scheduleScrollControls);
+  progressResizeObserver.observe(root);
+  progressResizeObserver.observe(document.body);
+}
+
 backToTop.addEventListener('click', () => {
   window.scrollTo({ top: 0, behavior: reducedMotion.matches ? 'instant' : 'smooth' });
   document.querySelector('#main-content').focus({ preventScroll: true });

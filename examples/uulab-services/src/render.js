@@ -112,6 +112,7 @@ function footerMarkup() {
 /** Called by the Vite HTML transform, never by the browser. */
 export function renderPage() {
   return `${navigationMarkup()}
+  <div class="scroll-progress" data-scroll-progress aria-hidden="true" hidden></div>
   <main id="main-content" tabindex="-1">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-background" aria-hidden="true"></div>
