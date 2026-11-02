@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import { measureExactPixels, formatPixelRatio } from './lib/exact-pixels.mjs';
 import { parseOptions, ratio, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
 
@@ -16,8 +17,12 @@ Options:
   --overwrite               Replace a previous comparison run in DIR
   --help                    Show this help
 
-Outputs: diff.png, side-by-side.png, report.json.
-Pixelmatch's per-pixel color threshold is 0.1. A changed-pixel ratio is
+Outputs: diff.png, exact-diff.png, side-by-side.png, report.json.
+Pixelmatch's per-pixel color threshold is 0.1 and anti-aliasing is excluded.
+A tolerant zero does not mean identical. Exact RGBA8 counts ANY channel difference,
+including alpha and invisible RGB, independently of the tolerant pass gate.
+exact-diff.png is white for different pixels and black for equal pixels.
+Decoded pixel equality is not PNG-file byte equality. A changed-pixel ratio is
 diagnostic evidence, not a semantic quality score or a functional test.
 Without --max-diff-ratio, any valid same-size comparison exits successfully.
 Dimension mismatches fail and are recorded; images are never resized.
@@ -58,10 +63,11 @@ async function main(argv) {
     changedPixels: null,
     totalPixels: null,
     changedPixelRatio: null,
+    exactPixels: null,
     maxDiffRatio,
     passed: null,
     status: 'pending',
-    interpretation: 'Pixel differences are diagnostic evidence, not a measure of semantic quality or proof of functional correctness.',
+    interpretation: 'Tolerance-filtered zero is not exact pixel equality. Exact RGBA8 includes all decoded channels, including invisible RGB. Neither metric is a semantic quality score or proof of functional correctness.',
   };
   try {
     const [{ PNG }, { default: pixelmatch }, sourceBytes, targetBytes] = await Promise.all([
@@ -90,15 +96,19 @@ async function main(argv) {
     report.changedPixelRatio = report.changedPixels / report.totalPixels;
     report.passed = maxDiffRatio === null ? null : report.changedPixelRatio <= maxDiffRatio;
     report.status = report.passed === false ? 'threshold_exceeded' : 'compared';
+    await writeFile(path.join(out, 'diff.png'), PNG.sync.write(diff));
+    // Reuse the diff buffer instead of allocating another full-size RGBA image.
+    report.exactPixels = measureExactPixels(source.data, target.data, source.width, source.height, diff.data);
+    await writeFile(path.join(out, 'exact-diff.png'), PNG.sync.write(diff));
     const beside = new PNG({ width: source.width * 2, height: source.height });
     PNG.bitblt(source, beside, 0, 0, source.width, source.height, 0, 0);
     PNG.bitblt(target, beside, 0, 0, target.width, target.height, source.width, 0);
     await Promise.all([
-      writeFile(path.join(out, 'diff.png'), PNG.sync.write(diff)),
       writeFile(path.join(out, 'side-by-side.png'), PNG.sync.write(beside)),
     ]);
     await writeJson(path.join(out, 'report.json'), report);
-    process.stdout.write(`Changed pixels: ${report.changedPixels}/${report.totalPixels} (${(report.changedPixelRatio * 100).toFixed(4)}%)\nReport: ${path.join(out, 'report.json')}\n`);
+    process.stdout.write(`Tolerance-filtered changed pixels: ${report.changedPixels}/${report.totalPixels} (${formatPixelRatio(report.changedPixelRatio)})\nExact RGBA: ${report.exactPixels.changedPixels}/${report.totalPixels} (${formatPixelRatio(report.exactPixels.changedPixelRatio)}); decoded equality=${report.exactPixels.identical}\nReport: ${path.join(out, 'report.json')}\n`);
+    if (report.changedPixels === 0 && !report.exactPixels.identical) process.stdout.write('Review required: tolerant zero does not mean identical decoded RGBA pixels.\n');
     if (report.passed === false) process.exitCode = 1;
   } catch (error) {
     report.status = 'invalid_data';

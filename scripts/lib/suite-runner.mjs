@@ -3,6 +3,7 @@ import { lstat, mkdir, readFile, rename, stat, writeFile } from 'node:fs/promise
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { safeError } from './cli.mjs';
+import { validateExactPixels, formatPixelRatio, exactPixelSummary, zeroDifferenceWarning } from './exact-pixels.mjs';
 import { prepareOutputDirectory } from './output.mjs';
 import { buildVerifyArgs, validCaseId } from './suite-config.mjs';
 
@@ -90,10 +91,17 @@ export function assessCase(report, item, command) {
     const gate = item.maxDiffRatio === null ? 'not_requested' : !measured ? 'not_evaluated' : row.changedPixelRatio <= item.maxDiffRatio ? 'passed' : 'failed';
     if (row.visualGate !== gate) result.errors.push(`${label}: inconsistent visual threshold result`);
     if (gate === 'failed') { thresholdExceeded = true; result.errors.push(`${label}: changed-pixel ratio exceeds requested threshold`); }
-    result.rows.push({ width, height: item.height, changedPixelRatio: measured ? row.changedPixelRatio : null,
+    let exactPixels = null;
+    if (row.exactPixels !== undefined && row.exactPixels !== null) {
+      try {
+        exactPixels = validateExactPixels(row.exactPixels, width, item.height);
+        if (row.changedPixelRatio === 0 && !exactPixels.identical) result.warnings.push(`${label}: ${zeroDifferenceWarning}`);
+      } catch (error) { result.errors.push(`${label}: ${error.message}`); }
+    }
+    result.rows.push({ width, height: item.height, exactPixels, changedPixelRatio: measured ? row.changedPixelRatio : null,
       visualGate: gate, status: row.status === 'completed' ? 'completed' : 'failed', errors, warnings });
   }
-  result.errors = [...new Set(result.errors)]; result.reviewRequired = result.warnings.length > 0;
+  result.errors = [...new Set(result.errors)]; result.warnings = [...new Set(result.warnings)]; result.reviewRequired = result.warnings.length > 0;
   result.status = result.errors.length ? 'failed' : 'completed';
   if (item.maxDiffRatio !== null) result.visualGate = thresholdExceeded ? 'failed' : result.errors.length ? 'not_evaluated' : 'passed';
   return result;
@@ -115,7 +123,7 @@ async function readReport(filename) {
   if (content.length > 5000000) throw new Error('Verification report exceeds 5 MB');
   return JSON.parse(content.toString('utf8'));
 }
-async function missingArtifacts(out, item) {
+async function missingArtifacts(out, item, report) {
   const expected = ['index.html'];
   for (const width of item.widths) {
     const folder = `${width}x${item.height}`;
@@ -123,6 +131,7 @@ async function missingArtifacts(out, item) {
       for (const name of ['page.json', 'viewport.png', 'full-page.png']) expected.push(`${side}/${folder}/${name}`);
     }
     for (const name of ['report.json', 'diff.png', 'side-by-side.png']) expected.push(`comparisons/${folder}/${name}`);
+    if (report.rows?.some(row => row?.width === width && row?.exactPixels != null)) expected.push(`comparisons/${folder}/exact-diff.png`);
   }
   const errors = [];
   for (const relative of expected) {
@@ -170,7 +179,7 @@ export async function runSuite(plan, { out: requestedOut, overwrite = false, fai
       catch (error) { reportError = `Could not read verification.json: ${safeError(error)}`; }
       const result = assessCase(childReport, item, command);
       if (reportError) result.errors.push(reportError);
-      if (childReport) result.errors.push(...await missingArtifacts(caseOut, item));
+      if (childReport) result.errors.push(...await missingArtifacts(caseOut, item, result));
       if (result.errors.length) {
         result.status = 'failed';
         if (result.visualGate === 'passed') result.visualGate = 'not_evaluated';
@@ -198,8 +207,9 @@ export function renderSuiteReport(report) {
   const rows = (report.cases || []).map(item => {
     const link = item.reportAvailable && validCaseId(item.id) ? `<a href="cases/${item.id}/index.html">${escapeHtml(item.id)}</a>` : escapeHtml(item.id);
     const notes = list([...(item.errors || []), ...(item.warnings || [])]);
-    return `<tr><th scope="row">${link}</th><td>${escapeHtml(item.state)}</td><td>${escapeHtml(item.status)}</td><td>${escapeHtml(item.visualGate)}</td><td>${notes ? `<ul>${notes}</ul>` : '—'}</td></tr>`;
+    const measurements = (item.rows || []).map(row => `<p>${escapeHtml(row.width)} × ${escapeHtml(row.height)}: Tolerance-filtered ${escapeHtml(formatPixelRatio(row.changedPixelRatio))}<br>${escapeHtml(exactPixelSummary(row.exactPixels, row.width, row.height))}</p>`).join('');
+    return `<tr><th scope="row">${link}</th><td>${escapeHtml(item.state)}</td><td>${escapeHtml(item.status)}</td><td>${escapeHtml(item.visualGate)}</td><td>${measurements}${notes ? `<ul>${notes}</ul>` : '—'}</td></tr>`;
   }).join('\n');
   const summary = Object.entries(report.summary || {}).map(([name, count]) => `${escapeHtml(name)}: ${escapeHtml(count)}`).join(' · ');
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — verification suite</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1200px;margin:auto;padding:28px}h1{line-height:1.2}table{border-collapse:collapse;width:100%}td,th{border:1px solid;padding:12px;text-align:left;vertical-align:top}p,td,th,li{overflow-wrap:anywhere}.table{overflow-x:auto}ul{padding-left:20px}@media(max-width:600px){body{padding:16px}td,th{padding:8px}}</style><h1>Verification suite</h1><p>Execution: <strong>${escapeHtml(report.status)}</strong></p><p>Source: ${escapeHtml(report.sourceOrigin)}<br>Target: ${escapeHtml(report.targetOrigin)}</p><p>${summary}</p><p>${escapeHtml(report.note)}</p><p>Functional parity: <strong>not_verified</strong>. Completed means the comparison ran, not that the clone is correct. “not_requested” means no visual threshold was set; “not_evaluated” means a requested threshold could not be reliably evaluated. Warnings require review. Static screenshots do not verify motion, physical devices, backend behavior or all interactions.</p><p><a href="suite.json">Complete suite JSON</a></p>${report.errors?.length ? `<ul>${list(report.errors)}</ul>` : ''}<div class="table"><table><thead><tr><th>Case</th><th>State</th><th>Execution</th><th>Visual threshold</th><th>Diagnostics</th></tr></thead><tbody>${rows}</tbody></table></div></html>\n`;
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'"><title>Website Cloner — verification suite</title><style>body{font:16px/1.6 system-ui,sans-serif;max-width:1200px;margin:auto;padding:28px}h1{line-height:1.2}table{border-collapse:collapse;width:100%}td,th{border:1px solid;padding:12px;text-align:left;vertical-align:top}p,td,th,li{overflow-wrap:anywhere}.table{overflow-x:auto}ul{padding-left:20px}@media(max-width:600px){body{padding:16px}td,th{padding:8px}}</style><h1>Verification suite</h1><p>Execution: <strong>${escapeHtml(report.status)}</strong></p><p>Source: ${escapeHtml(report.sourceOrigin)}<br>Target: ${escapeHtml(report.targetOrigin)}</p><p>${summary}</p><p>${escapeHtml(report.note)}</p><p>Functional parity: <strong>not_verified</strong>. Completed means the comparison ran, not that the clone is correct. “not_requested” means no visual threshold was set; “not_evaluated” means a requested threshold could not be reliably evaluated. Warnings require review. Tolerant zero does not mean identical; Exact RGBA counts all decoded channel differences (including alpha/invisible RGB), not PNG file bytes or visual quality. Static screenshots do not verify motion, physical devices, backend behavior or all interactions.</p><p><a href="suite.json">Complete suite JSON</a></p>${report.errors?.length ? `<ul>${list(report.errors)}</ul>` : ''}<div class="table"><table><thead><tr><th>Case</th><th>State</th><th>Execution</th><th>Visual threshold</th><th>Diagnostics</th></tr></thead><tbody>${rows}</tbody></table></div></html>\n`;
 }

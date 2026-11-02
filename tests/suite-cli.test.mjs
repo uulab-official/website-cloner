@@ -65,7 +65,7 @@ if(o.source.endsWith('/fail')) process.exitCode=1;
 async function isolatedCli(t) {
   const context = await temp(t); const scripts = path.join(context.dir, 'tool', 'scripts');
   await mkdir(path.join(scripts, 'lib'), { recursive: true });
-  for (const file of ['verify-suite.mjs', 'lib/cli.mjs', 'lib/output.mjs', 'lib/suite-config.mjs', 'lib/suite-runner.mjs']) await copyFile(path.join(root, 'scripts', file), path.join(scripts, file));
+  for (const file of ['verify-suite.mjs', 'lib/cli.mjs', 'lib/output.mjs', 'lib/suite-config.mjs', 'lib/suite-runner.mjs', 'lib/exact-pixels.mjs']) await copyFile(path.join(root, 'scripts', file), path.join(scripts, file));
   await writeFile(path.join(scripts, 'verify.mjs'), stub);
   return { ...context, script: path.join(scripts, 'verify-suite.mjs'), out: path.join(context.dir, 'out') };
 }
