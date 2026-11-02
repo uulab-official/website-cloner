@@ -21,11 +21,14 @@ for (const engine of engines) {
     const browser = await pw[engine].launch(engine === 'chromium' && process.env.CAPTURE_TEST_EXECUTABLE_PATH ? { executablePath: process.env.CAPTURE_TEST_EXECUTABLE_PATH } : {});
     try {
       const css = await readFile(new URL('../examples/uulab-services/src/styles.css', import.meta.url), 'utf8');
+      const template = await readFile(new URL('../examples/uulab-services/index.html', import.meta.url), 'utf8');
+      const critical = template.match(/<style\s+id="scrollbar-critical">([\s\S]*?)<\/style>/);
+      assert.ok(critical, 'authored early scrollbar style must exist');
       const p = await browser.newPage({ viewport: { width: 390, height: 900 } });
-      await p.setContent(`<!doctype html><style>${css}</style><main style="height:2000px"><div class="container">Fixture</div></main>`);
+      await p.setContent(`<!doctype html><style>${critical[1]}</style><style>${css}</style><main style="height:2000px"><div class="container">Fixture</div></main>`);
       const observed = await p.evaluate(() => {
         const root = document.documentElement;
-        const rules = Array.from(document.styleSheets[0].cssRules);
+        const rules = [...document.styleSheets].flatMap(sheet => [...sheet.cssRules]);
         const declared = selector => rules.find(rule => rule.selectorText === selector)?.style;
         return { declaredTrack: declared('::-webkit-scrollbar-track')?.backgroundColor, declaredThumb: declared('::-webkit-scrollbar-thumb')?.backgroundColor, declaredRadius: declared('::-webkit-scrollbar-thumb')?.borderRadius,
           width: getComputedStyle(root, '::-webkit-scrollbar').width, track: getComputedStyle(root, '::-webkit-scrollbar-track').backgroundColor,

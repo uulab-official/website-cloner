@@ -2,7 +2,7 @@ name: Scrollbar fidelity
 on:
   workflow_dispatch:
   push:
-    branches: [work/scrollbar-fidelity]
+    branches: [work/scrollbar-fidelity, work/scrollbar-init]
 permissions:
   contents: read
 jobs:
@@ -21,15 +21,21 @@ jobs:
       - run: sudo apt-get install -y fonts-noto-cjk
       - name: Full regression gate
         run: set -o pipefail; npm run check 2>&1 | tee artifacts/scrollbars/check.log
-      - name: Viewport evidence in three engines
+      - name: Viewport and delayed stylesheet evidence in three engines
         if: ${{ !cancelled() }}
         env:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CLONER_CAPTURE_ENGINES: chromium,firefox,webkit
-        run: set -o pipefail; node --test tests/viewport-evidence.test.mjs tests/scrollbar-style.test.mjs 2>&1 | tee artifacts/scrollbars/viewport-tests.log
+        run: set -o pipefail; node --test tests/viewport-evidence.test.mjs tests/scrollbar-style.test.mjs tests/scrollbar-loading.test.mjs 2>&1 | tee artifacts/scrollbars/viewport-tests.log
       - name: Example interactions in three engines
         if: ${{ !cancelled() }}
         run: set -o pipefail; npm run check:browsers -- --out artifacts/scrollbars/browsers 2>&1 | tee artifacts/scrollbars/browsers.log
+      - name: Repeat production scrollbar initialization
+        if: ${{ !cancelled() }}
+        run: |
+          npm run build > artifacts/scrollbars/build.log 2>&1
+          node scripts/case-studies/probe-uulab-scrollbar-init.mjs artifacts/scrollbars/initialization > artifacts/scrollbars/initialization.log 2>&1
+          node --input-type=module -e "import fs from 'node:fs'; import assert from 'node:assert/strict'; const p=JSON.parse(fs.readFileSync('artifacts/scrollbars/initialization/probe.json')); const rows=p.rows.filter(r=>r.variant==='baseline'); assert.equal(rows.length,8); assert.ok(rows.every(r=>!r.error && r.allStagesReserveSixPixels),'unaltered production build lost its scrollbar reservation');"
       - name: Source diagnosis and unmodified paired captures
         if: ${{ !cancelled() }}
         shell: bash
@@ -56,7 +62,7 @@ jobs:
           git rev-parse HEAD > artifacts/scrollbars/commit.txt
           node --version > artifacts/scrollbars/node-version.txt
           npm ls --depth=0 > artifacts/scrollbars/dependencies.txt || true
-          tar -czf artifacts/scrollbars/code.tar.gz scripts tests examples/uulab-services/src package.json .github/workflows/scrollbar-fidelity.yml
+          tar -czf artifacts/scrollbars/code.tar.gz scripts tests examples/uulab-services/src examples/uulab-services/index.html package.json .github/workflows/scrollbar-fidelity.yml
       - uses: actions/upload-artifact@v4
         if: always()
         with:
