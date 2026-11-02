@@ -48,7 +48,8 @@ async function scrollTo(page,y) {
 async function visible(page,expected) {
   const box=await page.locator('#navigation').boundingBox();
   assert.ok(box, 'header remains in the accessible DOM');
-  assert.ok(expected ? box.y===0 : box.y+box.height<=0, `header y=${box.y}, height=${box.height}; expected ${expected?'visible':'above viewport'}`);
+  // A CSS transform may leave sub-millipixel floating-point residue.
+  assert.ok(expected ? Math.abs(box.y)<=0.001 : box.y+box.height<=0.001, `header y=${box.y}, height=${box.height}; expected ${expected?'visible':'above viewport'}`);
 }
 for (const width of [390,1440]) {
   test(`header follows down/up scroll without moving page content at ${width}px`, options, async () => {
@@ -150,7 +151,7 @@ test('header motion settles and changing reduced-motion preference removes trans
     const header=page.locator('#navigation');
     assert.equal(await header.evaluate(el=>getComputedStyle(el).transitionDuration),'0.3s');
     await scrollTo(page,600);
-    await page.waitForFunction(()=>document.querySelector('#navigation').getBoundingClientRect().bottom<=0);
+    await page.waitForFunction(()=>document.querySelector('#navigation').getBoundingClientRect().bottom<=0.001);
     await visible(page,false);
     await page.emulateMedia({reducedMotion:'reduce'});
     assert.equal(await header.evaluate(el=>getComputedStyle(el).transitionDuration),'0s');
