@@ -10,6 +10,7 @@
 | 새 사이트 작업 묶음 | `npm run init -- --help` | 검증 설정·자산 기록·에이전트 지시서 생성 |
 | 원본 캡처를 관찰 보고서로 정리 | `npm run observe -- --help` | 오프라인 측정값·이미지 후보·진단, 구현/권리 승인 아님 |
 | 새 작업과 원본 관찰 준비 | `npm run prepare:clone -- --help` | 명시한 원본만 캡처, 구현 서버 불필요 |
+| 여러 페이지·상태 원본 준비 | [prepare:suite](prepare-suite.md) | 명시한 사례, 대상 방문 없이 순차 준비 |
 | 페이지 관찰·PNG 수집 | `npm run capture -- --help` | 지정한 URL, 선택한 엔진 |
 | 기존 PNG 두 장 비교 | `npm run compare -- --help` | 같은 크기의 이미지, 두 가지 차이 지표 |
 | 원본·구현 한 경로 비교 | `npm run verify -- --help` | 양쪽을 같은 엔진에서 새 캡처 |

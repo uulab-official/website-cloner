@@ -1,0 +1,9 @@
+# Multi-page/state source preparation
+
+Add `prepare:suite` for explicit schema-v1 verification manifests. Reuse the existing route validation and single-state preparation; do not crawl, generate apps, run target servers, or assert functional/visual approval. Sequential cases minimize load and preserve failures. Continue after ordinary failure, optionally fail-fast, always stop scheduling after capture interruption. The complete planned manifest remains available even after partial failure.
+
+Validate all routes, action files and output protections before writes or network. Snapshot all actions before the first capture so later caller edits cannot change queued cases. A relocated output must contain a reusable `suite.json` with relative action paths, original thresholds and verifier deadlines. Preparation has a separate per-case capture timeout (1000..900000 ms). Target-only action overrides require an explicit empty source-action array, matching prepare:clone. Missing actions, mutable snapshots and dishonest success records must not become prepared results.
+
+Create only a new directory. Never overwrite/delete/resume. Preserve per-case evidence, root journal and inert, escaped HTML overview. Root implementation remains not_started, functionalParity not_verified, visualComparison not_performed, reviewRequired true. Case counts distinguish prepared, failed and not_run. Do not silently drop failed cases from future verification. No new dependencies, no example/frontend changes, no lockfile or independent-skill changes.
+
+Tests: offline red/green; HTTP fixtures across Chromium/Firefox/WebKit including failed source, target-not-visited, portable verification and inert mobile overview; opt-in owned source preparation; full repository gate in complete checkout. Disclose local snapshot limitations, actual source-only scope, lack of independent reviewer and physical-device coverage.

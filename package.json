@@ -12,6 +12,7 @@
     "preview": "vite preview examples/uulab-services --outDir ../../dist/demo",
     "init": "node scripts/init.mjs",
     "prepare:clone": "node scripts/prepare-clone.mjs",
+    "prepare:suite": "node scripts/prepare-suite.mjs",
     "capture": "node scripts/capture.mjs",
     "observe": "node scripts/observe.mjs",
     "compare": "node scripts/compare.mjs",
