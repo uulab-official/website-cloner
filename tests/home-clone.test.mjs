@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { renderPage } from '../examples/uulab-services/src/render.js';
 
@@ -49,4 +50,13 @@ test('the homepage is an explicit noindex build entry with scoped CSS', async ()
 test('normal cross-browser checks include the new homepage regressions', async () => {
   const checker = await readFile(new URL('../scripts/check-browsers.mjs', import.meta.url), 'utf8');
   assert.match(checker, /'tests\/home-browser\.test\.mjs'/);
+});
+
+test('shared theme icon path remains byte-identical to the original service example', () => {
+  for (const page of ['home', 'services']) {
+    const markup = renderPage({ page });
+    const paths = [...markup.matchAll(/class="sun-icon"[^>]*><path[^>]* d="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(paths.length, 2);
+    for (const iconPath of paths) assert.equal(createHash('sha256').update(iconPath).digest('hex'), 'ed89239e52c0c1b1434e1e97fc7d66e303715e79c9766047797b81d0938bc5c9');
+  }
 });
