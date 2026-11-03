@@ -23,9 +23,9 @@
 
 ## Tasks
 
-- [ ] Task 1: Add offline tests in tests/prepare-suite.test.mjs; verify RED; implement scripts/lib/prepare-suite.mjs and scripts/lib/preparation-suite-report.mjs. API: prepareSuite(options, {execute?}) uses existing capture executor seam only. Verify full offline related suite.
-- [ ] Task 2: Add scripts/prepare-suite.mjs CLI and package.json command; test help, preflight, bad input, fail-fast and zero/nonzero exits. Add docs/prepare-suite.md and docs/README.md links.
-- [ ] Task 3: Add tests/prepare-suite-pipeline.test.mjs and .github/workflows/prepare-suite.yml; run complete check, three-engine fixture pipeline and owned-source batch. Review artifact reports and logs, record exact evidence.
+- [x] Task 1: Add offline tests in tests/prepare-suite.test.mjs; verify RED; implement scripts/lib/prepare-suite.mjs and scripts/lib/preparation-suite-report.mjs. API: prepareSuite(options, {execute?}) uses existing capture executor seam only. Verify full offline related suite.
+- [x] Task 2: Add scripts/prepare-suite.mjs CLI and package.json command; test help, preflight, bad input, fail-fast and zero/nonzero exits. Add docs/prepare-suite.md and docs/README.md links.
+- [x] Task 3: Add tests/prepare-suite-pipeline.test.mjs and .github/workflows/prepare-suite.yml; run complete check, three-engine fixture pipeline and owned-source batch. Review artifact reports and logs, record exact evidence.
 - [ ] Task 4: Self-review entire diff, document limitations, integrate verified changes into requested main without force, confirm final CI status.
 
 ## Execution ledger
@@ -33,3 +33,9 @@
 - Work is in an isolated text snapshot from prior verified artifact 6719694. Remote main 404312e was freshly confirmed. DNS prevents local clone/dependency install. Local evidence is never labeled full checkout verification; use complete Actions checkout for full gate.
 - Ruling: reuse verification schema rather than inventing another config; preparer capture timeout is a CLI option, while per-case timeoutMs stays a future verifier deadline.
 - Ruling: no new crawling or target execution; explicit source cases only. Existing user repeatedly requested repository continuation and main integration.
+
+- Task 1: complete. RED 31/31 failures, initial GREEN 31/31. Review tests exposed an omitted HTML integrity-error reason (35 pass/1 fail); repaired with final 36/36 and related 166/166.
+- Task 2: complete. Offline CLI/dry-run, docs, frozen all-case manifest and mobile report implemented; target-only overrides remain explicitly documented.
+- Task 3: complete. Commit bd1abae passed full Actions check 605+7+10=622 and separate three-engine run 42/42 (overlapping tests). Owned source batch prepared 3 cases/4 views on two routes, no target implementation/comparison.
+- Task 4: whole-change self-review complete; no independent reviewer available. Downloaded artifact SHA-256 verified, 11 changed files match reviewed source, 10 journals/54 hashes/101 PNGs cross-checked. Final main integration and CI status are recorded separately when observed; do not infer them from this plan.
+- Local full-check attempt: 545 passed/57 failed in incomplete snapshot (missing Playwright/PNG/CSS/assets). The complete CI checkout, not the partial local attempt, is the successful full gate. See docs/prepare-suite-verification-2026-11-03.md for evidence.
