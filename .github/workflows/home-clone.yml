@@ -42,15 +42,11 @@ jobs:
           await browser.close();
           NODE
       - name: Repository gate and authored home tests
-        if: ${{ hashFiles('tests/home-clone.test.mjs') != '' }}
         run: |
           set -o pipefail
           npm run check 2>&1 | tee artifacts/home-clone/check.log
-          for engine in chromium firefox webkit; do
-            CLONER_TEST_BROWSER=$engine node --test tests/home-browser.test.mjs 2>&1 | tee artifacts/home-clone/home-$engine.log
-          done
+          npm run check:browsers -- --out artifacts/home-clone/browsers 2>&1 | tee artifacts/home-clone/browsers.log
       - name: New source and production comparison
-        if: ${{ hashFiles('suites/uulab-home.json') != '' }}
         run: |
           npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/home-clone/preview.log 2>&1 &
           server=$!

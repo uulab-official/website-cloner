@@ -31,7 +31,7 @@
 .home-page .home-hero .home-actions { margin-bottom:80px; }
 .home-page .home-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px; max-width:896px; margin-inline:auto; }
 .home-page .home-stats strong { display:block; margin-bottom:8px; font-size:30px; line-height:36px; }
-.home-page .home-stats span { color:var(--home-copy); font-size:14px; line-height:20px; }
+.home-page .home-stats span { display:block; color:var(--home-copy); font-size:14px; line-height:20px; }
 .home-page .home-scroll-hint { position:absolute; bottom:32px; left:calc(50% - 12px); width:24px; height:40px; display:flex; justify-content:center; border:2px solid #d1d5db; border-radius:999px; }
 .home-page .home-scroll-hint > span { width:4px; height:12px; border-radius:999px; margin-top:8px; background:#9ca3af; }
 .home-page .home-intro { border-bottom:1px solid #f3f4f6; }
@@ -80,6 +80,8 @@
 .home-page .home-solution-tone-2 .home-tags span { background:#dcfce7; color:#15803d; }
 .home-page .home-solution-tone-3 .home-icon { background:#f97316; }
 .home-page .home-solution-tone-3 .home-tags span { background:#ffedd5; color:#c2410c; }
+.home-page .home-link-arrow { margin-left:8px; }
+.home-page .home-solutions-grid + .home-more .home-button { font-size:16px; line-height:25.6px; }
 .home-page .home-more { margin-top:64px; text-align:center; }
 .home-page .home-insights { border-top:1px solid #f3f4f6; }
 .home-page .home-principles { display:grid; gap:16px; margin-bottom:40px; }
@@ -152,7 +154,7 @@
   .home-page .home-intro-grid { grid-template-columns:minmax(0,1.6fr) minmax(0,1fr); }
   .home-page .home-intro-copy { padding:40px; }
   .home-page .home-intro-copy h2,.home-page .home-introduction h2 { font-size:36px; line-height:40px; }
-  .home-page .home-intro-copy p,.home-page .home-introduction > p:last-child { font-size:18px; }
+  .home-page .home-intro-copy p,.home-page .home-introduction > p:last-child { font-size:18px; line-height:28px; }
   .home-page .home-decisions-grid { gap:48px; }
   .home-page .home-decision { padding:40px; }
   .home-page .home-solutions-grid { grid-template-columns:repeat(4,minmax(0,1fr)); gap:32px; }

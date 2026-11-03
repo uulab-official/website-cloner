@@ -46,3 +46,7 @@ test('the homepage is an explicit noindex build entry with scoped CSS', async ()
   assert.match(html, /uulab:home/);
   assert.match(html, /home\.css/);
 });
+test('normal cross-browser checks include the new homepage regressions', async () => {
+  const checker = await readFile(new URL('../scripts/check-browsers.mjs', import.meta.url), 'utf8');
+  assert.match(checker, /'tests\/home-browser\.test\.mjs'/);
+});

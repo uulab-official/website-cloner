@@ -4,7 +4,7 @@ const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<'
 const destination = path => path === '/services/' ? path : path === '/' ? '/home/' : `https://uulab.co.kr${path}`;
 const arrow = '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>';
 const svg = paths => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor">${paths.map(d=>`<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${escape(d)}"/>`).join('')}</svg>`;
-const link = (path,label,className='') => `<a class="${className}" href="${escape(destination(path))}">${escape(label)}</a>`;
+const link = (path,label,className='') => `<a class="${className}" href="${escape(destination(path))}">${label.endsWith(' →') ? `${escape(label.slice(0,-2))}<span class="home-link-arrow" aria-hidden="true">→</span>` : escape(label)}</a>`;
 const rich = parts => parts.map(p=>p.href ? link(p.href,p.text,'home-inline-link') : escape(p.text)).join('');
 const heading = (id,group,extra='') => `<div class="home-heading ${extra}"><h2 id="${id}">${escape(group.title)}</h2><p>${escape(group.description)}</p></div>`;
 const action = (path,label,secondary=false) => `<a class="home-button${secondary?' home-button--secondary':''}" href="${escape(destination(path))}">${escape(label)}${arrow}</a>`;

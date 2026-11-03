@@ -6,7 +6,7 @@ import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
 import { executeNodeScript } from './lib/suite-runner.mjs';
 import { parseBrowsers, demoBrowserOptions, assessBrowserRun } from './lib/browser-check.mjs';
 
-const testFiles = ['tests/demo-controls.test.mjs', 'tests/demo-scroll.test.mjs', 'tests/demo-progress.test.mjs', 'tests/demo.e2e.mjs'];
+const testFiles = ['tests/demo-controls.test.mjs', 'tests/demo-scroll.test.mjs', 'tests/demo-progress.test.mjs', 'tests/home-browser.test.mjs', 'tests/home-layout.test.mjs', 'tests/demo.e2e.mjs'];
 const help = `Usage: npm run check:browsers -- [--browsers chromium,firefox,webkit] [--out DIR] [--dry-run] [--overwrite]
 Build the authored demo once, then run the same local behavior tests in each engine.
 Install first: npx playwright install chromium firefox webkit
