@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "observed_date": "2026-11-03",
+  "source": "https://uulab.co.kr/",
+  "route": "/home/",
+  "assets": [
+    {
+      "source_url": "https://uulab.co.kr/static/images/apple-touch-icon.png",
+      "local_path": "examples/uulab-services/public/assets/logo.png",
+      "kind": "image",
+      "content_type": "image/png",
+      "dimensions": { "width": 180, "height": 180 },
+      "usage": "Shared unchanged in homepage and services examples",
+      "rights": "user-owned; brand assets remain UULab property",
+      "status": "verified",
+      "sha256": "e29ad6bfb5977c978eba72240143c22d9b21b6b6ea3c63ced471b590abe3b0e9",
+      "bytes": 2084,
+      "verification": "Existing file SHA-256 rechecked locally; actual homepage rendering checked separately in CI."
+    },
+    {
+      "source_url": "https://uulab.co.kr/static/images/portfolio/aistudio/aistudio-cover.png",
+      "local_path": "examples/uulab-services/public/assets/ai-studio.png",
+      "kind": "image",
+      "content_type": "image/png",
+      "dimensions": { "width": 1600, "height": 900 },
+      "usage": "Shared unchanged in homepage and services examples",
+      "rights": "user-owned; brand assets remain UULab property",
+      "status": "verified",
+      "sha256": "1e3ac967a5698ad9bf9d4c4ccd64ca00b070d7ee7020eb9b816aef18a226df4f",
+      "bytes": 632948,
+      "verification": "Existing file SHA-256 rechecked locally; actual homepage rendering checked separately in CI."
+    },
+    {
+      "source_url": "https://uulab.co.kr/static/images/portfolio/playground/playground-cover.png",
+      "local_path": "examples/uulab-services/public/assets/gpu-playground.png",
+      "kind": "image",
+      "content_type": "image/png",
+      "dimensions": { "width": 1600, "height": 900 },
+      "usage": "Shared unchanged in homepage and services examples",
+      "rights": "user-owned; brand assets remain UULab property",
+      "status": "verified",
+      "sha256": "351b14da5c3c4d3df43d193db6d28083e1f72226ea56cdb2378d72e605f02418",
+      "bytes": 847426,
+      "verification": "Existing file SHA-256 rechecked locally; actual homepage rendering checked separately in CI."
+    },
+    {
+      "source_url": "https://uulab.co.kr/static/images/portfolio/blogpilot/blogpilot-cover.png",
+      "local_path": "examples/uulab-services/public/assets/blogpilot.png",
+      "kind": "image",
+      "content_type": "image/png",
+      "dimensions": { "width": 1600, "height": 900 },
+      "usage": "Shared unchanged in homepage and services examples",
+      "rights": "user-owned; brand assets remain UULab property",
+      "status": "verified",
+      "sha256": "834cc4492a0adac388ee36c3aaef186b755db4b081633e695531af1fc78732e5",
+      "bytes": 686836,
+      "verification": "Existing file SHA-256 rechecked locally; actual homepage rendering checked separately in CI."
+    }
+  ],
+  "notes": [
+    "Original user-owned imagery and source attribution retained; no new assets downloaded for reuse.",
+    "Existing Font Awesome notices remain in THIRD_PARTY_NOTICES.md and the services asset ledger. No font files are distributed in the evidence bundle.",
+    "Text and small source SVG icons are a dated observation. No copied production JavaScript, stylesheet bundle, tracking or forms."
+  ]
+}

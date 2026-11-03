@@ -23,9 +23,14 @@
 ## Tasks
 - [x] Capture the owned homepage and inspect full-page desktop/mobile and measured geometry.
 - [x] Add failing home route/content tests; implement authored home content, scoped styles and build entry.
-- [ ] Add browser coverage for local navigation, mobile/menu/theme, no-JS and overflow; verify old behavior.
-- [ ] Run full CI and actual source/production comparisons, inspect images, fix material differences.
-- [ ] Record scope, assets, evidence and remaining gaps; integrate without force updating main.
+- [x] Add browser coverage for local navigation, mobile/menu/theme, no-JS and overflow; verify old behavior.
+- [x] Run full CI and actual source/production comparisons, inspect images, fix material differences.
+- [x] Record scope, assets, evidence and remaining gaps; integrate without force updating main.
 
-## Execution ledger
-Local content tests: 5 failed / 1 passed before implementation; all 6 passed after. Browser execution and full gate require the complete Actions environment. In-memory local screenshots are layout previews only, not production or route validation. Fresh source text differs from the previous preparation artifact; use the new observed body and keep the distinction in the case study.
+## Verification and review ledger
+
+Final code: eff7a054a638e7784c66c447e28f515734be9786. Complete Actions checkout: 642 full checks and 50 behavior/layout checks in each of Chromium, Firefox and WebKit, no failures/cancellations/skips. Six fresh Chromium source/production viewport comparisons completed; no visual pass threshold. All six tolerant ratios are zero but decoded pixels are not identical. Full-page desktop/tablet dimensions match; mobile differs by the existing footer's 8px. Exact figures and reproduction: docs/case-studies/uulab-home/report.md.
+
+Initial content checks: five fail, one pass before implementation. Later style and icon fixes have preserved RED/GREEN logs. Artifact comparison caught a shared icon path typo; restored the original path and added its hash regression. Remote blob was verified against the locally tested Git blob before branch update. Eleven implementation/test files matched the final CI snapshot byte-for-byte. Self-review and independent pixel computation completed; no independent code reviewer was available. Local in-memory previews are not claimed as HTTP or production verification.
+
+Integration is an authorized non-forced fast-forward of the unchanged base main, followed by checking the final commit's ordinary CI and browser CI. Record the final integration outcome in the delivered evidence.

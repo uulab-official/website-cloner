@@ -6,7 +6,7 @@
 
 Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 원본 관찰부터 반응형 구현, 자산 출처, 화면 비교, 미검증 항목까지 프로젝트 안에 기록합니다.
 
-[스킬](skills/website-clone/SKILL.md) · [실제 클론 사례](docs/case-studies/uulab-services/report.md) · [사용 안내·검증 기록](docs/README.md) · [빌드·CI](docs/build-and-ci.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
+[스킬](skills/website-clone/SKILL.md) · [서비스 클론 사례](docs/case-studies/uulab-services/report.md) · [홈페이지 클론 사례](docs/case-studies/uulab-home/report.md) · [사용 안내·검증 기록](docs/README.md) · [빌드·CI](docs/build-and-ci.md) · [일괄 검증](docs/verification-suites.md) · [검증 기준](skills/website-clone/references/verification.md) · [기여 방법](CONTRIBUTING.md) · [라이선스·출처](THIRD_PARTY_NOTICES.md)
 
 ## 구성
 
@@ -17,7 +17,7 @@ Codex · Claude Code · Agent Skills 호환 에이전트에서 사용합니다. 
 | Compare CLI | 같은 크기의 PNG 비교, 차이 이미지와 나란히 보기 생성 |
 | Verify CLI | 원본·구현을 같은 환경에서 캡처하고 비교 보고서 생성 |
 | Verify Suite CLI | 여러 경로·화면 크기·동작 상태를 일괄 실행하고 통합 보고서 생성 |
-| 실제 예제 | 유유랩 서비스 페이지의 독립적인 프런트엔드 재구현 |
+| 실제 예제 | 유유랩 홈페이지·서비스 페이지의 편집 가능한 프런트엔드 재구현 |
 | 테스트·CI | CLI·파일 보호·안전한 재빌드와 Chromium/Firefox/WebKit 예제 동작 검증 |
 
 스킬만 설치해도 사용할 수 있습니다. 캡처·비교 CLI는 선택 도구입니다. 구현을 수행할 코딩 에이전트와 브라우저 접근이 필요하며, CLI 자체가 완성 앱을 자동 생성하거나 서버·인증·결제를 복원하지는 않습니다. 유료 스크래핑 API나 별도 운영 서버는 필수가 아닙니다.
@@ -69,7 +69,7 @@ npm ci
 npm run dev
 ```
 
-Vite가 출력한 주소에서 `/services/`를 엽니다. `/`도 같은 예제의 진입점입니다. 예제는 원본의 아홉 개 본문 섹션, 모바일 내비게이션, 테마 전환, FAQ와 프로젝트 이미지를 포함합니다. 범위 밖의 링크는 원래 유유랩 사이트로 연결합니다.
+Vite가 출력한 주소에서 `/home/`는 홈페이지, `/services/`는 서비스 페이지를 엽니다. 기존 `/`는 서비스 예제의 별칭으로 유지합니다. 두 페이지는 로컬 탐색·메뉴·테마·스크롤 동작을 공유하며, 각각 아홉 본문 섹션을 편집 가능한 HTML/CSS로 렌더링합니다. 홈페이지의 질문은 정적 카드이고 서비스 페이지의 FAQ는 펼침 컨트롤입니다. 범위 밖의 링크는 원래 유유랩 사이트로 연결합니다. [홈페이지 구현 범위·실측 기록](docs/case-studies/uulab-home/report.md)
 
 ```bash
 npm run build
@@ -159,6 +159,8 @@ npm run check:browsers -- --out artifacts/browser-check
 이미 설치된 다른 Chromium을 명시해야 한다면 캡처에 `--executable-path`를 지정할 수 있습니다. 전체 검사에서는 `CLONER_CHROMIUM_PATH` 환경변수로 지정합니다. 사용한 버전은 증거에 기록합니다. TLS 오류가 나면 인증서 검증을 끄지 말고 오류를 기록한 뒤 승인된 브라우저나 명시적으로 구분한 정적 참조 자료를 사용합니다.
 
 ## 실제 클론 시도와 한계
+
+[홈페이지 재구현 사례](docs/case-studies/uulab-home/report.md)는 원본 `/`를 로컬 `/home/`로 재구현한 두 번째 페이지입니다. `suites/uulab-home.json`으로 기본 화면·모바일 메뉴·하단 질문 영역의 여섯 화면 조건을 비교합니다. 콘텐츠와 통계는 관찰일 스냅샷이며 실시간 데이터 연동이 아닙니다.
 
 [초기 UULab 서비스 사례 보고서](docs/case-studies/uulab-services/report.md)는 원본 관찰, 경로 범위, 자산 출처와 정적 참조본 비교를 기록합니다. 아래 이미지는 그 초기 실행이며 **왼쪽은 정적 참조본, 오른쪽은 구현**입니다. 이를 최신 실사이트 캡처로 표시하지 않습니다.
 

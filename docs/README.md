@@ -19,6 +19,10 @@
 | 안전한 빌드 출력 검사 | `npm run test:build` | 임시 폴더의 실제 Vite 빌드 |
 | 전체 기본 검사 | `npm run check` | 스킬·도구·Chromium·빌드·예제 |
 
+## 실제 구현 예제
+
+`npm run dev`로 실행한 뒤 `/home/`에서 [홈페이지 사례](case-studies/uulab-home/report.md), `/services/`에서 [서비스 사례](case-studies/uulab-services/report.md)를 확인합니다. `/`는 서비스 예제의 기존 별칭입니다. 두 페이지 사이 탐색은 로컬이며, 그 밖의 상세 경로는 운영 원본으로 연결됩니다. 준비 보고서와 달리 실제 편집 가능한 페이지 코드입니다.
+
 ## 현재 사용 안내
 
 [설치·시작](../README.md) · [원본 준비](prepare-clone.md) · [작업 초기화](project-init.md) · [원본 관찰 보고서](source-observations.md) · [짝 비교](paired-verification.md) · [일괄 비교](verification-suites.md) · [엔진 선택](capture-engines.md) · [무오차 픽셀 진단](exact-pixel-evidence.md) · [예제 브라우저 검사](browser-compatibility.md) · [빌드·CI 운영](build-and-ci.md) · [빌드·CI 정비 검증](build-readiness-2026-11-02.md)
