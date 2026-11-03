@@ -13,7 +13,7 @@ export default defineConfig({
     // Rendering at build/dev-server time keeps all content, links and native
     // FAQ controls usable when JavaScript is disabled in the browser.
     transformIndexHtml(html) {
-      return html.replace('<!-- uulab:page -->', renderPage());
+      return html.replace('<!-- uulab:page -->', renderPage()).replace('<!-- uulab:home -->', renderPage({ page: 'home' }));
     },
   }],
   build: {
@@ -22,6 +22,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         index: fileURLToPath(new URL('./index.html', import.meta.url)),
+        home: fileURLToPath(new URL('./home/index.html', import.meta.url)),
         services: fileURLToPath(new URL('./services/index.html', import.meta.url)),
       },
     },

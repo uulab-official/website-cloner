@@ -15,6 +15,7 @@ async function fixture(action) {
   try {
     const example = path.join(root, 'examples/uulab-services');
     await mkdir(path.join(example, 'services'), { recursive: true });
+    await mkdir(path.join(example, 'home')); 
     await mkdir(path.join(example, 'src'));
     await mkdir(path.join(root, 'dist/other'), { recursive: true });
     await writeFile(path.join(root, 'package.json'), '{"type":"module"}');
@@ -23,7 +24,7 @@ async function fixture(action) {
     try { await cp(path.join(repo, 'examples/uulab-services/build-policy.mjs'), path.join(example, 'build-policy.mjs')); }
     catch (error) { if (error.code !== 'ENOENT') throw error; }
     await writeFile(path.join(example, 'src/render.js'), 'export const renderPage = () => "<main>Build fixture</main>";');
-    for (const entry of ['index.html', 'services/index.html']) {
+    for (const entry of ['index.html', 'services/index.html', 'home/index.html']) {
       await writeFile(path.join(example, entry), '<!doctype html><html><body><!-- uulab:page --></body></html>');
     }
     await writeFile(path.join(root, 'dist/other/keep.txt'), 'sibling');
@@ -46,7 +47,7 @@ test('clean rebuild removes stale demo files, preserves sibling output and emits
     assert.doesNotMatch(result.output.replace(/\u001b\[[0-9;]*m/g, ''), /outDir.*(?:outside|not inside)|outside of project root/i);
     await assert.rejects(readFile(path.join(root, 'dist/demo/stale.js')), { code: 'ENOENT' });
     assert.equal(await readFile(path.join(root, 'dist/other/keep.txt'), 'utf8'), 'sibling');
-    for (const entry of ['index.html', 'services/index.html']) {
+    for (const entry of ['index.html', 'services/index.html', 'home/index.html']) {
       assert.match(await readFile(path.join(root, 'dist/demo', entry), 'utf8'), /Build fixture/);
     }
   });

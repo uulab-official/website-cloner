@@ -1,0 +1,5 @@
+# Second authored clone: owned UULab homepage
+
+Recreate the user-owned https://uulab.co.kr/ at /home/ inside the existing Vite example. Preserve /services/ and its legacy / alias. Use the observed page's content and full section order, authored semantic markup and scoped CSS, not an iframe, screenshot or production JS bundle. Share the existing progressive header/menu/theme/scroll behavior; map home/services links locally and keep out-of-scope destinations on the original origin. All page text must render without JavaScript. Retain exact dependencies and existing asset licenses. No publishing to the production domain, form submissions or backend claims.
+
+Inspect fresh 1440/768/390 evidence; test no-JS content, local navigation, current-page semantics, storage/theme, mobile Escape/focus, keyboard and overflow. Compare source and production captures in matching environments. Record unimplemented motion, out-of-scope routes, any dynamic data drift and measured visual gaps rather than claiming complete parity.

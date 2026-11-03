@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Define scrollbar creation before external CSS; late rules can leave
+         Linux WebKit with a different layout viewport until a later load. -->
+    <style id="scrollbar-critical">
+      ::-webkit-scrollbar { width: 6px; }
+      ::-webkit-scrollbar-track { background: #f9fafb; }
+      ::-webkit-scrollbar-thumb { background: #2563eb; border-radius: 3px; }
+      ::-webkit-scrollbar-thumb:hover { background: #1d4ed8; }
+    </style>
+    <meta name="description" content="유유랩은 웹 서비스 구축, 브라우저 AI 도구, 실시간 상호작용 제품, 데이터 시각화 경험을 설계하고 개발합니다.">
+    <meta name="robots" content="noindex">
+    <meta name="theme-color" content="#2563eb">
+    <title>유유랩 | 웹 개발, AI 프로토타이핑, 디지털 제품 포트폴리오</title>
+    <link rel="icon" href="/assets/logo.png" type="image/png">
+    <script>
+      try {
+        const dark = localStorage.getItem('theme') === 'dark';
+        document.documentElement.classList.toggle('dark', dark);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+      } catch { /* The default light theme also works without storage access. */ }
+    </script>
+    <link rel="stylesheet" href="/assets/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/src/styles.css">
+    <link rel="stylesheet" href="/src/home.css">
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <!-- uulab:home -->
+  </body>
+</html>

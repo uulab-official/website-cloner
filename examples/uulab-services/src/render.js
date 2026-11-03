@@ -1,3 +1,4 @@
+import { renderHomeMain } from './home-render.js';
 import {
   sourceOrigin, navigation, hero, services, serviceScope, deliverableLabels,
   deliverables, technologies, processSteps, projects, questions, footerLinks, legalLinks,
@@ -6,13 +7,13 @@ import {
 const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
 })[character]);
-const href = (path) => path === '/services/' ? path : `${sourceOrigin}${path}`;
+const href = (path) => path === '/' ? '/home/' : path === '/services/' ? path : `${sourceOrigin}${path}`;
 const icon = (name, extraClass = '') => `<i class="fas fa-${escapeHtml(name)} ${extraClass}" aria-hidden="true"></i>`;
-const link = ({ label, path }, className = '') => `<a href="${href(path)}"${className ? ` class="${className}"` : ''}${path === '/services/' ? ' aria-current="page"' : ''}>${escapeHtml(label)}</a>`;
+const link = ({ label, path }, className = '', currentPage = 'services') => `<a href="${href(path)}"${className ? ` class="${className}"` : ''}${path === (currentPage === 'home' ? '/' : '/services/') ? ' aria-current="page"' : ''}>${escapeHtml(label)}</a>`;
 
 // These small control SVG paths are the observed source icons, kept as SVG so
 // their shape and dimensions remain consistent without adding an icon package.
-const sunPath = 'M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z';
+const sunPath = 'M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414 1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z';
 
 function themeButton(id, mobile = false) {
   return `<button type="button" id="${id}" class="theme-toggle${mobile ? ' theme-toggle--mobile' : ''}" aria-label="다크모드 토글" aria-pressed="false" data-theme-toggle hidden>
@@ -21,15 +22,15 @@ function themeButton(id, mobile = false) {
   </button>`;
 }
 
-function navigationMarkup() {
+function navigationMarkup(currentPage = 'services') {
   return `<a class="skip-link" href="#main-content">본문 바로가기</a>
   <div class="particles" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
   <header class="navbar" id="navigation">
     <div class="container navbar-container">
       <nav class="navbar-row" aria-label="주요 탐색">
-        <a class="brand" href="${sourceOrigin}/"><img src="/assets/logo.png" alt="유유랩 로고" width="40" height="40"><span>유유랩</span></a>
+        <a class="brand" href="/home/"><img src="/assets/logo.png" alt="유유랩 로고" width="40" height="40"><span>유유랩</span></a>
         <div class="desktop-navigation">
-          <div class="navigation-links">${navigation.map((item) => link(item, 'nav-link')).join('\n')}</div>
+          <div class="navigation-links">${navigation.map((item) => link(item, 'nav-link', currentPage)).join('\n')}</div>
           ${themeButton('darkModeToggle')}
           <a class="button" href="${sourceOrigin}/contact/">${icon('paper-plane')}문의하기</a>
         </div>
@@ -41,7 +42,7 @@ function navigationMarkup() {
         </div>
       </nav>
       <nav id="mobile-navigation" class="mobile-navigation" aria-label="모바일 메뉴" aria-hidden="true" hidden inert>
-        ${[...navigation, { label: '문의하기', path: '/contact/' }].map((item) => link(item, 'nav-link-mobile')).join('\n')}
+        ${[...navigation, { label: '문의하기', path: '/contact/' }].map((item) => link(item, 'nav-link-mobile', currentPage)).join('\n')}
       </nav>
     </div>
   </header>`;
@@ -88,7 +89,7 @@ function projectMarkup(project) {
   </article>`;
 }
 
-function footerMarkup() {
+function footerMarkup(currentPage = 'services') {
   return `<footer class="site-footer">
     <div class="container footer-content">
       <div class="footer-grid">
@@ -97,20 +98,28 @@ function footerMarkup() {
           <p class="footer-description">공개 웹 서비스와 브라우저 기반 도구를 직접 만들며,<br>실제 화면과 운영 기록으로 설명 가능한 제품을 쌓아갑니다.</p>
           <a class="github-link" href="https://github.com/uulab-official" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><i class="fab fa-github" aria-hidden="true"></i></a>
         </div>
-        <div><h2>바로가기</h2><nav class="footer-navigation" aria-label="바로가기">${footerLinks.map((item) => link(item)).join('\n')}</nav></div>
+        <div><h2>바로가기</h2><nav class="footer-navigation" aria-label="바로가기">${footerLinks.map((item) => link(item, '', currentPage)).join('\n')}</nav></div>
         <div><h2>연락처</h2>
           <div class="contact-email">${icon('envelope')}<a href="mailto:uulab.official@gmail.com">uulab.official@gmail.com</a></div>
           <div class="business-details"><p>대표 최태호</p><p>사업자등록번호 345-08-03022</p><p>사업장 소재지 경기도 성남시 중원구 둔촌대로 154</p><a href="${sourceOrigin}/terms/">사업자 정보 보기</a></div>
         </div>
       </div>
       <hr>
-      <div class="footer-bottom"><p>© 2026 유유랩. 모든 권리 보유.</p><nav class="legal-links" aria-label="법적 고지">${legalLinks.map((item) => link(item)).join('\n')}</nav></div>
+      <div class="footer-bottom"><p>© 2026 유유랩. 모든 권리 보유.</p><nav class="legal-links" aria-label="법적 고지">${legalLinks.map((item) => link(item, '', currentPage)).join('\n')}</nav></div>
     </div>
   </footer>`;
 }
 
 /** Called by the Vite HTML transform, never by the browser. */
-export function renderPage() {
+export function renderPage({ page = 'services' } = {}) {
+  if (page !== 'home' && page !== 'services') throw new Error('Unknown example page');
+  if (page === 'home') return `${navigationMarkup('home')}
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true" hidden></div>
+    ${renderHomeMain(projects.map(projectMarkup).join('\n'))}
+    ${footerMarkup('home')}
+    <button id="backToTopButton" class="back-to-top" type="button" aria-label="맨 위로" hidden>
+      <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+    </button>`;
   return `${navigationMarkup()}
   <div class="scroll-progress" data-scroll-progress aria-hidden="true" hidden></div>
   <main id="main-content" tabindex="-1">

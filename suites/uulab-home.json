@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sourceOrigin": "https://uulab.co.kr",
+  "targetOrigin": "http://127.0.0.1:4173",
+  "defaults": { "widths": [1440, 768, 390], "height": 900 },
+  "cases": [
+    { "id": "home", "path": "/", "targetPath": "/home/" },
+    { "id": "home-menu", "path": "/", "targetPath": "/home/", "state": "menu-open", "widths": [390], "sourceActions": "../docs/case-studies/uulab-services/evidence/actions/menu.json", "targetActions": "../docs/case-studies/uulab-services/evidence/actions/menu.json" },
+    { "id": "home-questions", "path": "/", "targetPath": "/home/", "state": "questions", "widths": [1440, 390], "keepScroll": true, "sourceActions": "../docs/case-studies/uulab-home/evidence/actions/questions-source.json", "targetActions": "../docs/case-studies/uulab-home/evidence/actions/questions-target.json" }
+  ]
+}
