@@ -1,0 +1,70 @@
+name: Homepage clone
+on:
+  workflow_dispatch:
+  push:
+    branches: [work/home-clone]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Owned homepage reference
+        run: |
+          mkdir -p artifacts/home-clone
+          node scripts/capture.mjs --url https://uulab.co.kr/ --widths 1440,768,390 --height 900 --out artifacts/home-clone/source
+          node --input-type=module <<'NODE'
+          import { chromium } from 'playwright';
+          import { writeFile } from 'node:fs/promises';
+          const browser = await chromium.launch();
+          const page = await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'reduce'});
+          await page.goto('https://uulab.co.kr/',{waitUntil:'networkidle'});
+          await page.evaluate(()=>document.fonts.ready);
+          const source = await page.evaluate(()=>({title:document.title,main:document.querySelector('main').outerHTML,styles:[...document.querySelectorAll('link[rel="stylesheet"]')].map(e=>e.href)}));
+          await writeFile('artifacts/home-clone/reference.json',JSON.stringify(source,null,2));
+          const properties = ['display','position','padding','margin','gap','gridTemplateColumns','flexDirection','justifyContent','alignItems','maxWidth','width','height','fontSize','fontWeight','lineHeight','letterSpacing','color','backgroundColor','backgroundImage','border','borderRadius','boxShadow','textAlign'];
+          for (const width of [1440,768,390]) {
+            await page.setViewportSize({width,height:900});
+            const rows=await page.evaluate(properties=>[...document.querySelectorAll('main *')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return {tag:e.tagName,classes:e.className,id:e.id,text:e.children.length?null:e.textContent,rect:{x:r.x,y:r.y,width:r.width,height:r.height},style:Object.fromEntries(properties.map(k=>[k,s[k]]))}}),properties);
+            await writeFile(`artifacts/home-clone/measured-${width}.json`,JSON.stringify(rows,null,2));
+          }
+          await browser.close();
+          NODE
+      - name: Repository gate and authored home tests
+        if: ${{ hashFiles('tests/home-clone.test.mjs') != '' }}
+        run: |
+          set -o pipefail
+          npm run check 2>&1 | tee artifacts/home-clone/check.log
+          for engine in chromium firefox webkit; do
+            CLONER_TEST_BROWSER=$engine node --test tests/home-browser.test.mjs 2>&1 | tee artifacts/home-clone/home-$engine.log
+          done
+      - name: New source and production comparison
+        if: ${{ hashFiles('suites/uulab-home.json') != '' }}
+        run: |
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/home-clone/preview.log 2>&1 &
+          server=$!
+          trap 'kill $server || true' EXIT
+          for attempt in $(seq 1 50); do curl -fsS http://127.0.0.1:4173/home/ > /dev/null && break || sleep 0.2; done
+          node scripts/verify-suite.mjs --manifest suites/uulab-home.json --out artifacts/home-clone/comparison
+      - name: Evidence and text snapshot without font files
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/home-clone/commit.txt
+          tar --exclude='*.woff' --exclude='*.woff2' --exclude='*.ttf' --exclude='*.otf' --exclude='*.ttc' -czf artifacts/home-clone/code.tar.gz AGENTS.md package.json scripts tests suites examples docs .github README.md
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: home-clone-${{ github.sha }}
+          path: artifacts/home-clone
+          retention-days: 14
