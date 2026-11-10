@@ -1,0 +1,35 @@
+{
+  "baseCommit": "9ea7c49c5572025748972b708ff6f438493650c4",
+  "verifiedCommit": "f8da8ad94034d36f506651243653ed0c68c5fa45",
+  "runId": 42767392135,
+  "comparedViewportPairs": 72,
+  "finalViewportConditions": 36,
+  "exactRgbaCrosschecksPassed": 72,
+  "fullRepositoryGate": {"toolAndChromiumTests":641,"buildTests":7,"productionTests":10,"totalPassed":658,"failed":0,"cancelled":0,"skipped":0,"todo":0},
+  "behaviorChecks": [
+    {"engine":"chromium","version":"151.0.7922.34","passed":62,"failed":0,"cancelled":0,"skipped":0,"todo":0},
+    {"engine":"firefox","version":"153.0","passed":62,"failed":0,"cancelled":0,"skipped":0,"todo":0},
+    {"engine":"webkit","version":"26.5","passed":62,"failed":0,"cancelled":0,"skipped":0,"todo":0}
+  ],
+  "sourceViewportBytesUnchanged": {"unchanged":33,"total":36,"exceptions":["chromium/dark/home-dark/768","webkit/light/home/768","webkit/light/home-menu/390"]},
+  "lightTargetViewportBytesUnchanged": {"unchanged":18,"total":18},
+  "questionRegionPercentages": [
+    {"engine":"chromium","width":1440,"tolerantBefore":47.448457,"tolerantAfter":0.004630,"exactBefore":98.378858,"exactAfter":0.379938,"sourceBytesUnchanged":true},
+    {"engine":"chromium","width":390,"tolerantBefore":19.814245,"tolerantAfter":0.016809,"exactBefore":94.837892,"exactAfter":0.460684,"sourceBytesUnchanged":true},
+    {"engine":"firefox","width":1440,"tolerantBefore":48.601235,"tolerantAfter":0.005015,"exactBefore":98.114043,"exactAfter":0.473765,"sourceBytesUnchanged":true},
+    {"engine":"firefox","width":390,"tolerantBefore":18.696866,"tolerantAfter":0.018519,"exactBefore":92.781481,"exactAfter":0.553276,"sourceBytesUnchanged":true},
+    {"engine":"webkit","width":1440,"tolerantBefore":48.185880,"tolerantAfter":0.005015,"exactBefore":97.700000,"exactAfter":0.470293,"sourceBytesUnchanged":true},
+    {"engine":"webkit","width":390,"tolerantBefore":18.726781,"tolerantAfter":0.010256,"exactBefore":91.128205,"exactAfter":0.518803,"sourceBytesUnchanged":true}
+  ],
+  "mobileFullPageDimensions": [
+    {"engine":"chromium","requestedWidth":390,"pngWidth":390,"sourceHeight":18129,"targetHeight":18137},
+    {"engine":"firefox","requestedWidth":390,"pngWidth":390,"sourceHeight":18155,"targetHeight":18163},
+    {"engine":"webkit","requestedWidth":390,"pngWidth":384,"sourceHeight":18181,"targetHeight":18217}
+  ],
+  "fullPagePixelComparison": "not_performed",
+  "visualGate": "not_requested",
+  "functionalParity": "not_verified",
+  "physicalDevicesVerified": false,
+  "independentCodeReview": false,
+  "note": "Values are screenshot differences, not a quality score. Behavior tests are repeated across engines and not additional unique test cases. Full-page sizes were recorded without resizing."
+}
