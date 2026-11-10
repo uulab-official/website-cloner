@@ -7,76 +7,74 @@ permissions:
   contents: read
 jobs:
   verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          fetch-depth: 0
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 22
           cache: npm
       - run: mkdir -p artifacts/home-theme
       - run: npm ci
-      - run: npx playwright install --with-deps chromium firefox webkit
+      - name: Install selected browser and dependencies
+        timeout-minutes: 6
+        run: npx playwright install --with-deps ${{ matrix.browser }}
       - run: sudo apt-get install -y fonts-noto-cjk
-      - name: Deterministic repository and browser checks
+        timeout-minutes: 3
+      - name: Full repository gate
+        if: matrix.browser == 'chromium'
         run: |
           set -o pipefail
           npm run check 2>&1 | tee artifacts/home-theme/check.log
-          npm run check:browsers -- --out artifacts/home-theme/browsers 2>&1 | tee artifacts/home-theme/browsers.log
-      - name: Same-engine owned-source theme comparisons
+      - name: Same authored behavior checks in selected engine
         run: |
           set -o pipefail
-          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/home-theme/preview.log 2>&1 &
-          server=$!
-          trap 'kill $server || true' EXIT
-          for attempt in $(seq 1 50); do curl -fsS http://127.0.0.1:4173/home/ > /dev/null && break || sleep 0.2; done
-          node --input-type=module <<'NODE'
-          import { readFile, writeFile } from 'node:fs/promises';
-          import path from 'node:path';
-          const root=path.resolve('artifacts/home-theme');
-          const toggle={type:'click',selector:'#darkModeToggle:visible, #darkModeToggleMobile:visible'};
-          for (const [name,actions] of Object.entries({dark:[toggle],menu:[toggle,{type:'click',selector:'.navbar-toggler'}],questionsSource:[toggle,{type:'scroll',selector:'[data-home-questions]'}],questionsTarget:[toggle,{type:'scroll',selector:'.home-questions'}]})) await writeFile(path.join(root,`${name}.json`),JSON.stringify(actions));
-          await writeFile(path.join(root,'dark-suite.json'),JSON.stringify({schemaVersion:1,sourceOrigin:'https://uulab.co.kr',targetOrigin:'http://127.0.0.1:4173',defaults:{widths:[1440,768,390],height:900},cases:[{id:'home-dark',path:'/',targetPath:'/home/',state:'site-dark',sourceActions:'dark.json',targetActions:'dark.json'},{id:'home-dark-menu',path:'/',targetPath:'/home/',state:'site-dark-menu',widths:[390],sourceActions:'menu.json',targetActions:'menu.json'},{id:'home-dark-questions',path:'/',targetPath:'/home/',state:'site-dark-questions',widths:[1440,390],keepScroll:true,sourceActions:'questionsSource.json',targetActions:'questionsTarget.json'}]},null,2));
-          NODE
+          npm run check:browsers -- --browsers ${{ matrix.browser }} --out artifacts/home-theme/browsers 2>&1 | tee artifacts/home-theme/browsers.log
+      - name: Fresh source comparisons before and after the scoped CSS repair
+        env:
+          ENGINE: ${{ matrix.browser }}
+        run: |
+          set -o pipefail
+          css=examples/uulab-services/src/home.css
+          git show HEAD:"$css" > artifacts/home-theme/final-home.css
+          restore() { cp artifacts/home-theme/final-home.css "$css"; }
+          server=''
+          trap 'restore; if [ -n "$server" ]; then kill "$server" || true; fi' EXIT
           failed=0
-          for engine in chromium firefox webkit; do
-            node scripts/verify-suite.mjs --manifest suites/uulab-home.json --browser "$engine" --out "artifacts/home-theme/light-$engine" > "artifacts/home-theme/light-$engine.log" 2>&1 || failed=1
-            node scripts/verify-suite.mjs --manifest artifacts/home-theme/dark-suite.json --browser "$engine" --out "artifacts/home-theme/dark-$engine" > "artifacts/home-theme/dark-$engine.log" 2>&1 || failed=1
+          for phase in baseline final; do
+            if [ "$phase" = baseline ]; then git show 9ea7c49c5572025748972b708ff6f438493650c4:"$css" > "$css"; else restore; fi
+            sha256sum "$css" > "artifacts/home-theme/$phase-css.sha256"
+            npm run build > "artifacts/home-theme/$phase-build.log" 2>&1
+            node node_modules/vite/bin/vite.js preview examples/uulab-services --outDir ../../dist/demo --host 127.0.0.1 --port 4173 --strictPort > "artifacts/home-theme/$phase-preview.log" 2>&1 &
+            server=$!
+            for attempt in $(seq 1 50); do curl -fsS http://127.0.0.1:4173/home/ > /dev/null && break || sleep 0.2; done
+            for theme in light dark; do
+              manifest=suites/uulab-home.json
+              if [ "$theme" = dark ]; then manifest=suites/uulab-home-dark.json; fi
+              node scripts/verify-suite.mjs --manifest "$manifest" --browser "$ENGINE" --out "artifacts/home-theme/$phase-$theme" > "artifacts/home-theme/$phase-$theme.log" 2>&1 || failed=1
+            done
+            kill "$server"; wait "$server" || true; server=''
           done
-          node --input-type=module <<'NODE'
-          import * as pw from 'playwright';
-          import assert from 'node:assert/strict';
-          import { writeFile } from 'node:fs/promises';
-          const properties=['display','color','backgroundColor','backgroundImage','borderColor','borderWidth','boxShadow','fontSize','fontWeight','lineHeight','letterSpacing','padding','margin','gap','filter','opacity','fill'];
-          for(const engine of ['chromium','firefox','webkit']) {
-            const browser=await pw[engine].launch();
-            try {
-              for(const width of [1440,390]) for(const [side,url] of [['source','https://uulab.co.kr/'],['target','http://127.0.0.1:4173/home/']]) {
-                const context=await browser.newContext({viewport:{width,height:900},colorScheme:'light',reducedMotion:'reduce',locale:'ko-KR',timezoneId:'Asia/Seoul'});
-                try {
-                  const page=await context.newPage();await page.goto(url,{waitUntil:'networkidle',timeout:45000});await page.evaluate(()=>document.fonts.ready);
-                  await page.locator('#darkModeToggle:visible, #darkModeToggleMobile:visible').click();
-                  await page.waitForFunction(()=>document.documentElement.classList.contains('dark'));
-                  const result=await page.evaluate(properties=>({url:location.href,title:document.title,dark:document.documentElement.classList.contains('dark'),width:innerWidth,clientWidth:document.documentElement.clientWidth,height:document.documentElement.scrollHeight,main:document.querySelector('main').outerHTML,rows:[...document.querySelectorAll('main, main *')].map(e=>{const s=getComputedStyle(e),r=e.getBoundingClientRect();return{tag:e.tagName,classes:typeof e.className==='string'?e.className:'',text:e.children.length?null:e.textContent.trim(),rect:{x:r.x,y:r.y,width:r.width,height:r.height},style:Object.fromEntries(properties.map(k=>[k,s[k]]))}})}),properties);
-                  assert.equal(result.dark,true);result.engine=engine;result.version=browser.version();result.capturedAt=new Date().toISOString();
-                  await writeFile(`artifacts/home-theme/measured-${engine}-${side}-${width}.json`,JSON.stringify(result,null,2));
-                } finally {await context.close();}
-              }
-            } finally {await browser.close();}
-          }
-          NODE
+          restore
+          git diff --exit-code -- "$css"
           exit "$failed"
       - name: Preserve logs and source snapshot without fonts
         if: always()
         run: |
           git rev-parse HEAD > artifacts/home-theme/commit.txt
+          printf '%s\n' '${{ matrix.browser }}' > artifacts/home-theme/engine.txt
           tar --exclude='*.woff' --exclude='*.woff2' --exclude='*.ttf' --exclude='*.otf' --exclude='*.ttc' --exclude='*.eot' -czf artifacts/home-theme/code.tar.gz AGENTS.md package.json scripts tests suites examples docs .github README.md
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
-          name: home-theme-${{ github.sha }}
+          name: home-theme-${{ matrix.browser }}-${{ github.sha }}
           path: artifacts/home-theme
           retention-days: 14

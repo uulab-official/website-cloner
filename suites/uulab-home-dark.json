@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sourceOrigin": "https://uulab.co.kr",
+  "targetOrigin": "http://127.0.0.1:4173",
+  "defaults": { "widths": [1440, 768, 390], "height": 900, "scheme": "light" },
+  "cases": [
+    { "id": "home-dark", "path": "/", "targetPath": "/home/", "state": "site-dark", "sourceActions": "../docs/case-studies/uulab-home/evidence/actions/dark.json", "targetActions": "../docs/case-studies/uulab-home/evidence/actions/dark.json" },
+    { "id": "home-dark-menu", "path": "/", "targetPath": "/home/", "state": "site-dark-menu", "widths": [390], "sourceActions": "../docs/case-studies/uulab-home/evidence/actions/dark-menu.json", "targetActions": "../docs/case-studies/uulab-home/evidence/actions/dark-menu.json" },
+    { "id": "home-dark-questions", "path": "/", "targetPath": "/home/", "state": "site-dark-questions", "widths": [1440, 390], "keepScroll": true, "sourceActions": "../docs/case-studies/uulab-home/evidence/actions/dark-questions-source.json", "targetActions": "../docs/case-studies/uulab-home/evidence/actions/dark-questions-target.json" }
+  ]
+}

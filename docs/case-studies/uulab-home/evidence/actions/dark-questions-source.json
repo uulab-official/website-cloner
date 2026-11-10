@@ -1,0 +1,4 @@
+[
+  { "type": "click", "selector": "#darkModeToggle:visible, #darkModeToggleMobile:visible" },
+  { "type": "scroll", "selector": "[data-home-questions]" }
+]
