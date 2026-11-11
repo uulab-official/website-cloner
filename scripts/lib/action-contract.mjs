@@ -8,14 +8,14 @@ function text(value, name, max = 2000, empty = false) {
 export function normalizeActions(actions) {
   if (!Array.isArray(actions) || actions.length > 50) throw new Error('Actions must be an array of at most 50 objects');
   return actions.map((action, index) => {
-    if (!action || typeof action !== 'object' || Array.isArray(action)) throw new Error(`Invalid action ${index}`);
+    if (!action || typeof action !== 'object' || Array.isArray(action)) throw new Error(`Invalid actions entry ${index}`);
     const keys = ['type', 'selector'];
     if (action.type === 'assert') {
       keys.push('check', 'timeoutMs');
-      if (!['visible', 'hidden', 'attribute'].includes(action.check)) throw new Error(`Invalid assertion check at action ${index}`);
+      if (!['visible', 'hidden', 'attribute'].includes(action.check)) throw new Error(`Invalid assertion check in actions entry ${index}`);
       if (action.check === 'attribute') keys.push('attribute', 'value');
-    } else if (!['click', 'scroll'].includes(action.type)) throw new Error(`Action ${index} type must be click, scroll or assert`);
-    if (Object.keys(action).some(key => !keys.includes(key))) throw new Error(`Unknown field in action ${index}`);
+    } else if (!['click', 'scroll'].includes(action.type)) throw new Error(`Actions entry ${index} type must be click, scroll or assert`);
+    if (Object.keys(action).some(key => !keys.includes(key))) throw new Error(`Unknown field in actions entry ${index}`);
     text(action.selector, 'Action selector');
     const result = { type: action.type, selector: action.selector };
     if (action.type === 'assert') {

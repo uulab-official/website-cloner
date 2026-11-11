@@ -22,13 +22,15 @@ jobs:
       - run: npx playwright install --with-deps chromium firefox webkit
       - run: sudo apt-get install -y fonts-noto-cjk
       - name: Complete repository gate
+        env:
+          CLONER_ASSERTION_EVIDENCE_DIR: artifacts/assertions/gate-fixtures
         run: set -o pipefail; npm run check 2>&1 | tee artifacts/assertions/check.log
       - name: Read-only assertions and invisible broken targets in three engines
         env:
           CAPTURE_TEST_BUNDLED_BROWSER: '1'
           CAPTURE_TEST_ENGINES: chromium,firefox,webkit
           CLONER_ASSERTION_EVIDENCE_DIR: artifacts/assertions/fixtures
-        run: set -o pipefail; node --test tests/action-assertions.test.mjs tests/assertion-pipeline.test.mjs 2>&1 | tee artifacts/assertions/assertion-tests.log
+        run: set -o pipefail; node --test tests/action-assertions.test.mjs tests/assertion-diagnostics.test.mjs tests/assertion-pipeline.test.mjs 2>&1 | tee artifacts/assertions/assertion-tests.log
       - name: Owned source and local clone with explicit state checks
         run: |
           set -o pipefail

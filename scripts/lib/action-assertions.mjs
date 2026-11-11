@@ -8,19 +8,23 @@ export async function runAssertion(page, input) {
   const started = performance.now(), timeoutMs = action.timeoutMs ?? 5000;
   const locator = page.locator(action.selector);
   let observed = { count: 0 }, error = null;
-  while (true) {
+  let first = true;
+  while (first || performance.now() - started < timeoutMs) {
+    first = false;
     try {
       const count = await locator.count();
-      observed = { count };
+      const sample = { count };
+      if (count !== 1) observed = sample;
       if (count > 1) { error = 'Assertion selector is ambiguous; exactly one element is required'; break; }
       if (count === 1) {
         if (action.check === 'attribute') {
           const value = await locator.getAttribute(action.attribute, { timeout: Math.max(1, timeoutMs - (performance.now() - started)) });
-          observed.value = value === null ? null : value.slice(0, 2000);
-          observed.truncated = value !== null && value.length > 2000;
-        } else observed.visible = await locator.isVisible();
+          sample.value = value === null ? null : value.slice(0, 2000);
+          sample.truncated = value !== null && value.length > 2000;
+        } else sample.visible = await locator.isVisible();
         // Missing selectors never pass hidden checks. Recheck after reading to catch detach/duplication.
-        observed.count = await locator.count();
+        sample.count = await locator.count();
+        observed = sample; // Commit only a complete read; keep prior evidence on transport failure.
         if (assertionMatches(action, observed)) return { status: 'passed', observed, durationMs: Math.round(performance.now() - started) };
       }
     } catch (cause) {
