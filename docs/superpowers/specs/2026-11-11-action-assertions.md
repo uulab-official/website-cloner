@@ -1,0 +1,7 @@
+# Explicit UI state assertions
+
+Continue the existing local clone workflow without changing the authored example or dependencies. Extend action JSON with read-only `assert` steps (`check: visible | hidden | attribute`). Require exactly one attached element, including hidden assertions, to prevent missing selectors from passing. Attribute checks use exact strings (empty string is valid); no regex/eval/HTML execution. Default deadline 5000 ms, optional integer timeoutMs 1..10000. Selectors and values remain bounded, action lists remain <=50 and files <=100000 bytes.
+
+All capture, paired verification, suite and preparation validators share the same contract. Portable action snapshots must retain all expectation fields. Captures record expected steps and actual observations; failed assertions fail capture and downstream preparation/comparison. Observation and comparison must reject contradictory successful assertion records. Legacy click/scroll files remain accepted. Checks run at their position in the sequence, not as a continuous invariant or proof of full functionality. Visible means Playwright visibility, not viewport intersection, accessibility or lack of occlusion.
+
+No new automated submissions, navigation, downloads, secrets, third-party forms or production changes. No automatic assertion discovery. Existing screenshots, pixel algorithms, source CSS/JS and dependencies remain unchanged. A new opt-in example records asserted menu/FAQ/theme state using explicitly owned source and local implementation selectors.

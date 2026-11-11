@@ -1,3 +1,4 @@
+import { assertActionResults } from './action-contract.mjs';
 import { lstat, mkdir, readFile, realpath, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
@@ -125,7 +126,7 @@ export async function readObservations(capture) {
     if (p.environment?.browser !== m.browser || p.environment?.browserVersion !== m.browserVersion) fail(`${id} browser/version disagrees with manifest`);
     if (p.viewport?.width !== width || p.viewport?.height !== m.height || p.viewport?.deviceScaleFactor !== 1) fail(`${id} viewport disagrees with manifest`);
     if (p.mainDocumentHttpError || p.navigation?.status >= 400) fail(`${id} completed page contains a failed HTTP navigation`);
-    if (list(p.actions, 'actions', 50).some(a => a.status !== 'completed')) fail(`${id} capture contains an incomplete/failed action`);
+    assertActionResults(list(p.actions, 'actions', 50));
     url(p.finalUrl, 'finalUrl'); text(p.title, 'title');
     integer(p.document?.width, 'document width', 65535); integer(p.document?.height, 'document height', 65535);
     if (p.document.width * p.document.height > 100_000_000) fail('Document image dimensions exceed capture limits');

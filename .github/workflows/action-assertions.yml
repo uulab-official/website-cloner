@@ -1,0 +1,52 @@
+name: Explicit UI state assertions
+on:
+  workflow_dispatch:
+  push:
+    branches: ['work/ui-state-assertions']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: npm
+      - run: mkdir -p artifacts/assertions
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: sudo apt-get install -y fonts-noto-cjk
+      - name: Complete repository gate
+        run: set -o pipefail; npm run check 2>&1 | tee artifacts/assertions/check.log
+      - name: Read-only assertions and invisible broken targets in three engines
+        env:
+          CAPTURE_TEST_BUNDLED_BROWSER: '1'
+          CAPTURE_TEST_ENGINES: chromium,firefox,webkit
+          CLONER_ASSERTION_EVIDENCE_DIR: artifacts/assertions/fixtures
+        run: set -o pipefail; node --test tests/action-assertions.test.mjs tests/assertion-pipeline.test.mjs 2>&1 | tee artifacts/assertions/assertion-tests.log
+      - name: Owned source and local clone with explicit state checks
+        run: |
+          set -o pipefail
+          npm run preview -- --host 127.0.0.1 --port 4173 --strictPort > artifacts/assertions/preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill "$PREVIEW_PID" 2>/dev/null || true' EXIT
+          node --input-type=module -e 'for(let i=0;i<60;i++){try{const r=await fetch("http://127.0.0.1:4173/home/");if(r.ok)process.exit(0)}catch{}await new Promise(r=>setTimeout(r,250))}process.exit(1)'
+          npm run verify:suite -- --manifest suites/uulab-asserted-states.json --out artifacts/assertions/live 2>&1 | tee artifacts/assertions/live.log
+      - name: Record exact revision and reviewable code
+        if: always()
+        run: |
+          git rev-parse HEAD > artifacts/assertions/commit.txt
+          node --version > artifacts/assertions/node.txt
+          git diff --stat > artifacts/assertions/working-tree.txt
+          tar -czf artifacts/assertions/code.tar.gz scripts tests suites .github/workflows/action-assertions.yml docs/action-assertions.md docs/examples/assertions docs/superpowers/specs/2026-11-11-action-assertions.md docs/superpowers/plans/2026-11-11-action-assertions.md
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: ui-assertions-${{ github.sha }}
+          path: artifacts/assertions
+          retention-days: 14

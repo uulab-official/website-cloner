@@ -1,0 +1,5 @@
+[
+  {"type":"click","selector":"details:first-of-type summary"},
+  {"type":"assert","selector":"details:first-of-type","check":"attribute","attribute":"open","value":""},
+  {"type":"scroll","selector":"details:first-of-type"}
+]

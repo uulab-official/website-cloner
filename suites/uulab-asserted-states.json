@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "sourceOrigin": "https://uulab.co.kr",
+  "targetOrigin": "http://127.0.0.1:4173",
+  "defaults": {"widths": [390], "height": 900, "scheme": "light"},
+  "cases": [
+    {"id":"home-menu","path":"/","targetPath":"/home/","state":"asserted-dark-menu","sourceActions":"../docs/examples/assertions/home-source.json","targetActions":"../docs/examples/assertions/home-target.json"},
+    {"id":"services-faq","path":"/services/","state":"asserted-faq","widths":[1440,390],"keepScroll":true,"sourceActions":"../docs/examples/assertions/faq.json","targetActions":"../docs/examples/assertions/faq.json"}
+  ]
+}

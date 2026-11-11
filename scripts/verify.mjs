@@ -6,6 +6,7 @@ import path from 'node:path';
 import { captureBrowserOptions } from './lib/browser-check.mjs';
 import { parseOptions, httpUrl, positiveInteger, ratio, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
+import { normalizeActions } from './lib/action-contract.mjs';
 import { assessPair, renderReport } from './lib/verification.mjs';
 
 const scripts = path.dirname(fileURLToPath(import.meta.url));
@@ -18,8 +19,8 @@ write verification.json plus a script-free index.html with local PNG evidence.
   --height NUMBER            Viewport height (default 900; dimensions 1..8192)
   --scheme light|dark        Preferred scheme (default light)
   --state LABEL              Shared state label (default default)
-  --source-actions FILE      Source click/scroll JSON, using source selectors
-  --target-actions FILE      Target click/scroll JSON, using target selectors
+  --source-actions FILE      Source click/scroll/assert JSON, using source selectors
+  --target-actions FILE      Target click/scroll/assert JSON, using target selectors
   --keep-scroll              Preserve scroll after actions on both pages
   --browser NAME             chromium (default), firefox or webkit for BOTH sides
   --executable-path FILE     Explicit Chromium executable for both captures (Chromium only)
@@ -67,7 +68,7 @@ async function main(argv) {
     if (!options[key]) continue;
     const metadata = await stat(options[key]);
     if (!metadata.isFile() || metadata.size > 100000) throw new Error(`--${key} must be a JSON file smaller than 100 KB`);
-    JSON.parse(await readFile(options[key], 'utf8'));
+    normalizeActions(JSON.parse(await readFile(options[key], 'utf8')));
   }
   const out = await prepareOutputDirectory(options.out, { overwrite: options.overwrite, tool: 'verify', protectedPaths });
   const report = { schemaVersion: 1, tool: 'website-cloner/verify', createdAt: new Date().toISOString(), status: 'running',

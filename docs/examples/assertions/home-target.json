@@ -1,0 +1,7 @@
+[
+  {"type":"click","selector":"#darkModeToggle:visible, #darkModeToggleMobile:visible"},
+  {"type":"assert","selector":"html","check":"attribute","attribute":"data-theme","value":"dark"},
+  {"type":"click","selector":".navbar-toggler"},
+  {"type":"assert","selector":"#mobile-navigation","check":"visible"},
+  {"type":"assert","selector":".navbar-toggler","check":"attribute","attribute":"aria-expanded","value":"true"}
+]

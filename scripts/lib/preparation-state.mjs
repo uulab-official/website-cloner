@@ -1,3 +1,4 @@
+import { normalizeActions, assertActionResults } from './action-contract.mjs';
 import { lstat, mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
@@ -23,15 +24,9 @@ async function actionSnapshot(filename, relativePath) {
   const bytes = await regularBytes(path.resolve(filename), 100000);
   let actions;
   try { actions = JSON.parse(bytes.toString('utf8')); } catch { throw new Error('Actions must contain valid JSON'); }
-  if (!Array.isArray(actions) || actions.length > 50) throw new Error('Actions must contain at most 50 click/scroll objects');
-  for (const action of actions) {
-    if (!action || typeof action !== 'object' || Array.isArray(action)
-      || Object.keys(action).some(key => !['type', 'selector'].includes(key))
-      || !['click', 'scroll'].includes(action.type)) throw new Error('Actions must contain only type (click or scroll) and selector');
-    label(action.selector, 'action selector', 2000);
-  }
-  // Canonical bytes are what capture reads and what the portable suite references.
-  const content = `${JSON.stringify(actions.map(({ type, selector }) => ({ type, selector })), null, 2)}\n`;
+  actions = normalizeActions(actions);
+  // Preserve every expected state field in portable canonical bytes.
+  const content = `${JSON.stringify(actions, null, 2)}\n`;
   if (Buffer.byteLength(content) > 100000) throw new Error('Canonical actions snapshot exceeds the 100000 byte capture size limit');
   return { path: relativePath, content, actions, sha256: hash(content), count: actions.length };
 }
@@ -85,9 +80,6 @@ export async function assertPreparationState(out, report, plan) {
     if (hash(bytes) !== report.evidence.pages[index].sha256) throw new Error('Capture page changed after validation');
     const page = JSON.parse(bytes);
     if ((page.scrollState?.keepScroll ?? false) !== plan.keepScroll) throw new Error('Page keepScroll does not match request');
-    if (!Array.isArray(page.actions) || page.actions.length !== expected.length
-      || page.actions.some((action, i) => action.status !== 'completed' || action.type !== expected[i].type || action.selector !== expected[i].selector)) {
-      throw new Error('Capture actions do not match requested order, selectors or completion');
-    }
+    assertActionResults(page.actions, expected);
   }
 }

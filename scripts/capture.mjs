@@ -4,6 +4,8 @@ import path from 'node:path';
 import { captureBrowserOptions } from './lib/browser-check.mjs';
 import { httpUrl, parseOptions, positiveInteger, safeError } from './lib/cli.mjs';
 import { prepareOutputDirectory, writeJson } from './lib/output.mjs';
+import { normalizeActions } from './lib/action-contract.mjs';
+import { runAssertion } from './lib/action-assertions.mjs';
 import { collectMediaEvidence } from './lib/media-evidence.mjs';
 import { collectDomEvidence } from './lib/page-evidence.mjs';
 import { normalizeAnimations, revealLazyMedia, scrollPosition, settleResources } from './lib/settle.mjs';
@@ -19,7 +21,7 @@ Options:
   --height NUMBER           Viewport height (default: 900)
   --scheme light|dark       Preferred color scheme (default: light)
   --state LABEL             Evidence state label (default: default)
-  --actions FILE            Local JSON array of click/scroll actions
+  --actions FILE            Local JSON array of click/scroll/assert steps
   --keep-scroll             Preserve the scroll position after supplied actions
   --browser NAME            chromium (default), firefox or webkit
   --executable-path FILE    Explicit alternative Chromium executable (Chromium only)
@@ -28,7 +30,10 @@ Options:
 
 Widths and height must be from 1 to 8192; at most 10 widths are allowed.
 Actions: [{"type":"click","selector":"#menu"},{"type":"scroll","selector":"footer"}]
-Only those two action types are accepted; there is no arbitrary JavaScript action.
+Assertions: {type: 'assert', selector: '#menu', check: 'visible'|'hidden'|'attribute'}.
+Attribute checks also require attribute and value strings. Optional timeoutMs: 1..10000
+(default 5000). Every assertion requires one attached element; missing is NOT hidden.
+Only declared checks run; no arbitrary JavaScript or whole-site functional approval.
 Outputs: capture.json and WIDTHxHEIGHT/{page.json,viewport.png,full-page.png}.
 Viewport screenshots return to the top after actions unless --keep-scroll is used.
 The actual capture scroll position and action scroll positions are recorded.
@@ -58,16 +63,7 @@ async function loadActions(filename) {
   if (!metadata.isFile() || metadata.size > 100_000) throw new Error('--actions must be a local JSON file smaller than 100 KB');
   let actions;
   try { actions = JSON.parse(await readFile(filename, 'utf8')); } catch { throw new Error('--actions must contain valid JSON'); }
-  if (!Array.isArray(actions) || actions.length > 50) throw new Error('--actions must be an array of at most 50 action objects');
-  for (const [index, action] of actions.entries()) {
-    if (!action || typeof action !== 'object' || Array.isArray(action)
-      || !['click', 'scroll'].includes(action.type)
-      || typeof action.selector !== 'string' || !action.selector.trim() || action.selector.length > 2000
-      || Object.keys(action).some((key) => key !== 'type' && key !== 'selector')) {
-      throw new Error(`--actions entry ${index} must contain only type (click or scroll) and a nonempty selector`);
-    }
-  }
-  return actions;
+  return normalizeActions(actions);
 }
 
 function observeDiagnostics(page, record) {
@@ -146,7 +142,11 @@ async function captureWidth(browser, options, width, actions, out) {
       record.actions.push(result);
       try {
         if (action.type === 'click') await page.locator(action.selector).click({ timeout: 10_000 });
-        else await page.locator(action.selector).scrollIntoViewIfNeeded({ timeout: 10_000 });
+        else if (action.type === 'scroll') await page.locator(action.selector).scrollIntoViewIfNeeded({ timeout: 10_000 });
+        else {
+          result.assertion = await runAssertion(page, action);
+          if (result.assertion.status !== 'passed') throw new Error(result.assertion.error);
+        }
         await page.waitForLoadState('domcontentloaded', { timeout: 10_000 });
         result.scrollPosition = await scrollPosition(page);
         result.status = 'completed';

@@ -1,3 +1,4 @@
+import { assertActionResults } from './action-contract.mjs';
 import { validateExactPixels, formatPixelRatio, exactPixelSummary, zeroDifferenceWarning } from './exact-pixels.mjs';
 
 import { supportedBrowsers } from './browser-check.mjs';
@@ -27,6 +28,7 @@ export function assessPair(source, target, comparison, requestedMaxDiffRatio = c
         errors.push(`${label}: invalid or inconsistent layout viewport evidence`);
       }
     }
+    try { assertActionResults(record?.actions); } catch (error) { errors.push(`${label}: ${error.message}`); }
     if (record?.overflow?.horizontal === true) warnings.push(`${label}: horizontal content overflow=${record.overflow.horizontalPixels}px; inspect page.json`);
     for (const name of ['consoleErrors', 'pageErrors', 'requestFailures', 'failedResponses']) {
       if (record?.[name]?.length) warnings.push(`${label}: ${name}=${record[name].length}; inspect page.json`);

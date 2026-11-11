@@ -1,0 +1,6 @@
+[
+  {"type":"click","selector":"#darkModeToggle:visible, #darkModeToggleMobile:visible"},
+  {"type":"assert","selector":"html.dark","check":"visible"},
+  {"type":"click","selector":".navbar-toggler"},
+  {"type":"assert","selector":"nav > div > div:nth-of-type(2) > div > a:nth-of-type(3)","check":"visible"}
+]

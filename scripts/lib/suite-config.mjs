@@ -1,3 +1,4 @@
+import { normalizeActions } from './action-contract.mjs';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -109,12 +110,7 @@ export async function loadSuite(filename, overrides = {}) {
   const plan = normalizeSuite(input, { ...overrides, manifestPath });
   for (const actionFile of plan.protectedPaths.slice(1)) {
     const actions = await readJsonFile(actionFile, 100000, 'actions file');
-    if (!Array.isArray(actions) || actions.length > 50) throw new Error('actions must contain at most 50 click/scroll objects');
-    for (const action of actions) {
-      object(action, ['type', 'selector'], 'action');
-      if (!['click', 'scroll'].includes(action.type)) throw new Error('action type must be click or scroll');
-      label(action.selector, 'action selector', 2000);
-    }
+    normalizeActions(actions);
   }
   return plan;
 }
